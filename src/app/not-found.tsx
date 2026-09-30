@@ -15,20 +15,20 @@ export default function NotFound() {
       <div className="mt-7 flex flex-wrap justify-center gap-2.5">
         <Link
           href="/search"
-          className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-ink px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
         >
           <Search size={15} aria-hidden="true" />
           搜一下
         </Link>
         <Link
           href="/identify"
-          className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
         >
           我不知道它叫什么
         </Link>
         <Link
           href="/explore"
-          className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
         >
           逛图鉴
         </Link>

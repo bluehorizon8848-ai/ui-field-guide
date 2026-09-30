@@ -10,15 +10,18 @@
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify-content.mjs",
     "check": "npm run typecheck && npm run verify",
-    "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/download.mjs",
+    "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/download.mjs && node scripts/e2e/verify-sharecard.mjs && node scripts/e2e/mobile.mjs",
     "e2e:sweep": "node scripts/e2e/sweep.mjs",
     "e2e:interact": "node scripts/e2e/interact.mjs",
     "e2e:visual": "node scripts/e2e/visual.mjs",
     "e2e:download": "node scripts/e2e/download.mjs",
     "e2e:measure": "node scripts/e2e/measure-demos.mjs",
-    "e2e:crush": "node scripts/e2e/measure-crush.mjs"
+    "e2e:crush": "node scripts/e2e/measure-crush.mjs",
+    "e2e:sharecard": "node scripts/e2e/verify-sharecard.mjs",
+    "e2e:mobile": "node scripts/e2e/mobile.mjs"
   },
   "dependencies": {
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.469.0",
     "next": "15.1.6",
     "react": "19.0.0",

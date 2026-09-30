@@ -214,11 +214,12 @@ export function SidebarDemo() {
                   type="button"
                   onClick={() => setActive(it)}
                   aria-current={active === it ? 'page' : undefined}
+                  aria-label={open ? it : undefined}
                   title={it}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
+                  className={`flex min-h-[44px] w-full min-w-[44px] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
                     active === it
                       ? 'bg-[#EFEDE7] font-medium text-ink'
-                      : 'text-ink2 hover:bg-[#F2F0EB]'
+                      : 'text-ink2 hover:bg-[#F2F0EB] active:bg-[#EDEae3]'
                   }`}
                 >
                   <span className="h-4 w-4 shrink-0 rounded bg-[#D8D5CD]" aria-hidden="true" />
@@ -233,7 +234,7 @@ export function SidebarDemo() {
             <button
               type="button"
               onClick={() => setOpen((o) => !o)}
-              className="rounded-md px-2 py-1 text-xs text-ink2 transition-colors hover:bg-[#F2F0EB]"
+              className="-my-1.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-md px-2 text-xs text-ink2 transition-colors hover:bg-[#F2F0EB] active:bg-[#EDEae3]"
             >
               切换
             </button>
@@ -326,7 +327,7 @@ export function PaginationDemo() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             aria-label="上一页"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink disabled:pointer-events-none disabled:opacity-30"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink active:bg-[#EDEae3] disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronLeft size={16} aria-hidden="true" />
           </button>
@@ -366,7 +367,7 @@ export function PaginationDemo() {
             onClick={() => setPage((p) => Math.min(48, p + 1))}
             disabled={page === 48}
             aria-label="下一页"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink disabled:pointer-events-none disabled:opacity-30"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink active:bg-[#EDEae3] disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronRight size={16} aria-hidden="true" />
           </button>

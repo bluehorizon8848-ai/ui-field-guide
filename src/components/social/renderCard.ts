@@ -3,6 +3,9 @@ import type { UIPattern } from '@/data/types';
 /**
  * 分享卡片渲染（纯 Canvas 2D，无外部依赖）。
  * 设计取向：知识卡片，不是营销海报。留白大、字号层级强、只讲一件事。
+ *
+ * 关键约定：卡片中部是**真实 Demo 截图**（由 html-to-image 在运行时抓取），
+ * 不用简化重绘 —— 重绘既认不出是哪个组件，缩放后还会糊。
  */
 
 const C = {
@@ -10,7 +13,7 @@ const C = {
   surface: '#FFFFFF',
   ink: '#1A1917',
   ink2: '#4A4740',
-  muted: '#7A766D',
+  muted: '#6E6A61',
   line: '#E6E3DB',
   line2: '#F0EDE6',
   soft: '#F2F0EB',
@@ -70,257 +73,84 @@ function roundRect(
   h: number,
   r: number
 ) {
+  const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.moveTo(x + rr, y);
+  ctx.lineTo(x + w - rr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+  ctx.lineTo(x + w, y + h - rr);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+  ctx.lineTo(x + rr, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+  ctx.lineTo(x, y + rr);
+  ctx.quadraticCurveTo(x, y, x + rr, y);
   ctx.closePath();
 }
 
-/** 卡片中部的小型示意图（按 pattern 类型绘制） */
-function drawMini(
+/** 画一条圆角线（分隔用） */
+function hLine(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x, Math.round(y) + 0.5);
+  ctx.lineTo(x + w, Math.round(y) + 0.5);
+  ctx.stroke();
+}
+
+/**
+ * 把一张图片按「覆盖裁切」方式画进指定矩形，保持原图宽高比，不留白不变形。
+ * 这是解决「同一张图被压缩变形」的关键：不用 contain（会有letterbox），
+ * 也不用 stretch（会变形），而是按需裁掉溢出部分。
+ */
+function drawImageCover(
   ctx: CanvasRenderingContext2D,
-  pattern: UIPattern,
+  img: HTMLImageElement,
   x: number,
   y: number,
   w: number,
-  h: number
+  h: number,
+  radius: number
 ) {
+  const ir = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  if (!ir || !ih) return;
+
+  // 目标框的宽高比
+  const target = w / h;
+  const src = ir / ih;
+
   ctx.save();
-  ctx.translate(x, y);
+  roundRect(ctx, x, y, w, h, radius);
+  ctx.clip();
 
-  const s = Math.min(w / 240, h / 132);
-  ctx.scale(s, s);
-  const ox = (w / s - 240) / 2;
-  const oy = (h / s - 132) / 2;
-  ctx.translate(ox, oy);
-
-  const bar = (bx: number, by: number, bw: number, fill = C.line) => {
-    ctx.fillStyle = fill;
-    roundRect(ctx, bx, by, bw, 4, 2);
-    ctx.fill();
-  };
-  const rect = (bx: number, by: number, bw: number, bh: number, fill = C.soft, r = 4) => {
-    ctx.fillStyle = fill;
-    roundRect(ctx, bx, by, bw, bh, r);
-    ctx.fill();
-  };
-  const strokeRect = (
-    bx: number,
-    by: number,
-    bw: number,
-    bh: number,
-    color = C.line,
-    r = 6
-  ) => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.4;
-    roundRect(ctx, bx, by, bw, bh, r);
-    ctx.stroke();
-  };
-
-  const id = pattern.id;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  if (id === 'accordion' || id === 'collapsible') {
-    for (let i = 0; i < 3; i++) {
-      const y = 26 + i * 34;
-      bar(24, y, i === 0 ? 110 : 88, i === 0 ? C.ink : C.ink2);
-      if (i === 0) rect(24, y + 12, 192, 20, C.line2, 3);
-      ctx.strokeStyle = C.muted;
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(202, y + 2);
-      ctx.lineTo(208, y + 8);
-      ctx.lineTo(202, y + 14);
-      ctx.stroke();
-    }
-  } else if (id === 'modal' || id === 'dialog' || id === 'modal-stateful' || id === 'destructive-action') {
-    rect(20, 22, 200, 88, '#DEDBD3', 8);
-    rect(56, 38, 128, 58, C.surface, 8);
-    strokeRect(56, 38, 128, 58);
-    bar(72, 54, 76, C.ink);
-    bar(72, 70, 92, C.line);
-    rect(126, 80, 42, 10, C.ink, 3);
-  } else if (id === 'bottom-sheet') {
-    rect(20, 18, 200, 54, '#DEDBD3', 8);
-    rect(20, 66, 200, 50, C.surface, 12);
-    ctx.fillStyle = C.surface;
-    roundRect(ctx, 20, 66, 200, 20, 12);
-    ctx.fill();
-    rect(102, 72, 36, 4, C.line, 2);
-    bar(40, 86, 92, C.ink);
-    bar(40, 98, 64, C.line);
-  } else if (id === 'drawer') {
-    rect(20, 20, 200, 92, '#DEDBD3', 8);
-    rect(20, 20, 88, 92, C.surface, 8);
-    rect(84, 20, 24, 92, C.surface, 0);
-    bar(34, 36, 28, C.ink);
-    bar(34, 54, 56, C.line);
-    bar(34, 72, 44, C.line);
-    bar(34, 90, 32, C.line);
-  } else if (id === 'toast' || id === 'snackbar') {
-    rect(78, 20, 84, 26, C.ink, 6);
-    if (id === 'snackbar') {
-      rect(48, 62, 144, 40, C.surface, 6);
-      strokeRect(48, 62, 144, 40);
-      bar(62, 76, 74, C.ink);
-      bar(62, 88, 46, C.line);
-      rect(40, 112, 160, 26, C.ink, 6);
-    } else {
-      rect(48, 66, 144, 42, C.surface, 6);
-      strokeRect(48, 66, 144, 42);
-      bar(62, 80, 84, C.ink);
-      bar(62, 92, 56, C.line);
-    }
-  } else if (id === 'skeleton' || id === 'list') {
-    for (let i = 0; i < 3; i++) {
-      const y = 28 + i * 32;
-      rect(20, y, 200, 26, C.surface, 5);
-      strokeRect(20, y, 200, 26);
-      rect(26, y + 5, 16, 16, id === 'skeleton' ? C.line2 : C.soft, 3);
-      bar(50, y + 9, 70, id === 'skeleton' ? C.line2 : C.ink2);
-      bar(50, y + 17, 42, C.line2);
-    }
-  } else if (id === 'tabs' || id === 'segmented-control') {
-    bar(20, 34, 46, C.ink);
-    bar(76, 34, 40, C.line);
-    bar(126, 34, 52, C.line);
-    rect(20, 48, 200, 56, C.soft, 6);
-    bar(38, 62, 96, C.ink2);
-    bar(38, 78, 66, C.line);
-  } else if (id === 'switch' || id === 'checkbox' || id === 'radio') {
-    for (let i = 0; i < 2; i++) {
-      const y = 42 + i * 40;
-      bar(20, y, 84);
-      if (id === 'switch') {
-        rect(150, y - 10, 46, 26, i === 0 ? '#2C7355' : '#D8D5CD', 13);
-        ctx.fillStyle = C.surface;
-        ctx.beginPath();
-        ctx.arc(i === 0 ? 183 : 163, y + 3, 10, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.strokeStyle = C.muted;
-        ctx.lineWidth = 1.6;
-        if (id === 'radio') {
-          ctx.beginPath();
-          ctx.arc(30, y + 3, 9, 0, Math.PI * 2);
-          ctx.stroke();
-          if (i === 0) {
-            ctx.fillStyle = C.ink;
-            ctx.beginPath();
-            ctx.arc(30, y + 3, 4, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        } else {
-          roundRect(ctx, 21, y - 6, 18, 18, 4);
-          ctx.stroke();
-          if (i === 0) {
-            ctx.fillStyle = C.ink;
-            roundRect(ctx, 21, y - 6, 18, 18, 4);
-            ctx.fill();
-          }
-        }
-      }
-    }
-  } else if (id === 'slider' || id === 'progress-bar') {
-    rect(20, 62, 200, 6, C.line, 3);
-    rect(20, 62, 108, 6, C.ink, 3);
-    ctx.fillStyle = C.surface;
-    ctx.strokeStyle = C.ink;
-    ctx.lineWidth = 2.4;
-    ctx.beginPath();
-    ctx.arc(128, 65, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-  } else if (id === 'tabs-never' || id === 'empty-state' || id === 'error-state' || id === 'success-state') {
-    const tone = id === 'error-state' ? '#FAEDEC' : id === 'success-state' ? '#E6F2EC' : C.soft;
-    const mark = id === 'error-state' ? '#A8342C' : id === 'success-state' ? '#2C7355' : C.muted;
-    ctx.fillStyle = tone;
-    ctx.beginPath();
-    ctx.arc(120, 46, 22, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = mark;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    if (id === 'error-state') {
-      ctx.moveTo(120, 36);
-      ctx.lineTo(120, 48);
-      ctx.moveTo(120, 55);
-      ctx.lineTo(120, 56);
-    } else {
-      ctx.moveTo(110, 46);
-      ctx.lineTo(118, 54);
-      ctx.lineTo(131, 39);
-    }
-    ctx.stroke();
-    bar(78, 82, 84, C.ink);
-    bar(94, 98, 52, C.line);
-    rect(88, 110, 64, 16, C.ink, 4);
-  } else if (id === 'spinner') {
-    ctx.strokeStyle = C.line;
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(120, 60, 20, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.strokeStyle = C.ink;
-    ctx.beginPath();
-    ctx.arc(120, 60, 20, -Math.PI / 2, Math.PI * 2);
-    ctx.stroke();
-  } else if (id === 'tooltip') {
-    ctx.fillStyle = C.soft;
-    ctx.beginPath();
-    ctx.arc(56, 60, 18, 0, Math.PI * 2);
-    ctx.fill();
-    rect(80, 44, 88, 30, C.ink, 6);
-    ctx.fillStyle = C.surface;
-    ctx.beginPath();
-    ctx.moveTo(86, 44);
-    ctx.lineTo(94, 36);
-    ctx.lineTo(102, 44);
-    ctx.closePath();
-    ctx.fill();
-  } else if (id === 'fab') {
-    rect(20, 20, 160, 88, C.surface, 6);
-    strokeRect(20, 20, 160, 88);
-    bar(38, 40, 78);
-    bar(38, 58, 104, C.line);
-    ctx.fillStyle = C.ink;
-    ctx.beginPath();
-    ctx.arc(190, 88, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = C.surface;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(182, 88);
-    ctx.lineTo(198, 88);
-    ctx.moveTo(190, 80);
-    ctx.lineTo(190, 96);
-    ctx.stroke();
+  if (src > target) {
+    // 原图更宽：按高度铺满，裁掉左右
+    const drawW = ih * target;
+    const cropX = (ir - drawW) / 2;
+    ctx.drawImage(img, cropX, 0, drawW, ih, x, y, w, h);
   } else {
-    // 兜底：抽象块
-    rect(24, 26, 192, 80, C.surface, 8);
-    strokeRect(24, 26, 192, 80);
-    bar(44, 44, 80, C.ink);
-    bar(44, 62, 120, C.line);
-    bar(44, 80, 64, C.line);
+    // 原图更高或等比：按宽度铺满，裁掉上下（偏上，保留组件顶部）
+    const drawH = ir / target;
+    const cropY = (ih - drawH) * 0.28; // 28% 偏上，组件标题通常在顶部
+    ctx.drawImage(img, 0, cropY, ir, drawH, x, y, w, h);
   }
 
   ctx.restore();
+}
+
+export interface ShareCardImage {
+  /** 真实 Demo 截图 */
+  demo: HTMLImageElement | null;
+  /** 截图失败时的兜底提示 */
+  fallbackReason?: string;
 }
 
 export function drawShareCard(
   canvas: HTMLCanvasElement,
   pattern: UIPattern,
   W: number,
-  H: number
+  H: number,
+  image?: ShareCardImage
 ) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = W * dpr;
@@ -336,86 +166,167 @@ export function drawShareCard(
   ctx.fillStyle = C.canvas;
   ctx.fillRect(0, 0, W, H);
 
-  const pad = Math.round(W * 0.093);
+  const pad = Math.round(W * 0.085);
+  const innerW = W - pad * 2;
   let y = pad;
 
-  // 顶部标识
+  // ---------- 顶部标识 ----------
+  const badgeSize = Math.round(W * 0.052);
   ctx.fillStyle = C.ink;
-  roundRect(ctx, pad, y, 46, 46, 12);
+  roundRect(ctx, pad, y, badgeSize, badgeSize, badgeSize * 0.26);
   ctx.fill();
   ctx.fillStyle = C.canvas;
-  ctx.font = `600 17px ${SANS}`;
+  ctx.font = `600 ${Math.round(badgeSize * 0.37)}px ${SANS}`;
   ctx.textBaseline = 'middle';
-  ctx.fillText('UF', pad + 23, y + 24);
+  ctx.fillText('UF', pad + badgeSize / 2, y + badgeSize / 2);
 
   ctx.fillStyle = C.muted;
-  ctx.font = `400 12px ${MONO}`;
-  ctx.fillText('UI FIELD GUIDE', pad + 60, y + 16);
+  ctx.font = `500 ${Math.round(W * 0.0145)}px ${MONO}`;
+  ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 14, y + badgeSize * 0.38);
   ctx.fillStyle = C.ink2;
-  ctx.font = `500 12px ${SANS}`;
-  ctx.fillText('AI 独立开发者的 UI 词典', pad + 60, y + 34);
+  ctx.font = `500 ${Math.round(W * 0.0165)}px ${SANS}`;
+  ctx.fillText('AI 独立开发者的 UI 词典', pad + badgeSize + 14, y + badgeSize * 0.72);
 
-  y += 46 + 52;
+  y += badgeSize + Math.round(W * 0.055);
 
-  // 英文名（大）
+  // ---------- 英文名（大） ----------
+  const nameSize = Math.round(W * 0.108);
   ctx.fillStyle = C.ink;
-  ctx.font = `600 ${Math.round(W * 0.093)}px ${SANS}`;
-  const nameEnd = wrapText(ctx, pattern.name, pad, y, W - pad * 2, Math.round(W * 0.093) * 1.18, 2);
-  y = nameEnd + 10;
+  ctx.font = `600 ${nameSize}px ${SANS}`;
+  y = wrapText(ctx, pattern.name, pad, y, innerW, nameSize * 1.16, 2) + Math.round(W * 0.012);
 
-  // 中文名
+  // ---------- 中文名 ----------
+  const zhSize = Math.round(W * 0.045);
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${Math.round(W * 0.042)}px ${SANS}`;
-  y = wrapText(ctx, pattern.chineseName, pad, y, W - pad * 2, Math.round(W * 0.042) * 1.5, 2) + 6;
+  ctx.font = `400 ${zhSize}px ${SANS}`;
+  y = wrapText(ctx, pattern.chineseName, pad, y, innerW, zhSize * 1.45, 2) + Math.round(W * 0.026);
 
-  // 分类标签
+  // ---------- LEVEL 标签 ----------
   const tagText = `LEVEL ${pattern.level}`;
-  ctx.font = `500 12px ${MONO}`;
-  const tagW = ctx.measureText(tagText).width + 22;
+  const tagSize = Math.round(W * 0.0145);
+  ctx.font = `500 ${tagSize}px ${MONO}`;
+  const tagW = ctx.measureText(tagText).width + 24;
+  const tagH = Math.round(W * 0.032);
   ctx.fillStyle = C.soft;
-  roundRect(ctx, pad, y, tagW, 26, 13);
+  roundRect(ctx, pad, y, tagW, tagH, tagH / 2);
   ctx.fill();
   ctx.fillStyle = C.ink2;
-  ctx.fillText(tagText, pad + 11, y + 14);
-  y += 26 + 34;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(tagText, pad + 12, y + tagH / 2);
+  ctx.textBaseline = 'alphabetic';
+  y += tagH + Math.round(W * 0.042);
 
-  // 一句话解释
-  ctx.fillStyle = C.ink;
-  ctx.font = `400 ${Math.round(W * 0.045)}px ${SANS}`;
-  y = wrapText(ctx, `「${pattern.oneLine}」`, pad, y, W - pad * 2, Math.round(W * 0.045) * 1.7, 4) + 34;
+  // ---------- 真实 Demo 截图（卡片主体） ----------
+  // 高度完全由「剩余空间」驱动：先给底部区块留够，再把剩下的都给截图。
+  // 之前用固定最小值会撑破 1:1 卡片（底部溢出），这里改成先算底部实际占用。
+  const fitLabelSize = Math.round(W * 0.0145);
+  const fitSize = Math.round(W * 0.035);
+  const askSize = Math.round(W * 0.034);
+  const askH = Math.round(W * 0.105);
 
-  // 中部示意图
-  const previewH = Math.round((H - y - pad * 2) * 0.42);
+  // 底部区块 = 「适合」标签 + 2 行正文 + Ask AI 框 + 分隔线/站点名
+  const bottomReserve =
+    fitLabelSize * 1.7 + // 标签行
+    fitSize * 1.55 * 2 + // 正文两行
+    W * 0.03 + // 间距
+    askH + // Ask AI 框
+    W * 0.052 + // 间距
+    W * 0.022 + // 分隔线
+    W * 0.032; // 站点名基线
+
+  const availH = Math.max(H - y - bottomReserve, Math.round(innerW * 0.45));
+
+  // 理想比例 4:3，但在可用空间内浮动，并留出 45% 的下限保证不塌
+  const idealH = Math.round(innerW * 0.75);
+  const minH = Math.min(Math.round(innerW * 0.5), availH);
+  const shotH = Math.max(minH, Math.min(idealH, availH));
+
+  const shotX = pad;
+  const shotY = y;
+  const shotW = innerW;
+
+  // 截图底板
   ctx.fillStyle = C.surface;
-  roundRect(ctx, pad, y, W - pad * 2, previewH, 18);
+  roundRect(ctx, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
   ctx.fill();
+
+  if (image?.demo) {
+    try {
+      drawImageCover(ctx, image.demo, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
+    } catch {
+      drawFallback(ctx, shotX, shotY, shotW, shotH, W);
+    }
+  } else {
+    drawFallback(ctx, shotX, shotY, shotW, shotH, W, image?.fallbackReason);
+  }
+
+  // 内描边，压住截图边缘
   ctx.strokeStyle = C.line;
   ctx.lineWidth = 1.5;
+  roundRect(ctx, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
   ctx.stroke();
 
-  drawMini(ctx, pattern, pad + 24, y + 20, W - pad * 2 - 48, previewH - 40);
-  y += previewH + 34;
+  y = shotY + shotH + Math.round(W * 0.052);
 
-  // 适合什么场景
+  // ---------- 适合什么场景 ----------
   ctx.fillStyle = C.muted;
-  ctx.font = `500 12px ${MONO}`;
+  ctx.font = `500 ${fitLabelSize}px ${MONO}`;
   ctx.fillText('适合', pad, y);
-  y += 24;
+  y += Math.round(fitLabelSize * 1.7);
 
   ctx.fillStyle = C.ink2;
-  ctx.font = `400 ${Math.round(W * 0.033)}px ${SANS}`;
-  y = wrapText(ctx, pattern.fitsFor, pad, y, W - pad * 2, Math.round(W * 0.033) * 1.6, 2) + 26;
+  ctx.font = `400 ${fitSize}px ${SANS}`;
+  y = wrapText(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.55, 2) + Math.round(W * 0.03);
 
-  // 底部 Ask AI
-  const askText = `Use a ${pattern.name} to…`;
-  const boxY = Math.max(y, H - pad - 92);
+  // ---------- 底部 Ask AI ----------
+  const askY = Math.min(y, H - pad - askH);
   ctx.fillStyle = C.soft;
-  roundRect(ctx, pad, boxY, W - pad * 2, 76, 14);
+  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.018));
   ctx.fill();
+
   ctx.fillStyle = C.muted;
-  ctx.font = `500 11px ${MONO}`;
-  ctx.fillText('ASK AI', pad + 20, boxY + 26);
+  ctx.font = `500 ${Math.round(W * 0.0135)}px ${MONO}`;
+  ctx.fillText('ASK AI', pad + Math.round(W * 0.024), askY + Math.round(askH * 0.32));
+
   ctx.fillStyle = C.ink;
-  ctx.font = `italic 400 ${Math.round(W * 0.033)}px ${SERIF}`;
-  wrapText(ctx, askText, pad + 20, boxY + 54, W - pad * 2 - 40, Math.round(W * 0.033) * 1.4, 1);
+  ctx.font = `italic 400 ${askSize}px ${SERIF}`;
+  wrapText(
+    ctx,
+    `Use a ${pattern.name} to…`,
+    pad + Math.round(W * 0.024),
+    askY + Math.round(askH * 0.68),
+    innerW - Math.round(W * 0.048),
+    askSize * 1.35,
+    1
+  );
+
+  // 底部分隔线 + 站点
+  const footY = H - Math.round(W * 0.032);
+  hLine(ctx, pad, footY - Math.round(W * 0.022), innerW, C.line);
+  ctx.fillStyle = C.muted;
+  ctx.font = `400 ${Math.round(W * 0.0155)}px ${MONO}`;
+  ctx.fillText('ui-field-guide.pages.dev', pad, footY);
+}
+
+function drawFallback(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  W: number,
+  reason?: string
+) {
+  ctx.save();
+  ctx.fillStyle = C.surface;
+  roundRect(ctx, x, y, w, h, Math.round(W * 0.022));
+  ctx.fill();
+
+  // 居中提示
+  ctx.fillStyle = C.muted;
+  ctx.font = `400 ${Math.round(W * 0.032)}px ${SANS}`;
+  ctx.textAlign = 'center';
+  ctx.fillText(reason || '预览生成中…', x + w / 2, y + h / 2);
+  ctx.textAlign = 'left';
+  ctx.restore();
 }

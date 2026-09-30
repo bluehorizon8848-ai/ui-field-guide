@@ -52,7 +52,7 @@ export function SearchClient() {
               submit('');
             }}
             aria-label="清除"
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
+            className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
           >
             <X size={16} aria-hidden="true" />
           </button>
@@ -71,7 +71,7 @@ export function SearchClient() {
                   setQ(e);
                   submit(e);
                 }}
-                className="rounded-lg bg-[#F2F0EB] px-3 py-2 text-[0.8125rem] text-ink2 transition-colors hover:bg-[#E9E6DF]"
+                className="min-h-[44px] rounded-lg bg-[#F2F0EB] px-3 py-2 text-[0.8125rem] text-ink2 transition-colors hover:bg-[#E9E6DF] active:bg-[#E2DED5]"
               >
                 {e}
               </button>

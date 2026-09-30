@@ -101,7 +101,7 @@ export function Header() {
       {menuOpen && (
         <nav
           aria-label="移动端导航"
-          className="border-t border-line bg-canvas px-5 py-2 md:hidden"
+          className="scroll-contain border-t border-line bg-canvas px-5 pb-safe pt-2 md:hidden"
         >
           {NAV.map((n) => {
             const active = pathname === n.href || pathname.startsWith(`${n.href}/`);
@@ -110,7 +110,7 @@ export function Header() {
                 key={n.href}
                 href={n.href}
                 aria-current={active ? 'page' : undefined}
-                className={`block rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm transition-colors active:bg-[#EDEae3] ${
                   active ? 'bg-[#F2F0EB] font-medium text-ink' : 'text-ink2'
                 }`}
               >

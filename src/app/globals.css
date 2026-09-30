@@ -9,6 +9,8 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* 关掉 iOS 横滑整页的手势，避免和横向滚动的表格/侧栏打架 */
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -17,6 +19,19 @@ body {
   font-feature-settings: 'tnum' 0;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* 去掉点击时的 300ms 延迟与双击缩放，保留滚动惯性 */
+  touch-action: manipulation;
+}
+
+/* 可交互元素统一去掉 300ms 点击延迟；滚动容器仍保留原生滚动手势 */
+button,
+a,
+[role='button'],
+[role='tab'],
+[role='radio'],
+label,
+summary {
+  touch-action: manipulation;
 }
 
 /* 焦点可见性：键盘才出现 */
@@ -48,9 +63,16 @@ body {
     @apply border-line;
   }
 
-  /* Demo 舞台：所有交互 demo 的统一画布 */
+  /* Demo 舞台：所有交互 demo 的统一画布
+
+     min-height 给一个默认值，原因有二：
+     1. DemoStage 在 useLayoutEffect 里量完内容才写 inline min-height，
+        但 SSR 阶段还没有 JS。默认值让首帧和 hydrate 后的高度一致，
+        避免「先矮后高」的布局跳动（CLS）。
+     2. 内容更高的组件会被 JS 抬高，简单组件就保持这个下限。 */
   .demo-stage {
     @apply relative w-full overflow-hidden rounded-card border border-line bg-surface;
+    min-height: 260px;
   }
 
   .prose-note {
@@ -60,6 +82,8 @@ body {
   /* 表格：小屏可横向滚动 */
   .table-scroll {
     @apply -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0;
+    /* 横向滚动到头不触发整页回弹，也不把滚动事件传给父级 */
+    overscroll-behavior-x: contain;
   }
   .table-scroll table {
     @apply min-w-[560px] w-full;
@@ -67,6 +91,29 @@ body {
 }
 
 @layer utilities {
+  /* ---------- 移动端安全区与滚动容器 ---------- */
+
+  /* 底部有固定操作栏/标签栏的容器：给 iPhone 手势条留出空间 */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pb-safe-4 {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* 固定在底部的元素：底边避开手势条 */
+  .bottom-safe {
+    bottom: env(safe-area-inset-bottom);
+  }
+
+  /* 抽屉 / 弹层内部滚动：到边界不把滚动传递给背后的页面 */
+  .scroll-contain {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

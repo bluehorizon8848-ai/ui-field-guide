@@ -82,26 +82,51 @@ Demo 里任何 `id` / `aria-labelledby` / `aria-describedby` / `htmlFor` 都必�
 - 禁用：企业后台冷灰蓝、紫蓝渐变、毛玻璃、巨大营销 Hero、emoji 图标
 - 触控热区 ≥ 44px（内联文本链接除外，WCAG 2.5.5 豁免）
 - **Toggle 类组件视觉尺寸可以小于热区，但热区必须独立存在**：Switch 轨道 26px，命中区用外层 `button` 撑 44×44 + 内部 `span` 管视觉
-- **Demo 舞台统一 `min-h-[240px] sm:min-h-[280px]` + `flex-col justify-center`** —— 简单组件（badge / icon-button）撑不起体量感，靠 min-height 兜住
+- 移动端优先（这是主分享场景，自身布局垮了内容就没说服力）：
+  - 全局 `touch-action: manipulation`，弹层/横向滚动容器加 `scroll-contain`（`overscroll-behavior: contain`）
+  - 安全区用工具类：`pb-safe` / `pb-safe-4` / `pt-safe` / `bottom-safe`
+  - 可交互元素加 `active:` 态（触屏没有 hover）
 
 ## Demo 布局约定
 
-- 舞台高度**不设上限**，内容多的 Demo（skeleton / timeline）自然到 460px+
+**舞台高度是内容测量出来的，不是固定值。** `DemoStage` 先以 auto 渲染，量 `scrollHeight`，再取 `clamp(内容高 × 放大系数, 下限, 上限)`，用 `useLayoutEffect` + `ResizeObserver` 在绘制前同步。当前区间 **260~620px，中位 302px**；手机上上限收紧到 460px。
+
+- **`.demo-stage` 在 CSS 里必须有默认 `min-height: 260px`** —— SSR 阶段没 JS，缺了它首帧比 hydrate 后矮一截（CLS）
+- 测量容器是 `flex-col items-center`。**改成 `flex-row` 会让 Demo 里多个并列顶层元素挤成左右并排**（skeleton 的按钮曾被压到 77px）
+- `items-center` 会让子元素收缩包裹，**需要撑满舞台宽度的容器（表格等）必须显式加 `w-full`**
 - `min-h-[180px]` 这种偏矮的内部容器已全部提到 220px
 - **例外**：`ActionDemos` 的 FAB 演示区 `h-[240px]`、`InteractionDemos` 的拖拽放置区 `min-h-[150px]` 是**场景模拟的一部分**，不要动
 - 横向排列一律加 `flex-wrap`；侧栏类布局用 `flex-col sm:flex-row` 让手机端堆叠
 - 窄屏下侧边导航项用 `overflow-x-auto` 横向滚动，不要压成 60px
 
+## 分享卡片：必须用真实 Demo 截图
+
+**不要用 Canvas 重绘简化示意图** —— 缩小后完全丢失辨识度，等于没画。用 `html-to-image` 截真实 Demo。
+
+三个坑，每一个都单独导致截图失败，且**都不抛异常**：
+
+| 坑 | 现象 | 修法 |
+| --- | --- | --- |
+| 离屏容器用 `opacity: 0` | html-to-image 跳过不可见元素 | `position: fixed; left: -12000px` |
+| 克隆体继承 `position: fixed; left: -12000px` | **成功返回但画面纯色**（内容画到画布外 12000px） | `toPng({ style: { position: 'static', left: '0', top: '0', margin: '0' } })` |
+| Demo 自带 `.demo-stage` | 组件被撑在 260px 空盒居中，只占卡片 ~2% | 截图时 `[&_.demo-stage]:!min-h-0 !border-0 !bg-transparent !p-0` 压平 |
+
+再按 `[data-shot-content]` 的紧致框裁剪（`width`/`height`），小组件才能真正放大。卡片里用 `drawImageCover` 等比裁切，**不拉伸、不留 letterbox**。
+
+卡片截图区高度**必须由剩余空间驱动**，不能设硬编码下限 —— 会让 1:1 比例底部溢出。测试用 `data-shot-state` 属性判断真实状态（`ready` / `failed`），比采样颜色可靠。
+
 ## 测试
 
-Playwright 四个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出产物上：
+Playwright 六个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出产物上：
 
 | 脚本 | 覆盖 | 期望 |
 | --- | --- | --- |
 | `sweep.mjs` | 全站 78 页 console error / 死链 / 空 body | 78/78 |
 | `interact.mjs` | 40 项交互：Dialog 焦点、口语搜索、LocalStorage、键盘、响应式、Share Card | 40/40 |
-| `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局、**Demo 高度与手机适配** | 6/6 |
+| `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局、Demo 高度与手机适配 | 6/6 |
 | `download.mjs` | 分享卡片真实 PNG 下载：文件名、magic bytes、IHDR 像素 | 9/9 |
+| `verify-sharecard.mjs` | 真实截图状态、两种比例底部溢出、PNG 尺寸 | 16/16 |
+| `mobile.mjs` | 移动端专项：3 视口 × 11 页 × 6 类问题 | 3/3 |
 
 另有量测工具（不参与 e2e 判定，用于调布局）：
 
@@ -113,12 +138,20 @@ Playwright 四个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出�
 ```bash
 npm run build
 npm run serve      # 127.0.0.1:3111，静态预览 out/
-npm run e2e        # 串跑四项；也可 npm run e2e:visual 等单跑
+npm run e2e        # 串跑六项；也可 npm run e2e:visual 等单跑
 ```
 
 打其他端口用 `BASE_URL='http://127.0.0.1:4173' node scripts/e2e/sweep.mjs`。
 
 **必须打 `out/` 产物，不能用 `next start`** —— 静态导出模式下 `next start` 已失效。
+
+**量测 Demo 高度前必须等 hydrate 完成**（等 `.demo-stage` 的 `style.minHeight !== ''`），否则量到 SSR 首帧高度会假失败。
+
+### 写断言的三条经验
+
+1. **测试报错先假设「测试错了」，量测确认后再决定改代码还是改阈值。** 最近 4 次报错里 2 次是真 bug、2 次是真 bug 被误报成假警告，**没有一次是调阈值能解决的**。
+2. **必须排除的误报源**：视觉隐藏元素（SkipLink 的 `clip: rect(0,0,0,0)`）、刻意设计的单行省略号、`overflow-x` 祖先内的合法横向滚动、`flex-shrink: 0` 的固定侧栏。
+3. **状态位比像素采样可靠** —— 加 `data-*` 属性暴露内部状态给测试，别去猜渲染结果长什么样。
 
 ## 静态导出
 

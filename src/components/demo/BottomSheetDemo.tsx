@@ -95,13 +95,13 @@ export function BottomSheetDemo() {
                 type="button"
                 onClick={close}
                 aria-label="关闭筛选"
-                className="rounded-md p-1.5 text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
+                className="-mr-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
               >
                 <X size={16} aria-hidden="true" />
               </button>
             </div>
 
-            <ul className="space-y-1 px-3 pb-3">
+            <ul className="scroll-contain max-h-[46vh] space-y-1 overflow-y-auto px-3 pb-3">
               {FILTERS.map((f) => {
                 const checked = selected.includes(f.id);
                 return (
@@ -110,11 +110,11 @@ export function BottomSheetDemo() {
                       type="button"
                       onClick={() => toggle(f.id)}
                       aria-pressed={checked}
-                      className="flex w-full items-center justify-between rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-[#F7F5F0]"
+                      className="flex min-h-[44px] w-full items-center justify-between rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-[#F7F5F0] active:bg-[#F0EDE6]"
                     >
                       <span className="text-sm text-ink">{f.label}</span>
                       <span
-                        className={`flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
                           checked
                             ? 'border-ink bg-ink text-white'
                             : 'border-[#D8D5CD] bg-surface'
@@ -129,12 +129,12 @@ export function BottomSheetDemo() {
               })}
             </ul>
 
-            <div className="border-t border-line px-5 py-3.5 pb-5">
-              <div className="flex items-center justify-between">
+            <div className="border-t border-line px-5 py-3.5 pb-safe-4">
+              <div className="flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setSelected([])}
-                  className="text-xs text-muted underline-offset-4 hover:underline"
+                  className="min-h-[44px] shrink-0 px-1 text-xs text-muted underline-offset-4 hover:underline"
                 >
                   清空
                 </button>

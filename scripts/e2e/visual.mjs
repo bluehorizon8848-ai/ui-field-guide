@@ -250,6 +250,17 @@ const out = [];
 
     for (const id of ids) {
       await page.goto(`${BASE}/patterns/${id}`, { waitUntil: 'domcontentloaded' });
+      // DemoStage 在 useLayoutEffect 里量完内容才写 inline min-height。
+      // 必须等 hydrate 完成再量，否则量到的是 SSR 的首帧高度（假失败）。
+      await page
+        .waitForFunction(
+          () => {
+            const s = document.querySelector('.demo-stage');
+            return s && s.style.minHeight !== '';
+          },
+          { timeout: 4000 }
+        )
+        .catch(() => {});
       const r = await page.evaluate(() => {
         const stage = document.querySelector('.demo-stage');
         if (!stage) return null;

@@ -71,7 +71,10 @@ export function TableDemo() {
 
   return (
     <DemoStage caption="点表头排序。数字右对齐 + 等宽数字，这样大小一眼能比出来。">
-      <div className="table-scroll -mx-1 px-1">
+      {/* w-full 是必须的：舞台是 flex-col + items-center，子元素默认收缩包裹，
+          表格会被撑到内容宽度（560px）并顶破 335px 的舞台。
+          w-full 把滚动容器钉在舞台宽度上，min-w 让表格在容器内横向滚动。 */}
+      <div className="table-scroll -mx-1 w-full px-1">
         <table className="w-full min-w-[440px] text-sm">
           <thead>
             <tr className="border-b border-line">
@@ -79,7 +82,7 @@ export function TableDemo() {
                 <button
                   type="button"
                   onClick={() => setSort('name')}
-                  className="flex items-center gap-1 text-xs font-medium text-muted hover:text-ink"
+                  className="-mx-1.5 flex min-h-[44px] items-center gap-1 rounded px-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
                 >
                   文件名
                   {sort === 'name' && <span aria-hidden="true">↓</span>}
@@ -89,7 +92,7 @@ export function TableDemo() {
                 <button
                   type="button"
                   onClick={() => setSort('size')}
-                  className="flex items-center gap-1 text-xs font-medium text-muted hover:text-ink"
+                  className="-mx-1.5 flex min-h-[44px] items-center gap-1 rounded px-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
                 >
                   大小
                   {sort === 'size' && <span aria-hidden="true">↓</span>}
