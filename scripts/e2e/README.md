@@ -26,11 +26,24 @@ npm run serve      # 127.0.0.1:3111
 npm run e2e              # 串跑下面四项
 node scripts/e2e/sweep.mjs      # 全站 78 页冒烟
 node scripts/e2e/interact.mjs   # 40 项交互
-node scripts/e2e/visual.mjs     # 5 项视觉 / 可访问性
+node scripts/e2e/visual.mjs     # 6 项视觉 / 可访问性
 node scripts/e2e/download.mjs   # 9 项分享卡片 PNG 下载
 ```
 
 每个脚本独立以退出码表示结果，可直接串进 CI。
+
+### 量测脚本（不参与 e2e 判定，用于调布局）
+
+```bash
+npm run e2e:measure      # 各视口下 63 个 Demo 的舞台宽高对比
+npm run e2e:crush        # 挤压 / 溢出排查，W=320 可换视口
+```
+
+`measure-crush.mjs` 会区分三种情况，避免误报：
+
+- **页面级横向滚动** → 真问题
+- **元素超出舞台边界** → 排除 `overflow-x-auto` 容器内的合法横向滚动
+- **flex `nowrap` 挤压** → 排除「固定侧栏 + 主内容区」这类刻意设计
 
 打其他端口用 `BASE_URL`：
 

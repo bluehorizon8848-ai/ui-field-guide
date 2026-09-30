@@ -194,22 +194,22 @@ export function SidebarDemo() {
 
   return (
     <DemoStage caption="点「切换」看导航轨和 Sidebar 之间的差别：图标态 vs 展开态（本质是同一套东西的两种宽度）。">
-      <div className="flex min-h-[240px] overflow-hidden rounded-xl border border-line">
+      <div className="flex min-h-[240px] flex-col overflow-hidden rounded-xl border border-line sm:flex-row">
         <nav
           aria-label="侧边导航"
-          className={`flex shrink-0 flex-col border-r border-line bg-[#FCFBF8] transition-[width] duration-200 ${
-            open ? 'w-[150px]' : 'w-[60px]'
+          className={`flex shrink-0 flex-row border-b border-line bg-[#FCFBF8] transition-[width] duration-200 sm:flex-col sm:border-b-0 sm:border-r ${
+            open ? 'w-full sm:w-[150px]' : 'w-full sm:w-[60px]'
           }`}
         >
-          <div className="flex h-11 items-center border-b border-line px-3">
+          <div className="flex h-11 shrink-0 items-center border-b border-line px-3 sm:border-b-0">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-ink text-[10px] font-semibold text-white">
               拾
             </span>
             {open && <span className="ml-2 text-xs font-medium text-ink">拾光清理</span>}
           </div>
-          <ul className="flex-1 p-1.5">
+          <ul className="flex flex-1 gap-1 overflow-x-auto p-1.5 sm:flex-col sm:overflow-x-visible">
             {ITEMS.map((it) => (
-              <li key={it}>
+              <li key={it} className="shrink-0 sm:shrink">
                 <button
                   type="button"
                   onClick={() => setActive(it)}

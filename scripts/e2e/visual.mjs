@@ -226,6 +226,96 @@ const out = [];
   await ctx.close();
 }
 
+/* ---------- 6. Demo 展示区域高度 + 手机适配 ---------- */
+{
+  const xml = await (await fetch(`${BASE}/sitemap.xml`)).text();
+  const ids = [
+    ...new Set(
+      [...xml.matchAll(/<loc>https:\/\/ui-field-guide\.pages\.dev\/patterns\/([^<]+)<\/loc>/g)].map(
+        (m) => m[1]
+      )
+    ),
+  ];
+
+  const issues = [];
+  const heights = [];
+
+  // 两个视口：手机（最窄常见）和桌面
+  for (const vp of [
+    { w: 375, h: 812, label: '375px' },
+    { w: 1440, h: 900, label: '1440px' },
+  ]) {
+    const ctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h } });
+    const page = await ctx.newPage();
+
+    for (const id of ids) {
+      await page.goto(`${BASE}/patterns/${id}`, { waitUntil: 'domcontentloaded' });
+      const r = await page.evaluate(() => {
+        const stage = document.querySelector('.demo-stage');
+        if (!stage) return null;
+        const sr = stage.getBoundingClientRect();
+        const res = { h: Math.round(sr.height), w: Math.round(sr.width), over: [], nowrap: [] };
+
+        // 页面级横向滚动
+        const pageOver = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        if (pageOver > 2) res.over.push(`页面横向滚动 ${pageOver}px`);
+
+        // 元素真溢出（排除 overflow-x-auto 容器内的合法滚动）
+        const inScroll = (el) => {
+          let p = el.parentElement;
+          while (p && !p.classList.contains('demo-stage')) {
+            const cs = getComputedStyle(p);
+            if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') return true;
+            p = p.parentElement;
+          }
+          return false;
+        };
+        for (const c of stage.querySelectorAll('*')) {
+          const cr = c.getBoundingClientRect();
+          if (cr.width === 0 || cr.height === 0) continue;
+          const over = Math.max(cr.right - sr.right, sr.left - cr.left);
+          if (over > 2 && !inScroll(c)) {
+            res.over.push(`${c.tagName} 溢出 ${Math.round(over)}px`);
+          }
+        }
+
+        // flex nowrap 挤压（排除固定侧栏布局）
+        for (const c of stage.children) {
+          const cs = getComputedStyle(c);
+          if (cs.display !== 'flex' || cs.flexDirection !== 'row' || cs.flexWrap !== 'nowrap') continue;
+          const kids = [...c.children].filter((k) => k.getBoundingClientRect().width > 0);
+          if (kids.length < 2) continue;
+          const fcs = getComputedStyle(kids[0]);
+          if (fcs.flexShrink === '0' && /w-\[/.test(kids[0].className || '') && kids.length === 2) continue;
+          const minW = Math.min(...kids.map((k) => k.getBoundingClientRect().width));
+          if (minW < 100) res.nowrap.push(`${kids.length} 个并排 nowrap，最窄 ${Math.round(minW)}px`);
+        }
+        return res;
+      });
+
+      if (r) {
+        if (vp.w === 375) heights.push(r.h);
+        if (r.h < 200) issues.push(`${vp.label} ${id}: 舞台仅 ${r.h}px`);
+        if (r.over.length) issues.push(`${vp.label} ${id}: ${r.over[0]}`);
+        if (r.nowrap.length) issues.push(`${vp.label} ${id}: ${r.nowrap[0]}`);
+      }
+    }
+    await ctx.close();
+  }
+
+  const min = Math.min(...heights);
+  const max = Math.max(...heights);
+  const median = heights.sort((a, b) => a - b)[Math.floor(heights.length / 2)];
+
+  out.push({
+    name: 'Demo 展示区域高度 + 手机适配',
+    pass: issues.length === 0,
+    detail:
+      issues.slice(0, 5).join(' | ') ||
+      `63 个 Demo 高度 ${min}~${max}px（中位 ${median}px），无挤压、无溢出`,
+  });
+}
+
 await browser.close();
 
 console.log('');

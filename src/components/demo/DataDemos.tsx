@@ -140,7 +140,7 @@ export function BadgeDemo() {
 
   return (
     <DemoStage caption=">99 显示「99+」，为 0 时整个隐藏。点一下看看。">
-      <div className="flex items-center justify-center gap-8">
+      <div className="flex flex-wrap items-center justify-center gap-8">
         {items.map((it) => {
           const n = counts[it.k];
           return (
@@ -410,7 +410,7 @@ export function PopoverDemo() {
 
   return (
     <DemoStage caption="Popover 和 Tooltip 的区别：这里里面有可以点的东西（模板选择）。">
-      <div className="flex min-h-[180px] items-center justify-center">
+      <div className="flex min-h-[220px] items-center justify-center">
         <div className="relative">
           <button
             type="button"
@@ -462,7 +462,7 @@ export function ContextMenuDemo() {
   return (
     <DemoStage caption="在文字上点右键（或点「模拟右键」）—— 菜单内容只对这个对象有效。">
       <div
-        className="relative flex min-h-[180px] items-center justify-center rounded-lg border border-dashed border-line bg-[#FCFBF8]"
+        className="relative flex min-h-[220px] flex-wrap items-center justify-center gap-3 rounded-lg border border-dashed border-line bg-[#FCFBF8] p-4"
         onContextMenu={(e) => {
           e.preventDefault();
           const r = e.currentTarget.getBoundingClientRect();
@@ -473,7 +473,7 @@ export function ContextMenuDemo() {
         <button
           type="button"
           onClick={() => setPos({ x: '50%', y: 60 })}
-          className="absolute right-3 top-3 rounded-md border border-line bg-surface px-2.5 py-1 text-2xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
+          className="rounded-md border border-line bg-surface px-2.5 py-1 text-2xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
         >
           模拟右键
         </button>

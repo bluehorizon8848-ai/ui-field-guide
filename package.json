@@ -14,7 +14,9 @@
     "e2e:sweep": "node scripts/e2e/sweep.mjs",
     "e2e:interact": "node scripts/e2e/interact.mjs",
     "e2e:visual": "node scripts/e2e/visual.mjs",
-    "e2e:download": "node scripts/e2e/download.mjs"
+    "e2e:download": "node scripts/e2e/download.mjs",
+    "e2e:measure": "node scripts/e2e/measure-demos.mjs",
+    "e2e:crush": "node scripts/e2e/measure-crush.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.469.0",

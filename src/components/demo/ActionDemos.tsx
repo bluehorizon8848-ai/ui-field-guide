@@ -99,7 +99,7 @@ export function CtaDemo() {
 export function IconButtonDemo() {
   return (
     <DemoStage caption="悬停（或用 Tab 聚焦）任意图标，会出现 Tooltip。图标按钮必须配它，否则用户不知道是什么。">
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-1">
         {[
           { icon: Bold, label: '加粗' },
           { icon: Italic, label: '斜体' },
@@ -109,7 +109,7 @@ export function IconButtonDemo() {
         ].map(({ icon: Icon, label }) => (
           <IconButtonWithTooltip key={label} icon={<Icon size={18} />} label={label} />
         ))}
-        <span className="mx-2 h-5 w-px bg-line" aria-hidden="true" />
+        <span className="mx-2 hidden h-5 w-px bg-line sm:block" aria-hidden="true" />
         <IconButtonWithTooltip
           icon={<Trash2 size={18} />}
           label="删除"

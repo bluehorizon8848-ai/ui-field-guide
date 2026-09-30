@@ -81,6 +81,16 @@ Demo 里任何 `id` / `aria-labelledby` / `aria-describedby` / `htmlFor` 都必�
 - 分类色只用于小圆点和标签，不做大面积色块
 - 禁用：企业后台冷灰蓝、紫蓝渐变、毛玻璃、巨大营销 Hero、emoji 图标
 - 触控热区 ≥ 44px（内联文本链接除外，WCAG 2.5.5 豁免）
+- **Toggle 类组件视觉尺寸可以小于热区，但热区必须独立存在**：Switch 轨道 26px，命中区用外层 `button` 撑 44×44 + 内部 `span` 管视觉
+- **Demo 舞台统一 `min-h-[240px] sm:min-h-[280px]` + `flex-col justify-center`** —— 简单组件（badge / icon-button）撑不起体量感，靠 min-height 兜住
+
+## Demo 布局约定
+
+- 舞台高度**不设上限**，内容多的 Demo（skeleton / timeline）自然到 460px+
+- `min-h-[180px]` 这种偏矮的内部容器已全部提到 220px
+- **例外**：`ActionDemos` 的 FAB 演示区 `h-[240px]`、`InteractionDemos` 的拖拽放置区 `min-h-[150px]` 是**场景模拟的一部分**，不要动
+- 横向排列一律加 `flex-wrap`；侧栏类布局用 `flex-col sm:flex-row` 让手机端堆叠
+- 窄屏下侧边导航项用 `overflow-x-auto` 横向滚动，不要压成 60px
 
 ## 测试
 
@@ -90,8 +100,15 @@ Playwright 四个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出�
 | --- | --- | --- |
 | `sweep.mjs` | 全站 78 页 console error / 死链 / 空 body | 78/78 |
 | `interact.mjs` | 40 项交互：Dialog 焦点、口语搜索、LocalStorage、键盘、响应式、Share Card | 40/40 |
-| `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局 | 5/5 |
+| `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局、**Demo 高度与手机适配** | 6/6 |
 | `download.mjs` | 分享卡片真实 PNG 下载：文件名、magic bytes、IHDR 像素 | 9/9 |
+
+另有量测工具（不参与 e2e 判定，用于调布局）：
+
+| 脚本 | 用途 |
+| --- | --- |
+| `measure-demos.mjs` | 各视口下 63 个 Demo 的舞台宽高对比，找最矮/最扁的 |
+| `measure-crush.mjs` | 挤压与溢出排查，`W=320` 可换视口 |
 
 ```bash
 npm run build

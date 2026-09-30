@@ -5,7 +5,9 @@ import { forwardRef } from 'react';
 
 /**
  * 所有 Demo 的统一舞台。
- * 提供：中性底色、真实感内边距、底部可选的「触发说明」。
+ *
+ * 高度策略：给最小高度 + 垂直居中，内容少也能撑出体量感。
+ * 手机端用较小的 min-height 并收紧内边距，避免舞台在窄屏上占满整屏。
  */
 export function DemoStage({
   children,
@@ -21,7 +23,9 @@ export function DemoStage({
   return (
     <figure className="m-0">
       <div
-        className={`demo-stage ${pad ? 'p-5 sm:p-7' : ''} ${className}`}
+        className={`demo-stage flex min-h-[240px] flex-col justify-center sm:min-h-[280px] ${
+          pad ? 'p-5 sm:p-7' : ''
+        } ${className}`}
         role="group"
       >
         {children}
