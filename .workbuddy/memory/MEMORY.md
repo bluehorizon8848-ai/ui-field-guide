@@ -11,7 +11,7 @@ AI 独立开发者的 UI/UX 可视化词典。核心路径：**看到 → 理解
 **提交前必须 `npm run check`（typecheck + verify），全绿才提交。**
 
 `verify` 是自建的，校验 TypeScript 抓不到的问题（全是 string，写错不报错但会变成 404 死链）：
-交叉引用 / 必填字段 / Comparison cells 数量 / demoIds↔registry 一致性。
+交叉引用 / 必填字段 / Comparison cells 数量 / demoIds↔registry 一致性 / MiniPreview 覆盖。
 
 ## 三条内容原则（不可妥协）
 
@@ -84,12 +84,42 @@ Demo 里任何 `id` / `aria-labelledby` / `aria-describedby` / `htmlFor` 都必�
 
 ## 测试
 
-Playwright 三个脚本（在 `~/.workbuddy/binaries/node/workspace/`，非项目内）：
+Playwright 四个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出产物上：
 
 | 脚本 | 覆盖 | 期望 |
 | --- | --- | --- |
 | `sweep.mjs` | 全站 78 页 console error / 死链 / 空 body | 78/78 |
 | `interact.mjs` | 40 项交互：Dialog 焦点、口语搜索、LocalStorage、键盘、响应式、Share Card | 40/40 |
 | `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局 | 5/5 |
+| `download.mjs` | 分享卡片真实 PNG 下载：文件名、magic bytes、IHDR 像素 | 9/9 |
 
-跑之前需要 `npm run start` 起本地服务（端口 3111）。
+```bash
+npm run build
+npm run serve      # 127.0.0.1:3111，静态预览 out/
+npm run e2e        # 串跑四项；也可 npm run e2e:visual 等单跑
+```
+
+打其他端口用 `BASE_URL='http://127.0.0.1:4173' node scripts/e2e/sweep.mjs`。
+
+**必须打 `out/` 产物，不能用 `next start`** —— 静态导出模式下 `next start` 已失效。
+
+## 静态导出
+
+`output: 'export'`，产物在 `out/`（约 7.6 MB / 187 文件），`trailingSlash: true` 产出 `patterns/modal/index.html` 形式。
+
+**Route Handler 必须显式声明静态**，否则构建失败：
+
+```ts
+export const dynamic = 'force-static';
+```
+
+`robots.ts` 和 `sitemap.ts` 都加了。以后加 Route Handler 别忘了。
+
+**本地预览必须用 `npm run serve`**（`scripts/serve-export.mjs`），不能用 `python -m http.server`：
+后者不回退 `404.html`（会让 404 页测试误报），改写其重定向行为还容易把正常路径判成 404。
+
+Cloudflare Pages 配置：Build `npm run build` / Output `out` / Node 22。
+
+## Git
+
+首次提交 `0f06544`（2026-09-30），98 文件 / 18,064 行。**尚未推远端**（无 remote）。
