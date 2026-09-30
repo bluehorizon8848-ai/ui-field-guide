@@ -1,0 +1,35 @@
+{
+  "name": "ui-field-guide",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UI Field Guide — AI 独立开发者的 UI/UX 可视化词典",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "serve": "node scripts/serve-export.mjs 3111",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify-content.mjs",
+    "check": "npm run typecheck && npm run verify",
+    "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/download.mjs",
+    "e2e:sweep": "node scripts/e2e/sweep.mjs",
+    "e2e:interact": "node scripts/e2e/interact.mjs",
+    "e2e:visual": "node scripts/e2e/visual.mjs",
+    "e2e:download": "node scripts/e2e/download.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.469.0",
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "autoprefixer": "10.4.20",
+    "playwright": "^1.49.1",
+    "postcss": "8.5.1",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.3"
+  }
+}

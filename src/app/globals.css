@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --header-h: 56px;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--tw-bg-canvas, #faf9f6);
+  color: #1a1917;
+  font-feature-settings: 'tnum' 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 焦点可见性：键盘才出现 */
+:focus-visible {
+  outline: 2px solid #1a1917;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
+  /* 编辑式标签：小写 mono 词条元信息 */
+  .meta {
+    @apply font-mono text-2xs uppercase tracking-[0.14em] text-muted;
+  }
+
+  .card {
+    @apply rounded-card border border-line bg-surface shadow-card;
+  }
+
+  .card-hover {
+    @apply transition-[box-shadow,border-color,transform] duration-150 hover:border-line hover:shadow-lift;
+  }
+
+  .hairline {
+    @apply border-line;
+  }
+
+  /* Demo 舞台：所有交互 demo 的统一画布 */
+  .demo-stage {
+    @apply relative w-full overflow-hidden rounded-card border border-line bg-surface;
+  }
+
+  .prose-note {
+    @apply text-[0.9375rem] leading-[1.75] text-ink2;
+  }
+
+  /* 表格：小屏可横向滚动 */
+  .table-scroll {
+    @apply -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0;
+  }
+  .table-scroll table {
+    @apply min-w-[560px] w-full;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .grid-lines {
+    background-image: linear-gradient(#f0ede6 1px, transparent 1px),
+      linear-gradient(90deg, #f0ede6 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* 降低动效 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
