@@ -3,10 +3,13 @@
 import { useId, useRef, useState } from 'react';
 import { Check, ChevronDown, Minus, Plus, Search, X } from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Text Field ---------------- */
 
 export function TextFieldDemo() {
+  const locale = useLocale();
   const [value, setValue] = useState('photo@');
   const [touched, setTouched] = useState(false);
   const uid = useId();
@@ -15,10 +18,10 @@ export function TextFieldDemo() {
   const valid = /^[\w.+-]+@[\w-]+\.[\w.-]+$/.test(value);
 
   return (
-    <DemoStage caption="失焦时才校验 —— 不是每敲一个键就报红。错误文案要说「怎么改」。">
+    <DemoStage caption={t(locale, 'demo.input.caption.text')}>
       <div className="mx-auto w-full max-w-[380px]">
         <label htmlFor={fieldId} className="mb-1.5 block text-sm text-ink2">
-          邮箱
+          {t(locale, 'demo.input.text.label')}
         </label>
         <input
           id={fieldId}
@@ -41,13 +44,13 @@ export function TextFieldDemo() {
           role={touched && !valid ? 'alert' : undefined}
         >
           {touched && !valid
-            ? '需要包含 @ 的完整邮箱地址，例如 you@example.com'
-            : '用于接收清理报告，不会对外公开'}
+            ? t(locale, 'demo.input.text.error')
+            : t(locale, 'demo.input.text.help')}
         </p>
         {touched && valid && (
           <p className="mt-1 flex items-center gap-1 text-[0.8125rem] text-[#2C7355]">
             <Check size={13} aria-hidden="true" />
-            格式正确
+            {t(locale, 'demo.input.text.ok')}
           </p>
         )}
       </div>
@@ -58,6 +61,7 @@ export function TextFieldDemo() {
 /* ---------------- Text Area ---------------- */
 
 export function TextAreaDemo() {
+  const locale = useLocale();
   const [text, setText] = useState('');
   const ref = useRef<HTMLTextAreaElement>(null);
   const taId = useId();
@@ -72,10 +76,10 @@ export function TextAreaDemo() {
   };
 
   return (
-    <DemoStage caption="输入越多框越长（上限 320px），右下角实时显示字数。">
+    <DemoStage caption={t(locale, 'demo.input.caption.textarea')}>
       <div className="mx-auto w-full max-w-[400px]">
         <label htmlFor={taId} className="mb-1.5 block text-sm text-ink2">
-          评论
+          {t(locale, 'demo.input.textarea.label')}
         </label>
         <textarea
           id={taId}
@@ -86,11 +90,11 @@ export function TextAreaDemo() {
             autoGrow();
           }}
           rows={4}
-          placeholder="说点什么，比如这张照片哪里拍得好…"
+          placeholder={t(locale, 'demo.input.textarea.placeholder')}
           className="w-full resize-y rounded-lg border border-line bg-surface px-3.5 py-3 text-sm leading-relaxed text-ink outline-none transition-[border-color,box-shadow] placeholder:text-[#7A766D] focus:border-ink focus:shadow-[0_0_0_3px_rgba(26,25,23,0.07)]"
         />
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-xs text-muted">支持换行</span>
+          <span className="text-xs text-muted">{t(locale, 'demo.input.textarea.hint')}</span>
           <span
             className={`text-xs tabular-nums ${
               text.length > 280 ? 'text-[#94701C]' : 'text-muted'
@@ -106,14 +110,19 @@ export function TextAreaDemo() {
 
 /* ---------------- Search Field ---------------- */
 
-const SUGGESTIONS = ['海边', '夜景', '人像', '文件'];
-
 export function SearchFieldDemo() {
+  const locale = useLocale();
   const [q, setQ] = useState('');
+  const SUGGESTIONS = [
+    t(locale, 'demo.input.search.sea'),
+    t(locale, 'demo.input.search.night'),
+    t(locale, 'demo.input.search.portrait'),
+    t(locale, 'demo.input.search.files'),
+  ];
   const results = SUGGESTIONS.filter((s) => s.includes(q.trim()));
 
   return (
-    <DemoStage caption="点一下输入框试试 —— 会实时出结果，并显示热门搜索标签。">
+    <DemoStage caption={t(locale, 'demo.input.caption.search')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="relative">
           <Search
@@ -125,15 +134,15 @@ export function SearchFieldDemo() {
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="搜索照片"
-            aria-label="搜索照片"
+            placeholder={t(locale, 'demo.input.search.placeholder')}
+            aria-label={t(locale, 'demo.input.search.placeholder')}
             className="h-11 w-full rounded-full border border-line bg-[#F5F3EE] pl-9 pr-9 text-sm text-ink outline-none transition-[border-color,box-shadow] placeholder:text-[#7A766D] focus:border-ink focus:bg-surface focus:shadow-[0_0_0_3px_rgba(26,25,23,0.07)]"
           />
           {q && (
             <button
               type="button"
               onClick={() => setQ('')}
-              aria-label="清除搜索"
+              aria-label={t(locale, 'demo.input.search.clear')}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted transition-colors hover:bg-black/5 hover:text-ink"
             >
               <X size={14} aria-hidden="true" />
@@ -143,7 +152,7 @@ export function SearchFieldDemo() {
 
         {q.trim() === '' ? (
           <div className="mt-4">
-            <p className="meta mb-2">热门搜索</p>
+            <p className="meta mb-2">{t(locale, 'demo.input.search.popular')}</p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
@@ -174,13 +183,15 @@ export function SearchFieldDemo() {
           </ul>
         ) : (
           <div className="mt-4 rounded-lg border border-dashed border-line px-4 py-4 text-center">
-            <p className="text-[0.8125rem] text-muted">没有找到「{q}」相关内容</p>
+            <p className="text-[0.8125rem] text-muted">
+              {t(locale, 'demo.input.search.none', { q })}
+            </p>
             <button
               type="button"
               onClick={() => setQ('')}
               className="mt-1.5 text-xs font-medium text-ink underline-offset-4 hover:underline"
             >
-              清除搜索
+              {t(locale, 'demo.input.search.clear')}
             </button>
           </div>
         )}
@@ -191,37 +202,46 @@ export function SearchFieldDemo() {
 
 /* ---------------- Checkbox ---------------- */
 
-const TODO = ['清理重复照片', '导出 2024 备份', '检查超大文件'];
+const TODO = [
+  { id: 'dupes', labelKey: 'demo.input.checkbox.1' },
+  { id: 'backup', labelKey: 'demo.input.checkbox.2' },
+  { id: 'oversized', labelKey: 'demo.input.checkbox.3' },
+] as const;
 
 export function CheckboxDemo() {
-  const [checked, setChecked] = useState<string[]>([TODO[0]]);
+  const locale = useLocale();
+  const [checked, setChecked] = useState<string[]>([TODO[0].id]);
   const all = checked.length === TODO.length;
   const some = checked.length > 0 && !all;
 
-  const toggle = (t: string) => {
+  const toggle = (id: string) => {
     setChecked((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
   return (
-    <DemoStage caption="注意「全选」框支持半选态（横线）。整行文字都可以点。">
+    <DemoStage caption={t(locale, 'demo.input.caption.checkbox')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="overflow-hidden rounded-xl border border-line">
           <label className="flex cursor-pointer items-center gap-3 border-b border-line bg-[#FCFBF8] px-4 py-3">
             <Checkbox checked={all} indeterminate={some} onChange={() =>
-              setChecked(all ? [] : [...TODO])
+              setChecked(all ? [] : TODO.map((item) => item.id))
             } />
-            <span className="flex-1 text-sm font-medium text-ink">全选</span>
-            <span className="text-xs tabular-nums text-muted">已选 {checked.length}</span>
+            <span className="flex-1 text-sm font-medium text-ink">
+              {t(locale, 'demo.input.checkbox.all')}
+            </span>
+            <span className="text-xs tabular-nums text-muted">
+              {t(locale, 'demo.input.checkbox.count', { n: checked.length })}
+            </span>
           </label>
-          {TODO.map((t) => (
+          {TODO.map((item) => (
             <label
-              key={t}
+              key={item.id}
               className="flex cursor-pointer items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 hover:bg-[#F7F5F0]"
             >
-              <Checkbox checked={checked.includes(t)} onChange={() => toggle(t)} />
-              <span className="flex-1 text-sm text-ink">{t}</span>
+              <Checkbox checked={checked.includes(item.id)} onChange={() => toggle(item.id)} />
+              <span className="flex-1 text-sm text-ink">{t(locale, item.labelKey)}</span>
             </label>
           ))}
         </div>
@@ -264,17 +284,22 @@ function Checkbox({
 /* ---------------- Radio ---------------- */
 
 export function RadioDemo() {
+  const locale = useLocale();
   const [v, setV] = useState('personal');
 
   const OPTIONS = [
-    { id: 'personal', t: '个人使用', d: '只有自己能管理这些数据' },
-    { id: 'team', t: '小团队', d: '最多 5 人共享，按成员分配' },
-  ];
+    {
+      id: 'personal',
+      labelKey: 'demo.input.radio.personal',
+      descKey: 'demo.input.radio.personalDesc',
+    },
+    { id: 'team', labelKey: 'demo.input.radio.team', descKey: 'demo.input.radio.teamDesc' },
+  ] as const;
 
   return (
-    <DemoStage caption="选项互斥，整行可点。用 ↑ ↓ 键可以在选项间移动。">
+    <DemoStage caption={t(locale, 'demo.input.caption.radio')}>
       <fieldset className="mx-auto w-full max-w-[400px]">
-        <legend className="mb-2 text-sm text-ink2">账户类型</legend>
+        <legend className="mb-2 text-sm text-ink2">{t(locale, 'demo.input.radio.legend')}</legend>
         <div className="space-y-1.5">
           {OPTIONS.map((o) => (
             <label
@@ -301,8 +326,12 @@ export function RadioDemo() {
                 </span>
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-medium text-ink">{o.t}</span>
-                <span className="mt-0.5 block text-xs text-muted">{o.d}</span>
+                <span className="block text-sm font-medium text-ink">
+                  {t(locale, o.labelKey)}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {t(locale, o.descKey)}
+                </span>
               </span>
             </label>
           ))}
@@ -315,12 +344,13 @@ export function RadioDemo() {
 /* ---------------- Switch ---------------- */
 
 const SWITCHES = [
-  { id: 'dark', t: '深色模式', d: '跟随系统或手动指定' },
-  { id: 'autoplay', t: '自动播放视频', d: '在 Wi-Fi 下自动播放' },
-  { id: 'sync', t: 'iCloud 同步', d: '在设备间同步清理记录' },
-];
+  { id: 'dark', labelKey: 'demo.input.switch.dark', descKey: 'demo.input.switch.darkDesc' },
+  { id: 'autoplay', labelKey: 'demo.input.switch.autoplay', descKey: 'demo.input.switch.autoplayDesc' },
+  { id: 'sync', labelKey: 'demo.input.switch.sync', descKey: 'demo.input.switch.syncDesc' },
+] as const;
 
 export function SwitchDemo() {
+  const locale = useLocale();
   const [state, setState] = useState<Record<string, boolean>>({
     dark: true,
     autoplay: false,
@@ -328,14 +358,18 @@ export function SwitchDemo() {
   });
   const [toast, setToast] = useState<string | null>(null);
 
-  const toggle = (id: string, t: string) => {
+  const toggle = (id: string, label: string) => {
     setState((prev) => ({ ...prev, [id]: !prev[id] }));
-    setToast(`${t} 已${!state[id] ? '开启' : '关闭'}`);
+    setToast(
+      t(locale, !state[id] ? 'demo.input.switch.on' : 'demo.input.switch.off', {
+        name: label,
+      })
+    );
     setTimeout(() => setToast(null), 2200);
   };
 
   return (
-    <DemoStage caption="切换立即生效 —— 注意它和 Checkbox 的区别：Switch 改的是「状态」，不是「收集一个选择」。">
+    <DemoStage caption={t(locale, 'demo.input.caption.switch')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="overflow-hidden rounded-xl border border-line">
           {SWITCHES.map((s) => (
@@ -344,15 +378,17 @@ export function SwitchDemo() {
               className="flex cursor-pointer items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0 hover:bg-[#F7F5F0]"
             >
               <span className="min-w-0">
-                <span className="block text-sm text-ink">{s.t}</span>
-                <span className="mt-0.5 block text-xs text-muted">{s.d}</span>
+                <span className="block text-sm text-ink">{t(locale, s.labelKey)}</span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {t(locale, s.descKey)}
+                </span>
               </span>
               <button
                 type="button"
                 role="switch"
                 aria-checked={state[s.id]}
-                aria-label={s.t}
-                onClick={() => toggle(s.id, s.t)}
+                aria-label={t(locale, s.labelKey)}
+                onClick={() => toggle(s.id, t(locale, s.labelKey))}
                 className="relative grid h-11 w-11 shrink-0 place-items-center"
               >
                 <span
@@ -384,15 +420,16 @@ export function SwitchDemo() {
 /* ---------------- Slider ---------------- */
 
 export function SliderDemo() {
+  const locale = useLocale();
   const [v, setV] = useState(42);
   const slId = useId();
 
   return (
-    <DemoStage caption="拖动试试，也可以用 ← → 键（每次 5）。数值一定要显示出来。">
+    <DemoStage caption={t(locale, 'demo.input.caption.slider')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="mb-2 flex items-center justify-between">
           <label htmlFor={slId} className="text-sm text-ink2">
-            滤镜强度
+            {t(locale, 'demo.input.slider.label')}
           </label>
           <span className="w-11 text-right text-sm tabular-nums text-ink">{v}</span>
         </div>
@@ -411,10 +448,12 @@ export function SliderDemo() {
           }}
         />
         <div className="mt-2 flex justify-between text-2xs text-muted">
-          <span>原片 0</span>
-          <span>100 最强</span>
+          <span>{t(locale, 'demo.input.slider.min')}</span>
+          <span>{t(locale, 'demo.input.slider.max')}</span>
         </div>
-        <p className="mt-3 text-center text-xs text-muted">当前预览：滤镜强度 {v}%</p>
+        <p className="mt-3 text-center text-xs text-muted">
+          {t(locale, 'demo.input.slider.preview', { n: v })}
+        </p>
       </div>
     </DemoStage>
   );
@@ -423,20 +462,21 @@ export function SliderDemo() {
 /* ---------------- Segmented Control ---------------- */
 
 export function SegmentedControlDemo() {
+  const locale = useLocale();
   const [v, setV] = useState('day');
 
   return (
-    <DemoStage caption="一个紧凑的按钮组。它和 Tabs 的区别：这里切换不改变 URL。">
+    <DemoStage caption={t(locale, 'demo.input.caption.seg')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div
           role="tablist"
-          aria-label="时间范围"
+          aria-label={t(locale, 'demo.input.seg.aria')}
           className="flex rounded-lg bg-[#F2F0EB] p-[3px]"
         >
           {[
-            ['day', '日'],
-            ['week', '周'],
-            ['month', '月'],
+            ['day', t(locale, 'demo.input.seg.day')],
+            ['week', t(locale, 'demo.input.seg.week')],
+            ['month', t(locale, 'demo.input.seg.month')],
           ].map(([k, label]) => (
             <button
               key={k}
@@ -455,7 +495,14 @@ export function SegmentedControlDemo() {
           ))}
         </div>
         <p className="mt-4 text-center text-xs text-muted">
-          当前显示：{v === 'day' ? '今天' : v === 'week' ? '本周' : '本月'}的清理记录
+          {t(locale, 'demo.input.seg.summary', {
+            v:
+              v === 'day'
+                ? t(locale, 'demo.input.seg.today')
+                : v === 'week'
+                  ? t(locale, 'demo.input.seg.thisWeek')
+                  : t(locale, 'demo.input.seg.thisMonth'),
+          })}
         </p>
       </div>
     </DemoStage>
@@ -464,18 +511,31 @@ export function SegmentedControlDemo() {
 
 /* ---------------- Select ---------------- */
 
-const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都', '西安', '南京', '武汉', '重庆'];
+const CITY_KEYS = [
+  'demo.input.select.beijing',
+  'demo.input.select.shanghai',
+  'demo.input.select.guangzhou',
+  'demo.input.select.shenzhen',
+  'demo.input.select.hangzhou',
+  'demo.input.select.chengdu',
+  'demo.input.select.xian',
+  'demo.input.select.nanjing',
+  'demo.input.select.wuhan',
+  'demo.input.select.chongqing',
+] as const;
 
 export function SelectDemo() {
+  const locale = useLocale();
+  const CITIES = CITY_KEYS.map((key) => t(locale, key));
   const [v, setV] = useState('');
   const [open, setOpen] = useState(false);
   const selId = useId();
 
   return (
-    <DemoStage caption="点开看看：↑↓ 移动、Enter 选中、Esc 关闭。">
+    <DemoStage caption={t(locale, 'demo.input.caption.select')}>
       <div className="mx-auto w-full max-w-[340px]">
         <label htmlFor={selId} className="mb-1.5 block text-sm text-ink2">
-          城市
+          {t(locale, 'demo.input.select.label')}
         </label>
         <div className="relative">
           <button
@@ -486,7 +546,9 @@ export function SelectDemo() {
             onClick={() => setOpen((o) => !o)}
             className="flex h-11 w-full items-center justify-between rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors hover:border-[#C9C5BB] focus:border-ink"
           >
-            <span className={v ? '' : 'text-[#7A766D]'}>{v || '请选择城市'}</span>
+            <span className={v ? '' : 'text-[#7A766D]'}>
+              {v || t(locale, 'demo.input.select.placeholder')}
+            </span>
             <ChevronDown
               size={15}
               aria-hidden="true"
@@ -502,7 +564,7 @@ export function SelectDemo() {
               />
               <ul
                 role="listbox"
-                aria-label="城市列表"
+                aria-label={t(locale, 'demo.input.select.aria')}
                 tabIndex={-1}
                 autoFocus
                 onKeyDown={(e) => {
@@ -541,6 +603,7 @@ export function SelectDemo() {
 /* ---------------- Chip ---------------- */
 
 export function ChipDemo() {
+  const locale = useLocale();
   const [active, setActive] = useState<string[]>(['portrait']);
 
   const toggle = (c: string) => {
@@ -550,17 +613,17 @@ export function ChipDemo() {
   };
 
   const FILTERS = [
-    { id: 'all', label: '全部' },
-    { id: 'portrait', label: '人像' },
-    { id: 'landscape', label: '风景' },
-    { id: 'night', label: '夜景' },
-    { id: 'screenshot', label: '截图' },
-  ];
+    { id: 'all', labelKey: 'demo.input.chip.all' },
+    { id: 'portrait', labelKey: 'demo.input.chip.portrait' },
+    { id: 'landscape', labelKey: 'demo.input.chip.landscape' },
+    { id: 'night', labelKey: 'demo.input.chip.night' },
+    { id: 'screenshot', labelKey: 'demo.input.chip.screenshot' },
+  ] as const;
 
   return (
-    <DemoStage caption="可筛选的 Chip：可以多选，选中态填充主色，再点一次可以取消。">
+    <DemoStage caption={t(locale, 'demo.input.caption.chip')}>
       <div className="mx-auto w-full max-w-[400px]">
-        <p className="meta mb-2">已选 {active.length} 个条件</p>
+        <p className="meta mb-2">{t(locale, 'demo.input.chip.count', { n: active.length })}</p>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => {
             const isAll = f.id === 'all';
@@ -575,15 +638,22 @@ export function ChipDemo() {
                   on ? 'bg-ink text-white' : 'bg-[#F2F0EB] text-ink2 hover:bg-[#E9E6DF]'
                 }`}
               >
-                {f.label}
+                {t(locale, f.labelKey)}
               </button>
             );
           })}
         </div>
         <p className="mt-4 text-center text-xs text-muted">
           {active.length === 0
-            ? '显示全部照片'
-            : `筛选：${active.map((a) => FILTERS.find((f) => f.id === a)?.label).join('、')}`}
+            ? t(locale, 'demo.input.chip.showAll')
+            : t(locale, 'demo.input.chip.filtered', {
+                v: active
+                  .map((a) => {
+                    const f = FILTERS.find((x) => x.id === a);
+                    return f ? t(locale, f.labelKey) : a;
+                  })
+                  .join(', '),
+              })}
         </p>
       </div>
     </DemoStage>
@@ -593,20 +663,21 @@ export function ChipDemo() {
 /* ---------------- Number Stepper ---------------- */
 
 export function NumberStepperDemo() {
+  const locale = useLocale();
   const [n, setN] = useState(1);
   const MIN = 1;
   const MAX = 99;
 
   return (
-    <DemoStage caption="减到最小值时减号会禁用 —— 给用户一个明确的边界反馈。">
+    <DemoStage caption={t(locale, 'demo.input.caption.stepper')}>
       <div className="mx-auto w-full max-w-[340px]">
-        <p className="mb-1.5 text-sm text-ink2">导出数量</p>
+        <p className="mb-1.5 text-sm text-ink2">{t(locale, 'demo.input.stepper.label')}</p>
         <div className="flex items-center justify-between rounded-xl border border-line p-3">
           <DemoButton
             variant="secondary"
             onClick={() => setN((v) => Math.max(MIN, v - 1))}
             disabled={n <= MIN}
-            aria-label="减少"
+            aria-label={t(locale, 'demo.input.stepper.minus')}
             className="!min-h-[40px] !w-[40px] !px-0"
           >
             <Minus size={16} aria-hidden="true" />
@@ -616,14 +687,14 @@ export function NumberStepperDemo() {
             variant="secondary"
             onClick={() => setN((v) => Math.min(MAX, v + 1))}
             disabled={n >= MAX}
-            aria-label="增加"
+            aria-label={t(locale, 'demo.input.stepper.plus')}
             className="!min-h-[40px] !w-[40px] !px-0"
           >
             <Plus size={16} aria-hidden="true" />
           </DemoButton>
         </div>
         <p className="mt-2 text-center text-xs text-muted">
-          范围 {MIN} – {MAX}
+          {t(locale, 'demo.input.stepper.range', { min: MIN, max: MAX })}
         </p>
       </div>
     </DemoStage>

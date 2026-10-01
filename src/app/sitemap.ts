@@ -2,35 +2,63 @@ import type { MetadataRoute } from 'next';
 import { allPatternIds } from '@/data/patterns';
 import { allComparisonSlugs } from '@/data/comparisons';
 import { absoluteUrl } from '@/lib/site';
+import { href } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
 
 // 静态导出（output: 'export'）要求 Route Handler 显式声明为静态。
 export const dynamic = 'force-static';
 
+const LOCALES: Locale[] = ['zh', 'en'];
+
+/**
+ * sitemap 覆盖两种语言。
+ *
+ * Next 的 Sitemap 类型没有 alternates.languages 字段（那是 metadata 的能力），
+ * 所以 hreflang 关系靠每条 URL 自身页面里的 <link rel="alternate"> 表达，
+ * sitemap 只负责把两个语言的 URL 都列全，别漏掉 /en 那一半。
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const statics: MetadataRoute.Sitemap = [
-    { url: absoluteUrl('/'), lastModified: now, changeFrequency: 'weekly', priority: 1 },
-    { url: absoluteUrl('/explore'), lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: absoluteUrl('/learn'), lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: absoluteUrl('/identify'), lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: absoluteUrl('/compare'), lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: absoluteUrl('/search'), lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+  const statics = [
+    { path: '/', priority: 1, changeFrequency: 'weekly' as const },
+    { path: '/explore', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/learn', priority: 0.7, changeFrequency: 'monthly' as const },
+    { path: '/identify', priority: 0.8, changeFrequency: 'monthly' as const },
+    { path: '/compare', priority: 0.8, changeFrequency: 'monthly' as const },
+    { path: '/search', priority: 0.5, changeFrequency: 'monthly' as const },
   ];
 
-  const patterns: MetadataRoute.Sitemap = allPatternIds.map((id) => ({
-    url: absoluteUrl(`/patterns/${id}`),
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }));
+  const entries: MetadataRoute.Sitemap = [];
 
-  const comparisons: MetadataRoute.Sitemap = allComparisonSlugs.map((slug) => ({
-    url: absoluteUrl(`/compare/${slug}`),
-    lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }));
+  for (const locale of LOCALES) {
+    for (const s of statics) {
+      entries.push({
+        url: absoluteUrl(href(s.path, locale)),
+        lastModified: now,
+        changeFrequency: s.changeFrequency,
+        priority: s.priority,
+      });
+    }
 
-  return [...statics, ...patterns, ...comparisons];
+    for (const id of allPatternIds) {
+      entries.push({
+        url: absoluteUrl(href(`/patterns/${id}`, locale)),
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.8,
+      });
+    }
+
+    for (const slug of allComparisonSlugs) {
+      entries.push({
+        url: absoluteUrl(href(`/compare/${slug}`, locale)),
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      });
+    }
+  }
+
+  return entries;
 }

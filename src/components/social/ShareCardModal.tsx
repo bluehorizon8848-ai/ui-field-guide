@@ -4,11 +4,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Download, Loader2, X } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { UIPattern } from '@/data/types';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 import { drawShareCard, type ShareCardImage } from './renderCard';
 
+/**
+ * 比例选项。label 是尺寸比（两种语言都一样），hint 是界面文案，
+ * 所以按 id 映射到 ui-strings 的 key，而不是把文案写在这里。
+ */
 const RATIOS = [
-  { id: '3:4', w: 900, h: 1200, label: '3:4', hint: '小红书 / 中文内容平台' },
-  { id: '1:1', w: 1000, h: 1000, label: '1:1', hint: 'X / Reddit / 社交媒体' },
+  { id: '3:4', w: 900, h: 1200, label: '3:4', hintKey: 'share.ratio34' },
+  { id: '1:1', w: 1000, h: 1000, label: '1:1', hintKey: 'share.ratio11' },
 ] as const;
 
 type RatioId = (typeof RATIOS)[number]['id'];
@@ -20,6 +26,7 @@ export function ShareCardModal({
   pattern: UIPattern;
   onClose: () => void;
 }) {
+  const locale = useLocale();
   const [ratio, setRatio] = useState<RatioId>('3:4');
   const [busy, setBusy] = useState(false);
   const [shotState, setShotState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
@@ -81,7 +88,7 @@ export function ShareCardModal({
       const img = new Image();
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
-        img.onerror = () => reject(new Error('图片解码失败'));
+        img.onerror = () => reject(new Error('screenshot decode failed'));
         img.src = dataUrl;
       });
 
@@ -111,13 +118,13 @@ export function ShareCardModal({
       demo: shotImgRef.current,
       fallbackReason:
         shotState === 'loading'
-          ? '正在生成预览…'
+          ? t(locale, 'share.shotPreparing')
           : shotState === 'failed'
-            ? '该组件暂不支持预览'
-            : '正在生成预览…',
+            ? t(locale, 'share.shotUnsupported')
+            : t(locale, 'share.shotPreparing'),
     };
-    drawShareCard(c, pattern, spec.w, spec.h, payload);
-  }, [pattern, spec.w, spec.h, shotState]);
+    drawShareCard(c, pattern, spec.w, spec.h, locale, payload);
+  }, [pattern, spec.w, spec.h, shotState, locale]);
 
   const download = () => {
     const c = canvasRef.current;
@@ -142,7 +149,7 @@ export function ShareCardModal({
       className="fixed inset-0 z-[80] flex flex-col bg-[rgba(26,25,23,0.5)] p-3 animate-fade-in sm:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label="分享卡片预览"
+      aria-label={t(locale, 'share.canvasAria')}
       data-shot-state={shotState}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -151,15 +158,15 @@ export function ShareCardModal({
       <div className="mx-auto flex max-h-full w-full max-w-[520px] flex-col overflow-hidden rounded-xl border border-line bg-canvas shadow-pop">
         <header className="flex shrink-0 items-center justify-between gap-2 border-b border-line px-4 py-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-ink">分享卡片</h2>
+            <h2 className="text-sm font-semibold text-ink">{t(locale, 'share.modalTitle')}</h2>
             <p className="mt-0.5 text-2xs text-muted">
-              {pattern.name} · 真实 Demo 截图，无后端
+              {t(locale, 'share.modalSub', { name: pattern.name })}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="关闭"
+            aria-label={t(locale, 'common.close')}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
           >
             <X size={17} aria-hidden="true" />
@@ -171,13 +178,13 @@ export function ShareCardModal({
             <canvas
               ref={canvasRef}
               className="h-auto max-h-[54vh] w-auto max-w-full rounded-lg border border-line shadow-card"
-              aria-label={`${pattern.name} 分享卡片预览`}
+              aria-label={t(locale, 'share.canvasLabel', { name: pattern.name })}
             />
           </div>
         </div>
 
         <footer className="shrink-0 border-t border-line px-3 pb-3 pt-2 sm:px-4">
-          <div role="radiogroup" aria-label="卡片比例" className="mb-2.5 flex gap-1.5">
+          <div role="radiogroup" aria-label={t(locale, 'share.ratioAria')} className="mb-2.5 flex gap-1.5">
             {RATIOS.map((r) => (
               <button
                 key={r.id}
@@ -194,7 +201,7 @@ export function ShareCardModal({
                 <span className="block text-[0.8125rem] font-semibold text-ink">
                   {r.label}
                 </span>
-                <span className="mt-0.5 block text-2xs text-muted">{r.hint}</span>
+                <span className="mt-0.5 block text-2xs text-muted">{t(locale, r.hintKey)}</span>
               </button>
             ))}
           </div>
@@ -210,7 +217,7 @@ export function ShareCardModal({
             ) : (
               <Download size={15} aria-hidden="true" />
             )}
-            {busy ? '正在导出…' : '保存为 PNG'}
+            {busy ? t(locale, 'share.exporting') : t(locale, 'share.saving')}
           </button>
         </footer>
       </div>

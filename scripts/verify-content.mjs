@@ -103,13 +103,41 @@ for (const m of comparisonsSrc.matchAll(/relatedComparisons: \[([^\]]*)\]/g))
 for (const m of comparisonsSrc.matchAll(/pattern: '([^']+)'/g))
   checkRef('comparisons.ts', 'rows.pattern', m[1], ids);
 
-const cm = searchSrc.slice(
-  searchSrc.indexOf('colloquialMap'),
-  searchSrc.indexOf('export interface SearchHit')
-);
-for (const m of cm.matchAll(/\[([^\]]+)\]/g))
-  for (const v of m[1].matchAll(/'([^']+)'/g))
-    checkRef('colloquialMap', '-', v[1], ids);
+/**
+ * 口语映射表校验。
+ *
+ * 用「从声明处开始做花括号配对」来切块，不能用 indexOf 找下一个声明——
+ * search.ts 里两张映射表之间还夹着 STOPWORDS 和 colloquialScore，
+ * 按位置切片会把停用词数组当成映射表，把 'the'/'and' 当成不存在的 pattern id 报一堆假错。
+ */
+function extractObjectBlock(src, decl) {
+  const start = src.indexOf(decl);
+  if (start < 0) return '';
+  const open = src.indexOf('{', start);
+  if (open < 0) return '';
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === '{') depth++;
+    else if (src[i] === '}') {
+      depth--;
+      if (depth === 0) return src.slice(open, i + 1);
+    }
+  }
+  return '';
+}
+
+for (const [decl, label] of [
+  ['const colloquialMap', 'colloquialMap'],
+  ['const colloquialEn', 'colloquialEn'],
+]) {
+  const block = extractObjectBlock(searchSrc, decl);
+  if (!block) {
+    fail(`search.ts 里找不到 ${decl}`);
+    continue;
+  }
+  for (const m of block.matchAll(/\[([^\]]+)\]/g))
+    for (const v of m[1].matchAll(/'([^']+)'/g)) checkRef(label, '-', v[1], ids);
+}
 
 for (const id of demoIds) checkRef('demoIds', '-', id, ids);
 for (const id of registryIds) checkRef('registry', '-', id, ids);

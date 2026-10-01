@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { demoRegistry } from '@/components/demo/registry';
-import { patternMap } from '@/data/patterns';
+import { getPattern } from '@/data/i18n/resolve';
+import { useHref, useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 const STRIP = [
   { id: 'accordion', name: 'Accordion', zh: '手风琴 / 折叠面板' },
@@ -18,14 +20,16 @@ const STRIP = [
  */
 export function InteractiveStrip() {
   const [active, setActive] = useState(STRIP[0].id);
+  const locale = useLocale();
+  const h = useHref();
   const Demo = demoRegistry[active];
-  const pattern = patternMap[active];
+  const pattern = getPattern(active, locale);
 
   return (
     <div>
       <div
         role="tablist"
-        aria-label="挑选一个试试"
+        aria-label={t(locale, 'strip.pickOne')}
         className="flex flex-wrap gap-1.5 border-b border-line"
       >
         {STRIP.map((s) => (
@@ -56,17 +60,17 @@ export function InteractiveStrip() {
           <Demo />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Link
-              href={`/patterns/${pattern.id}`}
+              href={h(`/patterns/${pattern.id}`)}
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
             >
-              它叫什么，什么时候用
+              {t(locale, 'strip.whatIsIt')}
               <ArrowRight size={14} aria-hidden="true" />
             </Link>
             <Link
-              href={`/patterns/${pattern.id}#ask-ai`}
+              href={h(`/patterns/${pattern.id}#ask-ai`)}
               className="inline-flex min-h-[44px] items-center text-sm text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
             >
-              直接抄 Prompt 给 AI
+              {t(locale, 'strip.copyPrompt')}
             </Link>
           </div>
         </div>

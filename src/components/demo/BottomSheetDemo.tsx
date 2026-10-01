@@ -4,14 +4,16 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Check, SlidersHorizontal, X } from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
 import { useScrollLock } from '@/hooks/useScrollLock';
-
-const FILTERS = [
-  { id: 'date', label: '按日期' },
-  { id: 'type', label: '按类型' },
-  { id: 'rating', label: '按评分' },
-];
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 export function BottomSheetDemo() {
+  const locale = useLocale();
+  const FILTERS = [
+    { id: 'date', label: t(locale, 'demo.sheet.byDate') },
+    { id: 'type', label: t(locale, 'demo.sheet.byType') },
+    { id: 'rating', label: t(locale, 'demo.sheet.byRating') },
+  ];
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>(['date']);
   const [result, setResult] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function BottomSheetDemo() {
   };
 
   return (
-    <DemoStage caption="从屏幕底部升起的面板，高度按内容自适应（约 55%），底层页面仍然可见 —— 这就是 Bottom Sheet。">
+    <DemoStage caption={t(locale, 'demo.caption.sheet')}>
       <div className="flex flex-col items-center justify-center gap-3">
         <DemoButton
           ref={triggerRef}
@@ -56,7 +58,7 @@ export function BottomSheetDemo() {
           }}
         >
           <SlidersHorizontal size={15} aria-hidden="true" />
-          筛选照片
+          {t(locale, 'demo.sheet.filterPhotos')}
         </DemoButton>
         {result && (
           <p className="text-xs text-muted" role="status">
@@ -89,12 +91,12 @@ export function BottomSheetDemo() {
 
             <div className="flex items-center justify-between px-5 pb-2 pt-1.5">
               <h3 id={sheetTitleId} className="text-base font-semibold text-ink">
-                筛选
+                {t(locale, 'demo.sheet.title')}
               </h3>
               <button
                 type="button"
                 onClick={close}
-                aria-label="关闭筛选"
+                aria-label={t(locale, 'demo.sheet.close')}
                 className="-mr-1.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
               >
                 <X size={16} aria-hidden="true" />
@@ -136,16 +138,17 @@ export function BottomSheetDemo() {
                   onClick={() => setSelected([])}
                   className="min-h-[44px] shrink-0 px-1 text-xs text-muted underline-offset-4 hover:underline"
                 >
-                  清空
+                  {t(locale, 'demo.sheet.clear')}
                 </button>
                 <DemoButton
                   onClick={() => {
                     setOpen(false);
-                    setResult(`已应用 ${selected.length} 个筛选条件`);
+                    setResult(t(locale, 'demo.sheet.applied', { n: selected.length }));
                   }}
                   disabled={selected.length === 0}
                 >
-                  应用{selected.length > 0 ? ` (${selected.length})` : ''}
+                  {t(locale, 'demo.sheet.apply')}
+                  {selected.length > 0 ? ` (${selected.length})` : ''}
                 </DemoButton>
               </div>
             </div>

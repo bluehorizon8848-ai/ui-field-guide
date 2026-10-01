@@ -5,18 +5,23 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, Search, X } from 'lucide-react';
 import { site } from '@/lib/site';
-
-const NAV = [
-  { href: '/explore', label: '图鉴' },
-  { href: '/learn', label: '学习路径' },
-  { href: '/compare', label: '对比' },
-  { href: '/identify', label: '我不知道它叫什么' },
-];
+import { t } from '@/lib/ui-strings';
+import { useHref, useLocale, LocaleSwitch } from './LocaleProvider';
 
 export function Header() {
   const pathname = usePathname();
+  const locale = useLocale();
+  const h = useHref();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // base 是不带语言前缀的路径，active 判断和 href 拼接都从它出发，避免重复调 h()
+  const NAV = [
+    { base: '/explore', label: t(locale, 'nav.explore') },
+    { base: '/learn', label: t(locale, 'nav.learn') },
+    { base: '/compare', label: t(locale, 'nav.compare') },
+    { base: '/identify', label: t(locale, 'nav.identify') },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -36,6 +41,11 @@ export function Header() {
     return () => document.removeEventListener('keydown', onKey);
   }, [menuOpen]);
 
+  const isActive = (base: string) => {
+    const p = h(base);
+    return pathname === p || pathname.startsWith(`${p}/`);
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 border-b bg-canvas/90 backdrop-blur-sm transition-colors ${
@@ -44,9 +54,9 @@ export function Header() {
     >
       <div className="container-page flex h-14 items-center gap-3">
         <Link
-          href="/"
+          href={h('/')}
           className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-md py-1 pr-1"
-          aria-label={`${site.name} 首页`}
+          aria-label={`${site.name} ${t(locale, 'nav.home')}`}
         >
           <span
             aria-hidden="true"
@@ -59,13 +69,13 @@ export function Header() {
           </span>
         </Link>
 
-        <nav aria-label="主导航" className="ml-4 hidden items-center gap-0.5 md:flex">
+        <nav aria-label={t(locale, 'nav.main')} className="ml-4 hidden items-center gap-0.5 md:flex">
           {NAV.map((n) => {
-            const active = pathname === n.href || pathname.startsWith(`${n.href}/`);
+            const active = isActive(n.base);
             return (
               <Link
-                key={n.href}
-                href={n.href}
+                key={n.base}
+                href={h(n.base)}
                 aria-current={active ? 'page' : undefined}
                 className={`rounded-md px-2.5 py-1.5 text-[0.8125rem] transition-colors ${
                   active ? 'font-medium text-ink' : 'text-ink2 hover:text-ink'
@@ -78,9 +88,13 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <div className="hidden sm:block">
+            <LocaleSwitch />
+          </div>
+
           <Link
-            href="/search"
-            aria-label="搜索"
+            href={h('/search')}
+            aria-label={t(locale, 'nav.search')}
             className="flex h-11 w-11 items-center justify-center rounded-md text-ink2 transition-colors hover:bg-[#F2F0EB] hover:text-ink"
           >
             <Search size={17} aria-hidden="true" />
@@ -89,7 +103,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
+            aria-label={menuOpen ? t(locale, 'nav.closeMenu') : t(locale, 'nav.openMenu')}
             aria-expanded={menuOpen}
             className="flex h-11 w-11 items-center justify-center rounded-md text-ink2 transition-colors hover:bg-[#F2F0EB] hover:text-ink md:hidden"
           >
@@ -100,15 +114,20 @@ export function Header() {
 
       {menuOpen && (
         <nav
-          aria-label="移动端导航"
+          aria-label={t(locale, 'nav.mobile')}
           className="scroll-contain border-t border-line bg-canvas px-5 pb-safe pt-2 md:hidden"
         >
+          {/* 窄屏隐藏了顶部切换器，移动菜单里必须补一个，否则手机上根本没法切语言 */}
+          <div className="flex items-center justify-between border-b border-line py-2">
+            <span className="meta">{locale === 'zh' ? '语言' : 'Language'}</span>
+            <LocaleSwitch />
+          </div>
           {NAV.map((n) => {
-            const active = pathname === n.href || pathname.startsWith(`${n.href}/`);
+            const active = isActive(n.base);
             return (
               <Link
-                key={n.href}
-                href={n.href}
+                key={n.base}
+                href={h(n.base)}
                 aria-current={active ? 'page' : undefined}
                 className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm transition-colors active:bg-[#EDEae3] ${
                   active ? 'bg-[#F2F0EB] font-medium text-ink' : 'text-ink2'

@@ -3,18 +3,19 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, House, Image as ImageIcon, User } from 'lucide-react';
 import { DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Breadcrumb ---------------- */
 
 export function BreadcrumbDemo() {
+  const locale = useLocale();
   const [depth, setDepth] = useState(3);
-  const path = ['相册', '2026', 'IMG_0231'].slice(0, depth);
+  const path = [t(locale, 'demo.nav.breadcrumb.album'), '2026', 'IMG_0231'].slice(0, depth);
 
   return (
-    <DemoStage
-      caption="点任意一级退回上层 —— 面包屑的价值不在「显示路径」，在「让你退回」。"
-    >
-      <nav aria-label="面包屑" className="min-w-0">
+    <DemoStage caption={t(locale, 'demo.nav.caption.breadcrumb')}>
+      <nav aria-label={t(locale, 'demo.nav.breadcrumb.aria')} className="min-w-0">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm">
           {path.map((item, i) => {
             const isLast = i === path.length - 1;
@@ -48,14 +49,15 @@ export function BreadcrumbDemo() {
       </nav>
 
       <p className="mt-4 text-xs text-muted">
-        当前层级：<span className="text-ink2">{path.join(' / ')}</span>
+        {t(locale, 'demo.nav.breadcrumb.level')}{' '}
+        <span className="text-ink2">{path.join(' / ')}</span>
         {depth < 3 && (
           <button
             type="button"
             onClick={() => setDepth(3)}
             className="ml-2 text-ink2 underline underline-offset-4 hover:text-ink"
           >
-            回到深层
+            {t(locale, 'demo.nav.breadcrumb.deep')}
           </button>
         )}
       </p>
@@ -66,34 +68,39 @@ export function BreadcrumbDemo() {
 /* ---------------- Tabs ---------------- */
 
 export function TabsDemo() {
+  const locale = useLocale();
   const [tab, setTab] = useState('posts');
 
   const TABS = [
-    { k: 'posts', label: '主页' },
-    { k: 'works', label: '作品' },
-    { k: 'likes', label: '喜欢' },
-    { k: 'saved', label: '收藏' },
+    { k: 'posts', label: t(locale, 'demo.nav.tabs.home') },
+    { k: 'works', label: t(locale, 'demo.nav.tabs.works') },
+    { k: 'likes', label: t(locale, 'demo.nav.tabs.likes') },
+    { k: 'saved', label: t(locale, 'demo.nav.tabs.saved') },
   ];
 
   return (
-    <DemoStage caption="点标签切换下面的整块内容。标签多的时候在手机上可以左右滑。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.tabs')}>
       <div>
-        <div role="tablist" aria-label="用户主页分区" className="flex gap-1 border-b border-line">
-          {TABS.map((t) => (
+        <div
+          role="tablist"
+          aria-label={t(locale, 'demo.nav.tabs.aria')}
+          className="flex gap-1 border-b border-line"
+        >
+          {TABS.map((item) => (
             <button
-              key={t.k}
+              key={item.k}
               type="button"
               role="tab"
-              id={`tab-${t.k}`}
-              aria-selected={tab === t.k}
-              aria-controls={`panel-${t.k}`}
-              onClick={() => setTab(t.k)}
+              id={`tab-${item.k}`}
+              aria-selected={tab === item.k}
+              aria-controls={`panel-${item.k}`}
+              onClick={() => setTab(item.k)}
               className={`relative -mb-px whitespace-nowrap px-3.5 py-2.5 text-sm transition-colors ${
-                tab === t.k ? 'font-medium text-ink' : 'text-muted hover:text-ink2'
+                tab === item.k ? 'font-medium text-ink' : 'text-muted hover:text-ink2'
               }`}
             >
-              {t.label}
-              {tab === t.k && (
+              {item.label}
+              {tab === item.k && (
                 <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-ink" />
               )}
             </button>
@@ -108,10 +115,26 @@ export function TabsDemo() {
         >
           {(() => {
             const CONTENT: Record<string, string[]> = {
-              posts: ['今天去了海边，捡到一块很特别的海玻璃', '拍了一下午，其实就为了这一张', '阴天也很好，光很柔'],
-              works: ['《城市边缘》系列 · 第 3 组', '《无人知晓的房间》', '《光的重量》短片'],
-              likes: ['这张构图我喜欢', '想记住这个颜色', '旅行时拍的，不记得哪了'],
-              saved: ['周末去的地方清单', '想在家复刻的菜', '下次要去的城市'],
+              posts: [
+                t(locale, 'demo.nav.tabs.post1'),
+                t(locale, 'demo.nav.tabs.post2'),
+                t(locale, 'demo.nav.tabs.post3'),
+              ],
+              works: [
+                t(locale, 'demo.nav.tabs.work1'),
+                t(locale, 'demo.nav.tabs.work2'),
+                t(locale, 'demo.nav.tabs.work3'),
+              ],
+              likes: [
+                t(locale, 'demo.nav.tabs.like1'),
+                t(locale, 'demo.nav.tabs.like2'),
+                t(locale, 'demo.nav.tabs.like3'),
+              ],
+              saved: [
+                t(locale, 'demo.nav.tabs.save1'),
+                t(locale, 'demo.nav.tabs.save2'),
+                t(locale, 'demo.nav.tabs.save3'),
+              ],
             };
             const content = CONTENT[tab] ?? [];
             return (
@@ -137,20 +160,21 @@ export function TabsDemo() {
 /* ---------------- Bottom Navigation ---------------- */
 
 export function BottomNavigationDemo() {
+  const locale = useLocale();
   const [active, setActive] = useState('home');
 
   const ITEMS = [
-    { k: 'home', label: '首页', icon: House },
-    { k: 'album', label: '相册', icon: ImageIcon, badge: 5 },
-    { k: 'me', label: '我的', icon: User },
+    { k: 'home', label: t(locale, 'demo.nav.bottom.home'), icon: House },
+    { k: 'album', label: t(locale, 'demo.nav.bottom.album'), icon: ImageIcon, badge: 5 },
+    { k: 'me', label: t(locale, 'demo.nav.bottom.me'), icon: User },
   ];
 
   return (
-    <DemoStage caption="点一下切换。选中项的图标和文字都会高亮 —— 它负责的是「在主功能之间切换」。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.bottom')}>
       <div className="mx-auto w-full max-w-[320px]">
         <div className="mb-3 h-16 rounded-lg border border-dashed border-line bg-[#FCFBF8]" />
         <nav
-          aria-label="主导航"
+          aria-label={t(locale, 'nav.main')}
           className="flex items-stretch border-t border-line bg-surface pt-1.5"
         >
           {ITEMS.map((it) => {
@@ -187,43 +211,54 @@ export function BottomNavigationDemo() {
 /* ---------------- Navigation Rail / Sidebar ---------------- */
 
 export function SidebarDemo() {
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState('概览');
+  const [active, setActive] = useState('overview');
 
-  const ITEMS = ['概览', '媒体库', '相册', '回收站', '设置'];
+  const ITEMS = [
+    { k: 'overview', label: t(locale, 'demo.nav.sidebar.overview') },
+    { k: 'library', label: t(locale, 'demo.nav.sidebar.library') },
+    { k: 'album', label: t(locale, 'demo.nav.sidebar.album') },
+    { k: 'trash', label: t(locale, 'demo.nav.sidebar.trash') },
+    { k: 'settings', label: t(locale, 'demo.nav.sidebar.settings') },
+  ];
 
   return (
-    <DemoStage caption="点「切换」看导航轨和 Sidebar 之间的差别：图标态 vs 展开态（本质是同一套东西的两种宽度）。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.sidebar')}>
       <div className="flex min-h-[240px] flex-col overflow-hidden rounded-xl border border-line sm:flex-row">
         <nav
-          aria-label="侧边导航"
+          aria-label={t(locale, 'demo.nav.sidebar.aria')}
           className={`flex shrink-0 flex-row border-b border-line bg-[#FCFBF8] transition-[width] duration-200 sm:flex-col sm:border-b-0 sm:border-r ${
             open ? 'w-full sm:w-[150px]' : 'w-full sm:w-[60px]'
           }`}
         >
           <div className="flex h-11 shrink-0 items-center border-b border-line px-3 sm:border-b-0">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-ink text-[10px] font-semibold text-white">
-              拾
+              {t(locale, 'demo.nav.sidebar.mark')}
             </span>
-            {open && <span className="ml-2 text-xs font-medium text-ink">拾光清理</span>}
+            {open && (
+              <span className="ml-2 text-xs font-medium text-ink">
+                {t(locale, 'demo.nav.sidebar.app')}
+              </span>
+            )}
           </div>
           <ul className="flex flex-1 gap-1 overflow-x-auto p-1.5 sm:flex-col sm:overflow-x-visible">
             {ITEMS.map((it) => (
-              <li key={it} className="shrink-0 sm:shrink">
+              <li key={it.k} className="shrink-0 sm:shrink">
                 <button
                   type="button"
-                  onClick={() => setActive(it)}
-                  aria-current={active === it ? 'page' : undefined}
-                  aria-label={open ? it : undefined}
-                  title={it}
+                  onClick={() => setActive(it.k)}
+                  aria-current={active === it.k ? 'page' : undefined}
+                  aria-label={open ? it.label : undefined}
+                  title={it.label}
                   className={`flex min-h-[44px] w-full min-w-[44px] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
-                    active === it
+                    active === it.k
                       ? 'bg-[#EFEDE7] font-medium text-ink'
                       : 'text-ink2 hover:bg-[#F2F0EB] active:bg-[#EDEae3]'
                   }`}
                 >
                   <span className="h-4 w-4 shrink-0 rounded bg-[#D8D5CD]" aria-hidden="true" />
-                  {open && <span className="truncate">{it}</span>}
+                  {open && <span className="truncate">{it.label}</span>}
                 </button>
               </li>
             ))}
@@ -236,12 +271,16 @@ export function SidebarDemo() {
               onClick={() => setOpen((o) => !o)}
               className="-my-1.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-md px-2 text-xs text-ink2 transition-colors hover:bg-[#F2F0EB] active:bg-[#EDEae3]"
             >
-              切换
+              {t(locale, 'demo.nav.sidebar.toggle')}
             </button>
-            <span className="ml-2 text-xs text-muted">{open ? '展开态 (240px)' : '图标态 (80px)'}</span>
+            <span className="ml-2 text-xs text-muted">
+              {open
+                ? t(locale, 'demo.nav.sidebar.expanded')
+                : t(locale, 'demo.nav.sidebar.collapsed')}
+            </span>
           </div>
           <div className="grid-lines flex flex-1 items-center justify-center p-4">
-            <p className="text-xs text-muted">主内容区</p>
+            <p className="text-xs text-muted">{t(locale, 'demo.nav.sidebar.content')}</p>
           </div>
         </div>
       </div>
@@ -252,14 +291,20 @@ export function SidebarDemo() {
 /* ---------------- Stepper ---------------- */
 
 export function StepperDemo() {
+  const locale = useLocale();
   const [current, setCurrent] = useState(1);
 
-  const STEPS = ['购物车', '填写地址', '支付', '完成'];
+  const STEPS = [
+    t(locale, 'demo.nav.stepper.cart'),
+    t(locale, 'demo.nav.stepper.address'),
+    t(locale, 'demo.nav.stepper.pay'),
+    t(locale, 'demo.nav.stepper.done'),
+  ];
 
   return (
-    <DemoStage caption="点已完成的步骤可以回退。移动端通常会简化成「第 2 步 / 共 4 步」。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.stepper')}>
       <div className="w-full">
-        <ol className="flex items-center" aria-label="结算步骤">
+        <ol className="flex items-center" aria-label={t(locale, 'demo.nav.stepper.aria')}>
           {STEPS.map((s, i) => {
             const state = i < current ? 'done' : i === current ? 'active' : 'upcoming';
             return (
@@ -303,7 +348,8 @@ export function StepperDemo() {
           })}
         </ol>
         <p className="mt-5 text-center text-xs text-muted">
-          第 {current + 1} 步 / 共 {STEPS.length} 步 · {STEPS[current]}
+          {t(locale, 'demo.nav.stepper.progress', { n: current + 1, m: STEPS.length })}{' '}
+          · {STEPS[current]}
         </p>
       </div>
     </DemoStage>
@@ -313,20 +359,23 @@ export function StepperDemo() {
 /* ---------------- Pagination ---------------- */
 
 export function PaginationDemo() {
+  const locale = useLocale();
   const [page, setPage] = useState(3);
 
   return (
-    <DemoStage caption="点数字试试。分页的价值是「可定位」—— 你能记住第 3 页有东西。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.pagination')}>
       <div className="w-full">
         <div className="mb-4 flex items-center justify-center gap-3 rounded-lg border border-dashed border-line bg-[#FCFBF8] py-6">
-          <p className="text-sm text-ink2">正在看第 {page} 页的结果</p>
+          <p className="text-sm text-ink2">
+            {t(locale, 'demo.nav.pagination.viewing', { n: page })}
+          </p>
         </div>
-        <nav aria-label="分页" className="flex items-center justify-center gap-1">
+        <nav aria-label={t(locale, 'demo.nav.pagination.aria')} className="flex items-center justify-center gap-1">
           <button
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            aria-label="上一页"
+            aria-label={t(locale, 'demo.nav.pagination.prev')}
             className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink active:bg-[#EDEae3] disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronLeft size={16} aria-hidden="true" />
@@ -366,13 +415,15 @@ export function PaginationDemo() {
             type="button"
             onClick={() => setPage((p) => Math.min(48, p + 1))}
             disabled={page === 48}
-            aria-label="下一页"
+            aria-label={t(locale, 'demo.nav.pagination.next')}
             className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink active:bg-[#EDEae3] disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </nav>
-        <p className="mt-3 text-center text-xs text-muted">共 48 页 · 每页 20 条</p>
+        <p className="mt-3 text-center text-xs text-muted">
+          {t(locale, 'demo.nav.pagination.summary', { n: 48, m: 20 })}
+        </p>
       </div>
     </DemoStage>
   );
@@ -381,6 +432,7 @@ export function PaginationDemo() {
 /* ---------------- Infinite Scroll ---------------- */
 
 export function InfiniteScrollDemo() {
+  const locale = useLocale();
   const [count, setCount] = useState(6);
   const [loading, setLoading] = useState(false);
 
@@ -396,7 +448,7 @@ export function InfiniteScrollDemo() {
   const done = count >= 18;
 
   return (
-    <DemoStage caption="滑到底部或点「加载更多」试试。加载完会显示「已经到底了」—— 不然用户不知道还能不能继续。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.infinite')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="max-h-[240px] space-y-2 overflow-y-auto pr-1">
           {Array.from({ length: count }).map((_, i) => (
@@ -412,8 +464,10 @@ export function InfiniteScrollDemo() {
                 aria-hidden="true"
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[0.8125rem] text-ink">内容 {i + 1}</p>
-                <p className="text-xs text-muted">3 分钟前</p>
+                <p className="truncate text-[0.8125rem] text-ink">
+                  {t(locale, 'demo.nav.infinite.item', { n: i + 1 })}
+                </p>
+                <p className="text-xs text-muted">{t(locale, 'demo.nav.infinite.time')}</p>
               </div>
             </div>
           ))}
@@ -431,12 +485,12 @@ export function InfiniteScrollDemo() {
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#C9C5BB] [animation-delay:-0.15s]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#C9C5BB]" />
               </span>
-              正在加载…
+              {t(locale, 'demo.nav.infinite.loading')}
             </span>
           ) : done ? (
             <span className="flex items-center gap-2 text-xs text-muted">
               <span className="h-px w-6 bg-line" aria-hidden="true" />
-              已经到底了
+              {t(locale, 'demo.nav.infinite.end')}
               <span className="h-px w-6 bg-line" aria-hidden="true" />
             </span>
           ) : (
@@ -445,7 +499,7 @@ export function InfiniteScrollDemo() {
               onClick={loadMore}
               className="rounded-lg border border-line px-4 py-2 text-xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
             >
-              加载更多
+              {t(locale, 'demo.nav.loadMore.button')}
             </button>
           )}
         </div>
@@ -457,12 +511,13 @@ export function InfiniteScrollDemo() {
 /* ---------------- Load More ---------------- */
 
 export function LoadMoreDemo() {
+  const locale = useLocale();
   const [n, setN] = useState(3);
   const all = Array.from({ length: n }, (_, i) => i);
   const done = n >= 9;
 
   return (
-    <DemoStage caption="「加载更多」是分页和无限滚动之间的中间解：用户自己控制节奏。">
+    <DemoStage caption={t(locale, 'demo.nav.caption.loadMore')}>
       <div className="mx-auto w-full max-w-[400px]">
         <div className="space-y-2">
           {all.map((i) => (
@@ -470,20 +525,20 @@ export function LoadMoreDemo() {
               key={i}
               className="rounded-lg border border-line bg-surface px-3.5 py-3 text-[0.8125rem] leading-relaxed text-ink2"
             >
-              第 {i + 1} 条内容。这是一段演示文本，用来占据一些空间。
+              {t(locale, 'demo.nav.loadMore.item', { n: i + 1 })}
             </div>
           ))}
         </div>
         <div className="mt-3.5 flex justify-center">
           {done ? (
-            <span className="text-xs text-muted">没有更多了</span>
+            <span className="text-xs text-muted">{t(locale, 'demo.nav.loadMore.end')}</span>
           ) : (
             <button
               type="button"
               onClick={() => setN((v) => Math.min(9, v + 3))}
               className="rounded-lg border border-line px-4 py-2 text-xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
             >
-              加载更多
+              {t(locale, 'demo.nav.loadMore.button')}
             </button>
           )}
         </div>

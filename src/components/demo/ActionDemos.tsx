@@ -17,10 +17,13 @@ import {
   Undo2,
 } from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Button ---------------- */
 
 export function ButtonDemo() {
+  const locale = useLocale();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -35,28 +38,32 @@ export function ButtonDemo() {
   };
 
   return (
-    <DemoStage caption="点「保存」：按钮会进入 loading 并禁用。文案用动词，不用「确定」。">
+    <DemoStage caption={t(locale, 'demo.caption.button')}>
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-2.5">
           <DemoButton variant="secondary" disabled={saving}>
-            取消
+            {t(locale, 'demo.btn.cancel')}
           </DemoButton>
           <DemoButton onClick={save} disabled={saving} aria-busy={saving} className="min-w-[104px]">
             {saving && (
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             )}
-            {saving ? '保存中…' : '保存'}
+            {saving ? t(locale, 'demo.btn.saving') : t(locale, 'demo.btn.save')}
           </DemoButton>
         </div>
         <p className="text-xs text-muted" role="status" aria-live="polite">
-          {saving ? '正在写入…' : saved ? '已保存到相册' : '试试禁用态：'}{' '}
+          {saving
+            ? t(locale, 'demo.btn.writing')
+            : saved
+              ? t(locale, 'demo.btn.savedToAlbum')
+              : t(locale, 'demo.btn.tryDisabled')}{' '}
           <button
             type="button"
             className="underline underline-offset-4"
             onClick={() => setSaving((v) => !v)}
             disabled={saved}
           >
-            {saving ? '取消禁用' : '手动禁用'}
+            {saving ? t(locale, 'demo.btn.enable') : t(locale, 'demo.btn.disableManually')}
           </button>
         </p>
       </div>
@@ -67,26 +74,27 @@ export function ButtonDemo() {
 /* ---------------- CTA ---------------- */
 
 export function CtaDemo() {
+  const locale = useLocale();
   const [clicked, setClicked] = useState(false);
 
   return (
-    <DemoStage caption="整页只有这一个按钮是深色实心的 —— 它就是「你希望用户做的事」。">
+    <DemoStage caption={t(locale, 'demo.caption.cta')}>
       <div className="mx-auto w-full max-w-[360px] rounded-xl border border-line bg-[#FCFBF8] p-6 text-center">
-        <p className="text-base font-semibold text-ink">开始整理你的相册</p>
+        <p className="text-base font-semibold text-ink">{t(locale, 'demo.cta.title')}</p>
         <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-muted">
-          扫描、找出重复照片，一键释放空间。
+          {t(locale, 'demo.cta.sub')}
         </p>
         <button
           type="button"
           onClick={() => setClicked(true)}
           className="mt-5 h-[52px] w-full rounded-lg bg-ink text-[0.9375rem] font-medium text-white transition-colors hover:bg-[#35322C] active:bg-[#0D0C0B]"
         >
-          免费开始使用
+          {t(locale, 'demo.cta.action')}
         </button>
-        <p className="mt-2 text-xs text-muted">无需信用卡 · 不上传照片</p>
+        <p className="mt-2 text-xs text-muted">{t(locale, 'demo.cta.note')}</p>
         {clicked && (
           <p className="mt-2 text-xs text-[#2C7355]" role="status">
-            这是页面上唯一的 CTA —— 别的按钮都不会长这样。
+            {t(locale, 'demo.cta.onlyOne')}
           </p>
         )}
       </div>
@@ -97,22 +105,23 @@ export function CtaDemo() {
 /* ---------------- Icon Button + Tooltip ---------------- */
 
 export function IconButtonDemo() {
+  const locale = useLocale();
   return (
-    <DemoStage caption="悬停（或用 Tab 聚焦）任意图标，会出现 Tooltip。图标按钮必须配它，否则用户不知道是什么。">
+    <DemoStage caption={t(locale, 'demo.caption.iconButton')}>
       <div className="flex flex-wrap items-center justify-center gap-1">
         {[
-          { icon: Bold, label: '加粗' },
-          { icon: Italic, label: '斜体' },
-          { icon: Copy, label: '复制' },
-          { icon: Search, label: '搜索' },
-          { icon: Share2, label: '分享' },
+          { icon: Bold, label: t(locale, 'demo.icon.bold') },
+          { icon: Italic, label: t(locale, 'demo.icon.italic') },
+          { icon: Copy, label: t(locale, 'demo.icon.copy') },
+          { icon: Search, label: t(locale, 'demo.icon.search') },
+          { icon: Share2, label: t(locale, 'demo.icon.share') },
         ].map(({ icon: Icon, label }) => (
           <IconButtonWithTooltip key={label} icon={<Icon size={18} />} label={label} />
         ))}
         <span className="mx-2 hidden h-5 w-px bg-line sm:block" aria-hidden="true" />
         <IconButtonWithTooltip
           icon={<Trash2 size={18} />}
-          label="删除"
+          label={t(locale, 'demo.icon.delete')}
           danger
         />
       </div>
@@ -181,16 +190,17 @@ function IconButtonWithTooltip({
 /* ---------------- FAB ---------------- */
 
 export function FabDemo() {
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
 
   return (
-    <DemoStage caption="它一直浮在右下角，不随内容滚走 —— 无论你在多深的页面都能「新建」。">
+    <DemoStage caption={t(locale, 'demo.caption.fab')}>
       <div className="relative h-[240px] rounded-lg border border-dashed border-line bg-[#FCFBF8]">
-        <p className="p-4 text-xs text-muted">页面内容（可以滚很长）</p>
+        <p className="p-4 text-xs text-muted">{t(locale, 'demo.fab.pageContent')}</p>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          aria-label="新建相册"
+          aria-label={t(locale, 'demo.fab.newAlbum')}
           aria-expanded={open}
           className="absolute bottom-4 right-4 z-10 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white shadow-[0_4px_12px_rgba(26,25,23,0.22)] transition-transform hover:scale-105 active:scale-95"
         >
@@ -198,14 +208,14 @@ export function FabDemo() {
         </button>
         {open && (
           <div className="absolute bottom-20 right-4 z-10 w-40 rounded-lg border border-line bg-surface p-1.5 shadow-pop animate-rise-in">
-            {['新建相册', '导入照片', '新建拼图'].map((t) => (
+            {[t(locale, 'demo.fab.newAlbum'), t(locale, 'demo.fab.import'), t(locale, 'demo.fab.collage')].map((item) => (
               <button
-                key={t}
+                key={item}
                 type="button"
                 onClick={() => setOpen(false)}
                 className="w-full rounded-md px-2.5 py-2 text-left text-[0.8125rem] text-ink2 transition-colors hover:bg-[#F5F3EE]"
               >
-                {t}
+                {item}
               </button>
             ))}
           </div>
@@ -218,11 +228,12 @@ export function FabDemo() {
 /* ---------------- Split Button ---------------- */
 
 export function SplitButtonDemo() {
+  const locale = useLocale();
   const [mode, setMode] = useState<'menu' | 'pasted'>('menu');
   const [open, setOpen] = useState(false);
 
   return (
-    <DemoStage caption="左边是默认动作，右边才是下拉。点左边直接执行，点右边看变体。">
+    <DemoStage caption={t(locale, 'demo.caption.split')}>
       <div className="flex flex-col items-center gap-3">
         <div className="inline-flex">
           <button
@@ -234,14 +245,14 @@ export function SplitButtonDemo() {
             className="flex min-h-[38px] items-center gap-1.5 rounded-l-lg bg-ink px-4 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
           >
             <Copy size={15} aria-hidden="true" />
-            粘贴
+            {t(locale, 'demo.split.paste')}
           </button>
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-haspopup="menu"
             aria-expanded={open}
-            aria-label="更多粘贴选项"
+            aria-label={t(locale, 'demo.split.moreOptions')}
             className="flex min-h-[38px] items-center rounded-r-lg border-l border-white/25 bg-ink px-2.5 text-white transition-colors hover:bg-[#35322C]"
           >
             <ChevronDown size={15} aria-hidden="true" />
@@ -254,9 +265,9 @@ export function SplitButtonDemo() {
             className="w-56 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop animate-rise-in"
           >
             {[
-              { icon: Copy, label: '保留源格式' },
-              { icon: FileText, label: '只保留文本' },
-              { icon: Star, label: '粘贴为纯文本' },
+              { icon: Copy, label: t(locale, 'demo.split.keepFormat') },
+              { icon: FileText, label: t(locale, 'demo.split.textOnly') },
+              { icon: Star, label: t(locale, 'demo.split.pastePlain') },
             ].map(({ icon: Icon, label }) => (
               <li key={label}>
                 <button
@@ -277,7 +288,7 @@ export function SplitButtonDemo() {
         )}
 
         <p className="text-xs text-muted" role="status" aria-live="polite">
-          {mode === 'menu' ? '还没执行任何操作' : '已粘贴（默认格式）'}
+          {mode === 'menu' ? t(locale, 'demo.split.idle') : t(locale, 'demo.split.pasted')}
         </p>
       </div>
     </DemoStage>
@@ -287,24 +298,28 @@ export function SplitButtonDemo() {
 /* ---------------- Destructive Action ---------------- */
 
 export function DestructiveActionDemo() {
+  const locale = useLocale();
   const [items, setItems] = useState(12);
   const [confirming, setConfirming] = useState(false);
   const [snack, setSnack] = useState<string | null>(null);
 
   useEffect(() => {
     if (!snack) return;
-    const t = setTimeout(() => setSnack(null), 5500);
-    return () => clearTimeout(t);
+    // 局部变量曾叫 t，会盖住词典里的 t()，改个名
+    const timer = setTimeout(() => setSnack(null), 5500);
+    return () => clearTimeout(timer);
   }, [snack]);
 
   return (
-    <DemoStage caption="注意这个三件套：低调的红字 → 后果明确的确认 → 删除后还有撤销。">
+    <DemoStage caption={t(locale, 'demo.caption.destructive')}>
       <div className="mx-auto w-full max-w-[420px]">
         <div className="rounded-xl border border-line bg-surface p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-ink">最近删除</p>
-              <p className="mt-0.5 text-xs text-muted">{items} 项待清理</p>
+              <p className="text-sm font-medium text-ink">{t(locale, 'demo.destructive.title')}</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {t(locale, 'demo.destructive.pending', { n: items })}
+              </p>
             </div>
             <button
               type="button"
@@ -312,16 +327,18 @@ export function DestructiveActionDemo() {
               disabled={items === 0}
               className="rounded-lg px-3 py-1.5 text-[0.8125rem] font-medium text-[#A8342C] transition-colors hover:bg-[#FAEDEC] disabled:opacity-40"
             >
-              全部清除
+              {t(locale, 'demo.destructive.clearAll')}
             </button>
           </div>
         </div>
 
         {confirming && (
           <div className="mt-3 rounded-xl border border-line bg-surface p-4 shadow-lift animate-rise-in">
-            <p className="text-sm font-semibold text-ink">清除全部 {items} 项？</p>
+            <p className="text-sm font-semibold text-ink">
+              {t(locale, 'demo.destructive.confirmTitle', { n: items })}
+            </p>
             <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink2">
-              这些内容将被永久删除，无法恢复。
+              {t(locale, 'demo.destructive.confirmBody')}
             </p>
             <div className="mt-4 flex justify-end gap-2.5">
               <DemoButton
@@ -329,7 +346,7 @@ export function DestructiveActionDemo() {
                 onClick={() => setConfirming(false)}
                 autoFocus
               >
-                取消
+                {t(locale, 'demo.btn.cancel')}
               </DemoButton>
               <DemoButton
                 variant="danger"
@@ -337,10 +354,10 @@ export function DestructiveActionDemo() {
                   const n = items;
                   setItems(0);
                   setConfirming(false);
-                  setSnack(`已清除 ${n} 项`);
+                  setSnack(t(locale, 'demo.destructive.cleared', { n }));
                 }}
               >
-                永久删除
+                {t(locale, 'demo.destructive.deleteForever')}
               </DemoButton>
             </div>
           </div>
@@ -362,7 +379,7 @@ export function DestructiveActionDemo() {
               className="flex shrink-0 items-center gap-1 rounded px-1.5 py-1 text-[0.8125rem] font-semibold underline-offset-4 hover:underline"
             >
               <Undo2 size={13} aria-hidden="true" />
-              撤销
+              {t(locale, 'demo.destructive.undo')}
             </button>
           </div>
         )}
@@ -374,6 +391,7 @@ export function DestructiveActionDemo() {
 /* ---------------- File Upload ---------------- */
 
 export function FileUploadDemo() {
+  const locale = useLocale();
   const [files, setFiles] = useState<
     { name: string; size: string; progress: number; status: 'uploading' | 'done' | 'error' }[]
   >([]);
@@ -383,10 +401,11 @@ export function FileUploadDemo() {
       { name: 'IMG_0231.jpg', size: '3.2 MB', progress: 0, status: 'uploading' },
     ]);
     let p = 0;
-    const t = setInterval(() => {
+    // 局部变量曾叫 t，会盖住词典里的 t()
+    const timer = setInterval(() => {
       p += 18;
       if (p >= 100) {
-        clearInterval(t);
+        clearInterval(timer);
         setFiles((prev) =>
           prev.map((f) => ({ ...f, progress: 100, status: fail ? 'error' : 'done' }))
         );
@@ -397,18 +416,18 @@ export function FileUploadDemo() {
   };
 
   return (
-    <DemoStage caption="上传不只是「选个文件」—— 进度、取消、失败重试才是真正的体验。">
+    <DemoStage caption={t(locale, 'demo.caption.upload')}>
       <div className="mx-auto w-full max-w-[420px]">
         <div className="rounded-xl border-2 border-dashed border-[#D8D5CD] bg-[#FCFBF8] p-6 text-center transition-colors hover:border-[#C9C5BB]">
           <ArrowDownToLine size={20} className="mx-auto text-muted" aria-hidden="true" />
-          <p className="mt-2.5 text-sm text-ink">点击选择或拖拽文件到此处</p>
-          <p className="mt-1 text-xs text-muted">JPG / PNG · 单张不超过 10MB</p>
+          <p className="mt-2.5 text-sm text-ink">{t(locale, 'demo.upload.dropzone')}</p>
+          <p className="mt-1 text-xs text-muted">{t(locale, 'demo.upload.hint')}</p>
           <div className="mt-3 flex justify-center gap-2">
             <DemoButton variant="secondary" onClick={() => simulate(false)}>
-              模拟成功
+              {t(locale, 'demo.upload.simulateOk')}
             </DemoButton>
             <DemoButton variant="secondary" onClick={() => simulate(true)}>
-              模拟失败
+              {t(locale, 'demo.upload.simulateFail')}
             </DemoButton>
           </div>
         </div>
@@ -429,11 +448,11 @@ export function FileUploadDemo() {
                       onClick={() => setFiles([])}
                       className="text-xs text-muted underline-offset-4 hover:underline"
                     >
-                      取消
+                      {t(locale, 'demo.btn.cancel')}
                     </button>
                   )}
                   {f.status === 'done' && (
-                    <span className="text-xs text-[#2C7355]">已完成</span>
+                    <span className="text-xs text-[#2C7355]">{t(locale, 'demo.upload.done')}</span>
                   )}
                   {f.status === 'error' && (
                     <button
@@ -442,7 +461,7 @@ export function FileUploadDemo() {
                       className="text-xs font-medium text-[#A8342C] underline-offset-4 hover:underline"
                     >
                       <RotateCcw size={11} className="mr-0.5 inline" aria-hidden="true" />
-                      重试
+                      {t(locale, 'demo.upload.retry')}
                     </button>
                   )}
                 </div>
@@ -461,7 +480,7 @@ export function FileUploadDemo() {
                   </div>
                 )}
                 {f.status === 'error' && (
-                  <p className="mt-2 text-xs text-[#A8342C]">上传失败：网络中断</p>
+                  <p className="mt-2 text-xs text-[#A8342C]">{t(locale, 'demo.upload.failed')}</p>
                 )}
               </li>
             ))}

@@ -1,7 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import type { UIPattern } from '@/data/types';
 import { categoryMap } from '@/data/categories';
 import { hasDemo } from '@/data/demoIds';
+import { useLocale, useHref } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 import { MiniPreview } from './MiniPreview';
 
 export function PatternCard({
@@ -17,13 +21,15 @@ export function PatternCard({
    */
   headingLevel?: 2 | 3;
 }) {
+  const locale = useLocale();
+  const h = useHref();
   const cat = categoryMap[pattern.category];
   const has = hasDemo(pattern.id);
   const Heading = `h${headingLevel}` as 'h2' | 'h3';
 
   return (
     <Link
-      href={`/patterns/${pattern.id}`}
+      href={h(`/patterns/${pattern.id}`)}
       className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface card-hover hover:-translate-y-0.5"
     >
       {showPreview && (
@@ -31,7 +37,7 @@ export function PatternCard({
           <MiniPreview id={pattern.id} />
           {!has && (
             <span className="absolute right-2 top-2 rounded bg-white/90 px-1.5 py-0.5 text-2xs text-muted">
-              暂无 Demo
+              {t(locale, 'card.noDemo')}
             </span>
           )}
         </div>
@@ -42,7 +48,9 @@ export function PatternCard({
           <span className={`h-1.5 w-1.5 rounded-full ${cat?.tint ?? 'bg-[#F2F0EB]'}`} />
           <span className="meta !text-[0.625rem]">{cat?.chineseName}</span>
           {has && showPreview && (
-            <span className="ml-auto text-2xs text-[#2C7355]">可交互</span>
+            <span className="ml-auto text-2xs text-[#2C7355]">
+              {t(locale, 'card.interactive')}
+            </span>
           )}
         </div>
 

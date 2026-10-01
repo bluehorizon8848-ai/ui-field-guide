@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Check, Minus, Share2, X } from 'lucide-react';
 import type { UIPattern } from '@/data/types';
-import { patternMap } from '@/data/patterns';
-import { comparisonMap } from '@/data/comparisons';
-import { categoryMap } from '@/data/categories';
+import type { Locale } from '@/lib/i18n';
+import { href } from '@/lib/i18n';
+import { getPattern, getComparison, getCategory } from '@/data/i18n/resolve';
+import { useLocale, useHref } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 import { demoRegistry } from '@/components/demo/registry';
 import { AnatomyDiagram } from './AnatomyDiagram';
 import { AskAI, BadPrompt } from './AskAI';
@@ -16,8 +18,9 @@ import { MarkLearnedButton } from './MarkLearnedButton';
 import { Tocs } from './Tocs';
 
 const PLATFORM_LABEL = { web: 'Web', mobile: 'Mobile', desktop: 'Desktop' } as const;
-const DIFFICULTY = { easy: '容易', medium: '中等', hard: '进阶' } as const;
+const DIFFICULTY = { easy: 'easy', medium: 'medium', hard: 'hard' } as const;
 
+/** TOC 的 label 两种语言一致（本来就是英文术语），所以放在模块作用域不随语言变 */
 const SECTIONS = [
   { id: 'demo', label: 'Live Demo' },
   { id: 'anatomy', label: 'Anatomy' },
@@ -27,35 +30,37 @@ const SECTIONS = [
 ];
 
 export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
+  const locale = useLocale();
+  const h = useHref();
   const [shareOpen, setShareOpen] = useState(false);
   const Demo = demoRegistry[pattern.id];
-  const cat = categoryMap[pattern.category];
-  const comparison = pattern.comparisonSlug ? comparisonMap[pattern.comparisonSlug] : undefined;
+  const cat = getCategory(pattern.category, locale);
+  const comparison = pattern.comparisonSlug ? getComparison(pattern.comparisonSlug, locale) : undefined;
 
   const similar = pattern.similarPatterns
-    .map((id) => patternMap[id])
-    .filter(Boolean)
+    .map((id) => getPattern(id, locale))
+    .filter((p): p is UIPattern => Boolean(p))
     .slice(0, 4);
 
-  const compareWith = pattern.compareWith ? patternMap[pattern.compareWith] : undefined;
+  const compareWith = pattern.compareWith ? getPattern(pattern.compareWith, locale) : undefined;
 
   return (
     <article className="container-page py-8 sm:py-10">
       {/* 面包屑 */}
-      <nav aria-label="面包屑" className="mb-5">
+      <nav aria-label={t(locale, 'pattern.breadcrumb')} className="mb-5">
         <ol className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
           <li>
             <Link
-              href="/explore"
+              href={h('/explore')}
               className="inline-flex min-h-[44px] items-center underline-offset-4 hover:text-ink hover:underline"
             >
-              图鉴
+              {t(locale, 'common.explore')}
             </Link>
           </li>
           <li aria-hidden="true">›</li>
           <li>
             <Link
-              href={`/explore?c=${pattern.category}`}
+              href={h(`/explore?c=${pattern.category}`)}
               className="inline-flex min-h-[44px] items-center underline-offset-4 hover:text-ink hover:underline"
             >
               {cat?.chineseName}
@@ -90,7 +95,9 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
                   {PLATFORM_LABEL[p]}
                 </span>
               ))}
-              <span className="text-2xs text-muted">上手难度：{DIFFICULTY[pattern.difficulty]}</span>
+              <span className="text-2xs text-muted">
+                {t(locale, 'pattern.difficulty')}: {t(locale, `difficulty.${DIFFICULTY[pattern.difficulty]}`)}
+              </span>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -101,7 +108,7 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium text-ink transition-colors hover:bg-[#F5F3EE]"
               >
                 <Share2 size={14} aria-hidden="true" />
-                生成分享卡片
+                {t(locale, 'pattern.share')}
               </button>
             </div>
           </header>
@@ -113,28 +120,26 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
           {/* Live Demo */}
           <section id="demo" className="scroll-mt-20 pt-9">
-            <SectionHead index="01" title="Live Demo" sub="真的可以点" />
+            <SectionHead index="01" title={t(locale, 'section.demo')} sub={t(locale, 'section.demoSub')} />
             {Demo ? (
               <>
                 <Demo />
                 <p className="mt-4 rounded-lg bg-[#F5F3EE] px-3.5 py-2.5 text-[0.8125rem] leading-relaxed text-ink2">
-                  <span className="font-medium text-ink">你刚才看到的这个：</span>
+                  <span className="font-medium text-ink">{t(locale, 'pattern.seenBefore')}</span>
                   {pattern.looksLike}
                 </p>
               </>
             ) : (
               <div className="rounded-card border border-dashed border-line px-6 py-10 text-center text-sm text-muted">
-                这个组件的 Demo 还在路上。
-                <span className="mt-1.5 block text-xs">
-                  但它该被用在哪里，下面写清楚了。
-                </span>
+                {t(locale, 'pattern.demoComing')}
+                <span className="mt-1.5 block text-xs">{t(locale, 'pattern.demoComingSub')}</span>
               </div>
             )}
           </section>
 
           {/* 详细解释 */}
           <section className="pt-9">
-            <SectionHead index="02" title="它到底是什么" />
+            <SectionHead index="02" title={t(locale, 'pattern.what')} />
             <p className="prose-note">{pattern.description}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
               {pattern.aliases.map((a) => (
@@ -150,7 +155,7 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
           {/* Anatomy */}
           <section id="anatomy" className="scroll-mt-20 pt-9">
-            <SectionHead index="03" title="Anatomy · 它由什么组成" />
+            <SectionHead index="03" title={t(locale, 'pattern.anatomy')} />
             <div className="rounded-card border border-line bg-surface p-4 sm:p-5">
               <AnatomyDiagram items={pattern.anatomy} />
             </div>
@@ -158,17 +163,17 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
           {/* When to Use */}
           <section id="when" className="scroll-mt-20 pt-9">
-            <SectionHead index="04" title="When to Use" sub="什么时候该用 / 不该用" />
+            <SectionHead index="04" title={t(locale, 'pattern.whenTitle')} sub={t(locale, 'pattern.whenSub')} />
             <div className="overflow-hidden rounded-card border border-line">
               <table className="w-full text-sm">
-                <caption className="sr-only">{pattern.name} 使用场景建议</caption>
+                <caption className="sr-only">{t(locale, 'pattern.usageCaption', { name: pattern.name })}</caption>
                 <thead>
                   <tr className="border-b border-line bg-[#FCFBF8]">
                     <th scope="col" className="px-4 py-2.5 text-left text-xs font-medium text-muted">
-                      情况
+                      {t(locale, 'pattern.colSituation')}
                     </th>
                     <th scope="col" className="w-24 px-4 py-2.5 text-left text-xs font-medium text-muted">
-                      推荐
+                      {t(locale, 'pattern.colRecommend')}
                     </th>
                   </tr>
                 </thead>
@@ -182,17 +187,17 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
                         {row.recommended === true ? (
                           <span className="flex items-center gap-1 text-[0.8125rem] font-medium text-[#2C7355]">
                             <Check size={14} aria-hidden="true" />
-                            用
+                            {t(locale, 'pattern.use')}
                           </span>
                         ) : row.recommended === false ? (
                           <span className="flex items-center gap-1 text-[0.8125rem] text-[#A8342C]">
                             <X size={14} aria-hidden="true" />
-                            不用
+                            {t(locale, 'pattern.notUse')}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-[0.8125rem] text-[#94701C]">
                             <Minus size={14} aria-hidden="true" />
-                            视情况
+                            {t(locale, 'pattern.maybeUse')}
                           </span>
                         )}
                       </td>
@@ -219,34 +224,34 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
           {/* Similar */}
           <section id="similar" className="scroll-mt-20 pt-9">
-            <SectionHead index="05" title="Similar Patterns" sub="别搞混" />
+            <SectionHead index="05" title={t(locale, 'pattern.similarTitle')} sub={t(locale, 'pattern.similarSub')} />
             {comparison && (
               <Link
-                href={`/compare/${comparison.slug}`}
+                href={h(`/compare/${comparison.slug}`)}
                 className="mb-4 flex items-center justify-between gap-3 rounded-card border border-line bg-surface p-4 card-hover"
               >
                 <span className="min-w-0">
-                  <span className="meta mb-1 block">完整对比</span>
+                  <span className="meta mb-1 block">{t(locale, 'pattern.fullCompare')}</span>
                   <span className="block text-sm font-semibold text-ink">
                     {comparison.title}
                   </span>
                   <span className="mt-1 block text-xs text-muted">{comparison.question}</span>
                 </span>
                 <span className="shrink-0 rounded-lg bg-[#F2F0EB] px-2.5 py-1.5 text-2xs text-ink2">
-                  查看表格
+                  {t(locale, 'pattern.viewTable')}
                 </span>
               </Link>
             )}
 
             {compareWith && (
               <div className="mb-4 rounded-card border border-line bg-[#FCFBF8] p-4">
-                <p className="meta mb-2.5">最容易混淆的一个</p>
+                <p className="meta mb-2.5">{t(locale, 'pattern.mostConfused')}</p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <CompareBlock pattern={pattern} self />
-                  {compareWith && <CompareBlock pattern={compareWith} />}
+                  <CompareBlock pattern={pattern} locale={locale} self />
+                  {compareWith && <CompareBlock pattern={compareWith} locale={locale} />}
                 </div>
                 <p className="mt-3 border-t border-line pt-3 text-[0.8125rem] leading-relaxed text-ink2">
-                  <span className="font-medium text-ink">一句话区分：</span>
+                  <span className="font-medium text-ink">{t(locale, 'pattern.oneLineDiff')}</span>
                   {pattern.oneLine}
                 </p>
               </div>
@@ -263,22 +268,22 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
           {/* Ask AI */}
           <section id="ask-ai" className="scroll-mt-20 pt-9">
-            <SectionHead index="06" title="怎么告诉 AI" sub="三层 Prompt" />
+            <SectionHead index="06" title={t(locale, 'pattern.askAi')} sub={t(locale, 'pattern.askAiSub')} />
             <AskAI pattern={pattern} />
           </section>
 
           {/* Bad prompt */}
           <section className="pt-9">
-            <SectionHead index="07" title="不要只对 AI 说" sub="Bad → Better" />
+            <SectionHead index="07" title={t(locale, 'pattern.badPrompt')} sub={t(locale, 'pattern.badPromptSub')} />
             <BadPrompt pattern={pattern} />
           </section>
 
           {/* Share card */}
           <section className="pt-9">
-            <SectionHead index="08" title="分享这张卡" sub="社交平台友好" />
+            <SectionHead index="08" title={t(locale, 'pattern.shareTitle')} sub={t(locale, 'pattern.shareSub')} />
             <div className="rounded-card border border-line bg-[#FCFBF8] p-4 sm:p-5">
               <p className="text-[0.8125rem] leading-relaxed text-ink2">
-                把这个 Pattern 做成 3:4（小红书）或 1:1（X / Reddit）的知识卡片，在浏览器里直接导出 PNG，不需要后端。
+                {t(locale, 'pattern.shareDesc')}
               </p>
               <div className="mt-3.5 flex flex-wrap gap-2">
                 <button
@@ -287,7 +292,7 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
                   className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
                 >
                   <Share2 size={14} aria-hidden="true" />
-                  生成分享卡片
+                  {t(locale, 'pattern.share')}
                 </button>
               </div>
             </div>
@@ -328,10 +333,18 @@ function SectionHead({
   );
 }
 
-function CompareBlock({ pattern, self = false }: { pattern: UIPattern; self?: boolean }) {
+function CompareBlock({
+  pattern,
+  locale,
+  self = false,
+}: {
+  pattern: UIPattern;
+  locale: Locale;
+  self?: boolean;
+}) {
   return (
     <Link
-      href={`/patterns/${pattern.id}`}
+      href={href(`/patterns/${pattern.id}`, locale)}
       className={`block rounded-lg border p-3 transition-colors ${
         self
           ? 'border-ink bg-surface'
@@ -340,7 +353,11 @@ function CompareBlock({ pattern, self = false }: { pattern: UIPattern; self?: bo
     >
       <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
         {pattern.name}
-        {self && <span className="text-2xs font-normal text-muted">当前</span>}
+        {self && (
+          <span className="text-2xs font-normal text-muted">
+            {t(locale, 'pattern.current')}
+          </span>
+        )}
       </p>
       <p className="mt-0.5 text-2xs text-muted">{pattern.chineseName}</p>
       <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-ink2">

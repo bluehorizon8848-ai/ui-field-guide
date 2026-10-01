@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 export function Tocs({ sections }: { sections: { id: string; label: string }[] }) {
+  const locale = useLocale();
   const [active, setActive] = useState(sections[0]?.id ?? '');
 
   useEffect(() => {
@@ -20,8 +23,11 @@ export function Tocs({ sections }: { sections: { id: string; label: string }[] }
   }, [sections]);
 
   return (
-    <nav aria-label="页面目录" className="border-l border-line pl-4">
-      <p className="meta mb-2.5">本页</p>
+    <nav
+      aria-label={locale === 'zh' ? '页面目录' : 'On this page'}
+      className="border-l border-line pl-4"
+    >
+      <p className="meta mb-2.5">{locale === 'zh' ? '本页' : 'On this page'}</p>
       <ul className="space-y-1.5">
         {sections.map((s) => (
           <li key={s.id}>

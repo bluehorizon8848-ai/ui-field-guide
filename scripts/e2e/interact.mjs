@@ -114,8 +114,9 @@ const browser = await chromium.launch();
   const checked = await page.locator('[role="radio"][aria-checked="true"]').count();
   record('Identify: 选中态 aria-checked', checked === 2, `实际 ${checked}`);
 
-  // 重选
-  await page.locator('button', { hasText: '重选' }).first().click();
+  // 重选。按钮文案走 i18n 词典（zh「重新选」/ en「Start over」），
+  // 硬编码任一种语言都会在另一种语言的页面上失败，所以两种都匹配。
+  await page.locator('button', { hasText: /重新选|重选|Start over/ }).first().click();
   await page.waitForTimeout(300);
   const afterReset = await page.locator('[role="radio"][aria-checked="true"]').count();
   record('Identify: 重选清空选择', afterReset === 0, `实际 ${afterReset}`);

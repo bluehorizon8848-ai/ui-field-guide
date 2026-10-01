@@ -11,6 +11,8 @@ const colloquialMap: Record<string, string[]> = {
   确认一下: ['destructive-action', 'modal'],
   是不是真的: ['destructive-action'],
   一步步填写: ['stepper'],
+  一步一步填写: ['stepper'],
+  分步完成: ['stepper'],
   分几步: ['stepper', 'pagination'],
   我在哪一层: ['breadcrumb'],
   回到上一层: ['breadcrumb', 'back-button'],
@@ -40,6 +42,7 @@ const colloquialMap: Record<string, string[]> = {
   折叠: ['accordion', 'collapsible', 'progressive-disclosure'],
   展开收起: ['accordion', 'collapsible', 'progressive-disclosure'],
   收起来: ['accordion', 'collapsible', 'sidebar'],
+  分层展开: ['accordion', 'progressive-disclosure', 'collapsible'],
   侧边: ['sidebar', 'drawer', 'navigation-rail'],
   左边: ['sidebar', 'navigation-rail', 'drawer'],
   底部导航: ['bottom-navigation'],
@@ -104,6 +107,193 @@ const colloquialMap: Record<string, string[]> = {
   危险操作: ['destructive-action'],
 };
 
+/**
+ * 英文口语 → 词条。
+ *
+ * 为什么必须有：站点的核心承诺是「用你记得住的描述搜出术语」，
+ * 这个承诺对英文用户同样成立。但词条的 looksLike / aliases 只有中文，
+ * 英文用户搜 "slides up from the bottom" 一个都命中不了 —— 页面不报错、
+ * 结果为空，看起来只是"没匹配上"。
+ *
+ * 匹配策略和中文不同：英文是多词短语，`includes` 整串比对要求用户
+ * 输入和词条完全一致的词序，实践中几乎不可能命中。所以英文侧走
+ * 分词 + 覆盖率：命中词数越多、覆盖率越高，分越高。
+ * 详见 searchPatterns 里的 colloquialScore。
+ */
+const colloquialEn: Record<string, string[]> = {
+  // 浮层类
+  'slides up from the bottom': ['bottom-sheet'],
+  'pops up from the bottom': ['bottom-sheet'],
+  'comes up from the bottom': ['bottom-sheet'],
+  'sheet from the bottom': ['bottom-sheet'],
+  'popup in the center': ['modal'],
+  'pops up in the middle': ['modal'],
+  'blocking dialog': ['modal'],
+  'confirm dialog': ['modal', 'destructive-action'],
+  'something slides in from the side': ['drawer', 'swipe-action'],
+  'panel from the side': ['drawer'],
+  'floating box': ['popover'],
+  'small popup next to a button': ['popover'],
+  'little tooltip': ['tooltip'],
+  'hint on hover': ['tooltip'],
+  'fades away on its own': ['toast', 'snackbar'],
+  'message that disappears': ['toast', 'snackbar'],
+  'undo message': ['snackbar', 'destructive-action'],
+  'stays on screen': ['alert', 'banner'],
+  'full screen warning': ['alert'],
+
+  // 加载类
+  'grey blocks': ['skeleton'],
+  'gray blocks': ['skeleton'],
+  'placeholder while loading': ['skeleton'],
+  'spinning circle': ['spinner'],
+  'loading circle': ['spinner'],
+  'how far along': ['progress-bar'],
+  'bar that fills up': ['progress-bar'],
+
+  // 表单类
+  'fill in step by step': ['stepper'],
+  'one step at a time': ['stepper'],
+  'multiple steps': ['stepper'],
+  'type here': ['text-field'],
+  'single line input': ['text-field'],
+  'long text input': ['text-area'],
+  'multiple lines of text': ['text-area'],
+  'tick a box': ['checkbox'],
+  'check a box': ['checkbox'],
+  'pick one of several': ['radio'],
+  'circle to select': ['radio'],
+  'on and off': ['switch'],
+  'toggle': ['switch'],
+  'drag to a value': ['slider'],
+  'drag the handle': ['slider'],
+  'plus and minus': ['stepper-input'],
+  'increment and decrement': ['stepper-input'],
+  'upload a file': ['file-upload'],
+  'choose a date': ['date-picker'],
+  'calendar picker': ['date-picker'],
+
+  // 导航类
+  'switch tabs': ['tabs'],
+  'horizontal sections': ['tabs'],
+  'bar with multiple screens': ['bottom-navigation'],
+  'menu at the bottom': ['bottom-navigation'],
+  'narrow bar on the left': ['navigation-rail'],
+  'side panel': ['sidebar'],
+  'page numbers': ['pagination'],
+  'next page': ['pagination', 'load-more', 'infinite-scroll'],
+  'scrolls forever': ['infinite-scroll'],
+  'keep loading as i scroll': ['infinite-scroll'],
+  'button that scrolls': ['load-more'],
+  'where am i': ['breadcrumb'],
+  'expand and collapse': ['accordion', 'collapsible'],
+  'show more': ['progressive-disclosure', 'load-more'],
+
+  // 反馈类
+  'nothing here yet': ['empty-state'],
+  'no data': ['empty-state', 'error-state'],
+  'first time user': ['empty-state'],
+  'something went wrong': ['error-state', 'alert'],
+  'keep trying': ['error-state'],
+  'it worked': ['success-state'],
+  'all done': ['success-state'],
+  'red dot': ['badge'],
+  'unread count': ['badge'],
+
+  // 动作类
+  'round floating button': ['fab'],
+  'floating circle button': ['fab'],
+  'big colorful button': ['cta'],
+  'primary action': ['cta', 'button'],
+  'small icon only button': ['icon-button'],
+  'split button': ['split-button'],
+  'dangerous delete': ['destructive-action'],
+  'delete confirmation': ['destructive-action', 'modal'],
+
+  // 拖拽类
+  'drag to reorder': ['drag-and-drop'],
+  'reorder by dragging': ['drag-and-drop'],
+  'long press': ['long-press'],
+  'press and hold': ['long-press'],
+  'right click menu': ['context-menu'],
+  'pull down to refresh': ['pull-to-refresh'],
+  'swipe to delete': ['swipe-action'],
+  'swipe left': ['swipe-action'],
+
+  // 数据展示
+  'rows and columns': ['table'],
+  'grid of data': ['table', 'stat-card'],
+  'big number': ['stat-card'],
+  'single number': ['stat-card'],
+  'round avatar': ['avatar'],
+  'profile picture': ['avatar'],
+  'vertical timeline': ['timeline'],
+  'small tag': ['chip', 'chip-display'],
+  'filter chips': ['chip', 'drawer'],
+  'filtering options': ['drawer', 'chip', 'select'],
+  'sort the list': ['table', 'list'],
+  'simple list': ['list'],
+};
+
+/** 英文停用词，匹配时剔除，否则 "on and off" 里的 on 会污染所有词条 */
+const STOPWORDS = new Set([
+  'a', 'an', 'the', 'to', 'of', 'in', 'on', 'at', 'it', 'is', 'as', 'and', 'or',
+  'for', 'from', 'by', 'with', 'my', 'me', 'i', 'that', 'this', 'be',
+]);
+
+/**
+ * 英文口语短语的匹配分。
+ *
+ * 不用 includes 整串比对：用户输入的词序几乎不会和词条完全一致
+ * （"slides up from the bottom" vs "sheet from the bottom"）。
+ * 改成「有多少个实义词出现在查询里」+ 覆盖率，命中一半词也能出结果。
+ *
+ * 返回 0 表示不命中。最高 9 分——刻意低于中文口语的 10 分上限，
+ * 保证精确的词条名匹配永远排在模糊描述前面。
+ */
+function colloquialScore(query: string, patternId: string): number {
+  const terms = query
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 1 && !STOPWORDS.has(w));
+  if (terms.length === 0) return 0;
+
+  let best = 0;
+  for (const [phrase, ids] of Object.entries(colloquialEn)) {
+    const idx = ids.indexOf(patternId);
+    if (idx < 0) continue;
+
+    const phraseTerms = phrase.split(' ');
+    let hit = 0;
+    for (const term of terms) {
+      if (phraseTerms.some((pt) => pt.includes(term) || term.includes(pt))) hit++;
+    }
+    if (hit === 0) continue;
+
+    const coverage = hit / terms.length;
+    if (coverage < 0.6) continue; // 只沾到一两个词不算命中
+
+    // 基础分随覆盖率上升，同一条目内靠前优先
+    let s = 5 + Math.round(coverage * 3) - idx * 0.5;
+
+    // 查询的实义词和短语的实义词**逐词同序相同时**才大幅加权。
+    // 关键在「同序 + 同长度」，不能只看个数相等：
+    // 否则单词短语（toggle）和任意多词查询（expand and collapse）
+    // 都会拿到同一档加权，排序退化、正确答案被挤掉。
+    const phraseKeys = phraseTerms.filter((w) => !STOPWORDS.has(w));
+    const sameOrder =
+      terms.length === phraseKeys.length &&
+      terms.every((w, i) => {
+        const pt = phraseKeys[i];
+        return pt.includes(w) || w.includes(pt);
+      });
+    if (sameOrder) s += 3;
+
+    if (s > best) best = s;
+  }
+  return best;
+}
+
 /** 返回带命中原因的搜索结果 */
 export interface SearchHit {
   pattern: UIPattern;
@@ -144,7 +334,7 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
       }
     }
 
-    // 口语映射
+    // 口语映射（中文：整串包含即可，中文查询通常就是那几个字）
     for (const [phrase, ids] of Object.entries(colloquialMap)) {
       if (phrase.includes(q) || q.includes(phrase)) {
         const idx = ids.indexOf(p.id);
@@ -155,6 +345,15 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
             matchedBy = '口语描述';
           }
         }
+      }
+    }
+
+    // 口语映射（英文：分词覆盖率匹配，见 colloquialScore 的说明）
+    if (/[a-z]/.test(q)) {
+      const s = colloquialScore(q, p.id);
+      if (s > score) {
+        score = s;
+        matchedBy = '口语描述';
       }
     }
 

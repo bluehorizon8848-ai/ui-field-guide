@@ -6,12 +6,59 @@ AI 独立开发者的 UI/UX 可视化词典。核心路径：**看到 → 理解
 
 纯静态，无账号、无数据库、无后端、无 AI API。
 
+## 国际化（2026-10 完成）
+
+**URL 策略**：中文在根路径（`/patterns/modal`），英文在 `/en` 前缀（`/en/patterns/modal`）。
+选路由前缀而非纯客户端切换，是因为静态导出下英文术语需要被独立收录、可分享。
+
+**双 root layout**：`src/app/(zh)/layout.tsx`（`lang="zh-CN"`）+ `src/app/(en)/en/layout.tsx`（`lang="en"`）。
+根 `src/app/layout.tsx` 是**透传 layout**（只 return children），只为了满足 Next 对根目录 root layout 的要求。
+根 `not-found.tsx` 因为拿不到 LocaleProvider，**必须自带 `<html>`/`<body>`**，文案中英并排 + 自带两套导航（否则是死胡同，且 e2e 会因 body <200 字符报空）。
+
+页面 JSX 全部走 `src/app/shared/` 的工厂函数（`pattern-page.tsx` / `pages.tsx`），
+ZH/EN 各语言目录只做薄封装。**改页面逻辑只能改 shared，改一处两个语言同时生效，不会漂移。**
+
+**数据是 overlay 不是覆盖**：中文 `src/data/patterns/*.ts` 是唯一真相源，
+英文在 `src/data/i18n/*.en.ts`，只放需要翻译的散文字段（不含 id 引用 / 枚举 / 结构字段）。
+`src/data/i18n/resolve.ts` 是唯一数据出口：`getPattern` / `getPatterns` / `getComparison` / `getLearningLevels` / `localizePatterns`。
+缺翻译时**优雅降级到中文**，绝不渲染空白区块。
+
+### 三个必须记住的 i18n 坑
+
+1. **`href(path, locale)` 两个方向都要剥 `/en` 前缀**。只加不剥的话，
+   英文页的「中文」按钮会指向自己 —— 页面永远 200，sweep / visual / i18n 之外的任何测试都发现不了，
+   只有显式断言「切换后的 href」才能抓到。
+
+2. **`languageAlternates(path, locale)` 必须传 locale**。canonical 要 `href(path, locale)`，
+   不传的话英文页 canonical 指向中文 URL，等于 SEO 自我否定。hreflang 三个值
+   （`zh-CN` / `en` / `x-default`）都要自指正确。
+
+3. **「用源数据筛、用本地化数据渲染」是硬模式**。搜索索引（别名、口语映射）全是中文的，
+   筛选必须跑在中文 `patterns` 上，但命中的结果要显示英文 `oneLine`。
+   一律用 `localizePatterns(source, locale)`，**不要在组件里手写 byId 映射**
+   （ExploreClient 和 IdentifyClient 都因此漏翻过一次）。
+
+### 英文版刻意保留中文的地方（不是漏翻）
+
+- 词条详情页的 `chineseName`、Anatomy 的 `labelZh`、分类中文名
+- 根 404 页中英并排
+
+这是**双语词典**而非纯英文站 —— 中国用户看到 `Feedback` 完全对不上自己正在做的产品。
+校验时按页面类型分级，不能一刀切断言「零中文」。
+
 ## 硬性约定
 
-**提交前必须 `npm run check`（typecheck + verify），全绿才提交。**
+**提交前必须 `npm run check`，全绿才提交。** 现在是四段：
 
-`verify` 是自建的，校验 TypeScript 抓不到的问题（全是 string，写错不报错但会变成 404 死链）：
-交叉引用 / 必填字段 / Comparison cells 数量 / demoIds↔registry 一致性 / MiniPreview 覆盖。
+```bash
+npm run typecheck        # tsc --noEmit
+npm run verify           # scripts/verify-content.mjs   中文内容完整性
+npm run verify:i18n      # scripts/verify-i18n.mjs      63 词条 / 8 对比 / 8 分类 / 689 文案键
+npm run verify:search    # scripts/verify-search.mjs    72 条中英口语搜索（需 tsx）
+```
+
+`verify-content.mjs` 用**花括号配对**切 `search.ts` 里的口语映射表，
+不能用 `indexOf` 找下一个声明 —— 中间夹着 `STOPWORDS` 数组会被误当映射表，把 `'the'` 当成不存在的 pattern id 报一堆假错。
 
 ## 三条内容原则（不可妥协）
 
@@ -117,18 +164,37 @@ Demo 里任何 `id` / `aria-labelledby` / `aria-describedby` / `htmlFor` 都必�
 
 ## 测试
 
-Playwright 六个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出产物上：
+Playwright 七个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出产物上：
 
 | 脚本 | 覆盖 | 期望 |
 | --- | --- | --- |
-| `sweep.mjs` | 全站 78 页 console error / 死链 / 空 body | 78/78 |
+| `sweep.mjs` | 全站 155 页 console error / 死链 / 空 body | 155/155 |
 | `interact.mjs` | 40 项交互：Dialog 焦点、口语搜索、LocalStorage、键盘、响应式、Share Card | 40/40 |
 | `visual.mjs` | 对比度、触控热区、语义化 HTML、字号、布局、Demo 高度与手机适配 | 6/6 |
+| `i18n.mjs` | 78 项：html lang / canonical / hreflang 互指 / 双向切换 / query 保留 / 英文搜索 / 404 / 中文残留 / Demo 内部 | 78/78 |
 | `download.mjs` | 分享卡片真实 PNG 下载：文件名、magic bytes、IHDR 像素 | 9/9 |
 | `verify-sharecard.mjs` | 真实截图状态、两种比例底部溢出、PNG 尺寸 | 16/16 |
 | `mobile.mjs` | 移动端专项：3 视口 × 11 页 × 6 类问题 | 3/3 |
 
-另有量测工具（不参与 e2e 判定，用于调布局）：
+### i18n 测试为什么必须独立存在
+
+**i18n 的失败模式是静默的**：页面照样 200、截图照样好看，只是 canonical 指错语言、
+或者某个角落漏了一句中文。`sweep` 只看状态码和 body 长度，`visual` 只看样式，
+**两者都发现不了这类问题**。新增的 `i18n.mjs` 专门测「看起来正常但语义错」这一类。
+
+写这个测试时它一次性抓出 4 个真 bug（都是页面 200、无 console error 的静默失败）：
+`href()` 没剥 `/en` 前缀导致英文页中文按钮自指、canonical 未按 locale 计算、
+ExploreClient/IdentifyClient 直接用中文源数据渲染、
+`HeroDemos` / `InteractiveStrip` 全硬编码中文。
+
+### 写断言前先量测
+
+`scripts/verify-search.mjs` 里的 72 条口语断言是量测出来的，不是猜的：
+`expand and collapse` 一开始把 Checkbox 排第一，逐词条查分才定位到
+`colloquialScore` 的精确匹配加权条件太宽（只看词数相等、不看同序），
+单词短语 `toggle` 因此和任意多词查询拿到同一档加权。**先打印分数再改代码。**
+
+另有量测工具（不参与 e2e判定，用于调布局）：
 
 | 脚本 | 用途 |
 | --- | --- |
@@ -138,7 +204,7 @@ Playwright 六个脚本，**在项目内 `scripts/e2e/`**，跑在静态导出�
 ```bash
 npm run build
 npm run serve      # 127.0.0.1:3111，静态预览 out/
-npm run e2e        # 串跑六项；也可 npm run e2e:visual 等单跑
+npm run e2e        # 串跑七项；也可 npm run e2e:visual / npm run e2e:i18n 等单跑
 ```
 
 打其他端口用 `BASE_URL='http://127.0.0.1:4173' node scripts/e2e/sweep.mjs`。
@@ -155,7 +221,11 @@ npm run e2e        # 串跑六项；也可 npm run e2e:visual 等单跑
 
 ## 静态导出
 
-`output: 'export'`，产物在 `out/`（约 7.6 MB / 187 文件），`trailingSlash: true` 产出 `patterns/modal/index.html` 形式。
+`output: 'export'`，产物在 `out/`（约 20 MB / 356 文件 / **155 个 HTML 页面**），
+`trailingSlash: true` 产出 `patterns/modal/index.html` 形式。
+
+**155 = 中文 77 + 英文 77 + 404**，由 sitemap 定义（63 词条 + 8 对比 + 6 静态页，两种语言）。
+`sitemap.xml` 里中英数量必须对称。
 
 **Route Handler 必须显式声明静态**，否则构建失败：
 
@@ -172,4 +242,35 @@ Cloudflare Pages 配置：Build `npm run build` / Output `out` / Node 22。
 
 ## Git
 
-首次提交 `0f06544`（2026-09-30），98 文件 / 18,064 行。**尚未推远端**（无 remote）。
+远端：**`git@github-bluehorizon:bluehorizon8848-ai/ui-field-guide.git`**（公开仓库 https://github.com/bluehorizon8848-ai/ui-field-guide）
+
+### 必须用专用 SSH host，不要用 `git@github.com`
+
+本机 `~/.ssh/config` 里 `github.com` 这个 host 绑的是 `id_ed25519_github`，
+认证身份是**另一个账号 `Xiaolong-writer/software-process-quality`**。
+用它推 `bluehorizon8848-ai` 的仓库会报：
+
+```
+ERROR: Permission to bluehorizon8848-ai/ui-field-guide.git denied to deploy key
+```
+
+配置里已有专用 host 指向正确密钥：
+
+```
+Host github-bluehorizon
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/id_bluehorizon
+  IdentitiesOnly yes
+```
+
+验证身份：`ssh -T git@github-bluehorizon` → 应回 `Hi bluehorizon8848-ai!`
+
+### 不要用 token 推送
+
+`gh` 登录的 token 走 HTTPS 也能推，但**不要把 token 放进命令行**：
+`GH_TOKEN=xxx git push` 写错位置（`git GH_TOKEN=xxx push`）会把 token 当成子命令，
+且 `echo` 出来的 token 会留在会话日志里。用 SSH 一劳永逸。
+
+如需重新登录 gh：`gh auth login`（撤销后 token 立即失效，但 SSH 推送不受影响）。

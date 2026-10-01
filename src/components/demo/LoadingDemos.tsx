@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, RefreshCw, WifiOff } from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Skeleton ---------------- */
 
@@ -19,7 +21,13 @@ function SkeletonCard() {
   );
 }
 
-function RealCard({ i }: { i: number }) {
+function RealCard({ i, locale }: { i: number; locale: 'zh' | 'en' }) {
+  const nameKeys = [
+    'demo.loading.skeleton.name1',
+    'demo.loading.skeleton.name2',
+    'demo.loading.skeleton.name3',
+    'demo.loading.skeleton.name4',
+  ] as const;
   return (
     <div className="flex gap-3 rounded-xl border border-line bg-surface p-3">
       <div
@@ -31,7 +39,7 @@ function RealCard({ i }: { i: number }) {
       />
       <div className="min-w-0 flex-1 py-0.5">
         <p className="truncate text-[0.8125rem] font-medium text-ink">
-          {['IMG_0231 海岸线', 'DSC_4478 城市夜景', 'IMG_0190 房间一角', 'IMG_0155 旧照片'][i % 4]}
+          {t(locale, nameKeys[i % 4])}
         </p>
         <p className="mt-1 text-xs text-muted">
           {['2026-03-12 14:22', '2026-03-08 20:41', '2026-02-27 09:15', '2026-02-14 16:03'][i % 4]}
@@ -43,6 +51,7 @@ function RealCard({ i }: { i: number }) {
 }
 
 export function SkeletonDemo() {
+  const locale = useLocale();
   const [loading, setLoading] = useState(true);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,17 +72,19 @@ export function SkeletonDemo() {
   }, [loading]);
 
   return (
-    <DemoStage caption="先看骨架，再看内容 —— 用户在等的时候就已经知道页面长什么样了。点「重新加载」再看一次。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.skeleton')}>
       <div className="mb-4 flex justify-center">
         <DemoButton variant="secondary" onClick={reload}>
           <RefreshCw size={14} aria-hidden="true" />
-          重新加载
+          {t(locale, 'demo.loading.skeleton.reload')}
         </DemoButton>
       </div>
       <div className="mx-auto w-full max-w-[440px] space-y-2.5" aria-busy={loading}>
         {loading
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-          : Array.from({ length: 4 }).map((_, i) => <RealCard key={i} i={i} />)}
+          : Array.from({ length: 4 }).map((_, i) => (
+              <RealCard key={i} i={i} locale={locale} />
+            ))}
       </div>
     </DemoStage>
   );
@@ -82,6 +93,7 @@ export function SkeletonDemo() {
 /* ---------------- Spinner ---------------- */
 
 export function SpinnerDemo() {
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
 
@@ -99,25 +111,25 @@ export function SpinnerDemo() {
   }, [loading, slow]);
 
   return (
-    <DemoStage caption="转圈只适合「短等待」。超过 10 秒还在转，该给出「重试」而不是让人干等。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.spinner')}>
       <div className="space-y-5">
         <div className="flex flex-col items-center gap-3">
           <div className="flex gap-2.5">
             <DemoButton variant="secondary" onClick={() => run(false)}>
-              短加载 (0.9s)
+              {t(locale, 'demo.loading.spinner.short')}
             </DemoButton>
             <DemoButton variant="secondary" onClick={() => run(true)}>
-              长加载 (12s)
+              {t(locale, 'demo.loading.spinner.long')}
             </DemoButton>
           </div>
           <DemoButton onClick={() => run(false)} disabled={loading}>
             {loading ? (
               <>
                 <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                处理中…
+                {t(locale, 'demo.loading.spinner.working')}
               </>
             ) : (
-              '按钮内加载'
+              t(locale, 'demo.loading.spinner.inButton')
             )}
           </DemoButton>
         </div>
@@ -127,20 +139,24 @@ export function SpinnerDemo() {
             <span
               className="h-6 w-6 animate-spin rounded-full border-2 border-[#E6E3DB] border-t-ink"
               role="status"
-              aria-label="正在加载相册…"
+              aria-label={t(locale, 'demo.loading.spinner.loadingAlbum')}
             />
             {slow ? (
               <div className="text-center">
-                <p className="text-xs text-muted">加载较慢</p>
+                <p className="text-xs text-muted">
+                  {t(locale, 'demo.loading.spinner.slow')}
+                </p>
                 <button
                   type="button"
                   className="mt-1 text-xs font-medium text-ink underline-offset-4 hover:underline"
                 >
-                  取消等待
+                  {t(locale, 'demo.loading.spinner.cancelWait')}
                 </button>
               </div>
             ) : (
-              <p className="text-xs text-muted">正在加载相册…</p>
+              <p className="text-xs text-muted">
+                {t(locale, 'demo.loading.spinner.loadingAlbum')}
+              </p>
             )}
           </div>
         )}
@@ -152,6 +168,7 @@ export function SpinnerDemo() {
 /* ---------------- Progress Bar ---------------- */
 
 export function ProgressBarDemo() {
+  const locale = useLocale();
   const [p, setP] = useState(0);
   const [running, setRunning] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
@@ -188,21 +205,27 @@ export function ProgressBarDemo() {
   }, []);
 
   return (
-    <DemoStage caption="知道总量就显示百分比；不知道就别假装有进度，用不确定态。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.progress')}>
       <div className="mx-auto w-full max-w-[400px] space-y-4">
         <div className="flex gap-2.5">
           <DemoButton variant="secondary" onClick={() => start('determinate')}>
-            已知总量
+            {t(locale, 'demo.loading.progress.known')}
           </DemoButton>
           <DemoButton variant="secondary" onClick={() => start('indeterminate')}>
-            未知总量
+            {t(locale, 'demo.loading.progress.unknown')}
           </DemoButton>
         </div>
 
         <div>
           <div className="mb-1.5 flex items-center justify-between text-xs">
             <span className="text-ink2">
-              {indeterminate ? '正在处理…' : done ? '完成' : `已上传 ${((p / 100) * 8).toFixed(1)} MB / 8 MB`}
+              {indeterminate
+                ? t(locale, 'demo.loading.progress.working')
+                : done
+                  ? t(locale, 'demo.loading.progress.done')
+                  : t(locale, 'demo.loading.progress.uploaded', {
+                      a: ((p / 100) * 8).toFixed(1),
+                    })}
             </span>
             {!indeterminate && <span className="tabular-nums text-muted">{Math.round(p)}%</span>}
           </div>
@@ -211,7 +234,7 @@ export function ProgressBarDemo() {
             aria-valuenow={indeterminate ? undefined : Math.round(p)}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="上传进度"
+            aria-label={t(locale, 'demo.loading.progress.aria')}
             className="h-1.5 w-full overflow-hidden rounded-full bg-[#E6E3DB]"
           >
             {indeterminate ? (
@@ -230,7 +253,7 @@ export function ProgressBarDemo() {
         {done && (
           <p className="flex items-center gap-1.5 text-xs text-[#2C7355]">
             <Check size={14} aria-hidden="true" />
-            上传完成
+            {t(locale, 'demo.loading.progress.complete')}
           </p>
         )}
       </div>
@@ -241,37 +264,38 @@ export function ProgressBarDemo() {
 /* ---------------- Empty / Error / Success ---------------- */
 
 export function EmptyStateDemo() {
+  const locale = useLocale();
   const [kind, setKind] = useState<'first' | 'filtered' | 'done'>('first');
 
   const content = {
     first: {
       icon: '📷',
-      title: '还没有照片',
-      desc: '把手机里的照片导入这里，就能开始分析和清理。',
-      action: '导入照片',
+      title: t(locale, 'demo.loading.empty.firstTitle'),
+      desc: t(locale, 'demo.loading.empty.firstDesc'),
+      action: t(locale, 'demo.loading.empty.firstAction'),
     },
     filtered: {
       icon: '🔍',
-      title: '没有找到匹配的照片',
-      desc: '当前筛选条件下没有结果，试试减少条件或换个关键词。',
-      action: '清除全部筛选',
+      title: t(locale, 'demo.loading.empty.filteredTitle'),
+      desc: t(locale, 'demo.loading.empty.filteredDesc'),
+      action: t(locale, 'demo.loading.empty.filteredAction'),
     },
     done: {
       icon: '✨',
-      title: '全部清理完成',
-      desc: '本次释放了 2.4 GB 空间，收益最大的 12 张重复照片已处理。',
-      action: '查看清理报告',
+      title: t(locale, 'demo.loading.empty.doneTitle'),
+      desc: t(locale, 'demo.loading.empty.doneDesc'),
+      action: t(locale, 'demo.loading.empty.doneAction'),
     },
   }[kind];
 
   return (
-    <DemoStage caption="空状态不是「暂无数据」四个字。它要说清：为什么空、现在能做什么。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.empty')}>
       <div className="mb-4 flex flex-wrap justify-center gap-2">
         {(
           [
-            ['first', '首次使用'],
-            ['filtered', '筛选无结果'],
-            ['done', '已完成'],
+            ['first', 'demo.loading.empty.tabFirst'],
+            ['filtered', 'demo.loading.empty.tabFiltered'],
+            ['done', 'demo.loading.empty.tabDone'],
           ] as const
         ).map(([k, label]) => (
           <button
@@ -283,7 +307,7 @@ export function EmptyStateDemo() {
               kind === k ? 'bg-ink text-white' : 'bg-[#F2F0EB] text-ink2 hover:bg-[#E9E6DF]'
             }`}
           >
-            {label}
+            {t(locale, label)}
           </button>
         ))}
       </div>
@@ -308,37 +332,38 @@ export function EmptyStateDemo() {
 }
 
 export function ErrorStateDemo() {
+  const locale = useLocale();
   const [kind, setKind] = useState<'network' | 'permission' | 'missing'>('network');
 
   const content = {
     network: {
       icon: <WifiOff size={26} className="text-muted" aria-hidden="true" />,
-      title: '没能加载照片',
-      desc: '请检查网络连接后重试。',
-      action: '重试',
+      title: t(locale, 'demo.loading.error.networkTitle'),
+      desc: t(locale, 'demo.loading.error.networkDesc'),
+      action: t(locale, 'demo.loading.error.networkAction'),
     },
     permission: {
       icon: <span className="text-3xl" aria-hidden="true">🔒</span>,
-      title: '没有相册访问权限',
-      desc: '需要访问相册才能扫描重复照片，你可以去系统设置开启。',
-      action: '去设置',
+      title: t(locale, 'demo.loading.error.permissionTitle'),
+      desc: t(locale, 'demo.loading.error.permissionDesc'),
+      action: t(locale, 'demo.loading.error.permissionAction'),
     },
     missing: {
       icon: <span className="text-3xl" aria-hidden="true">🕳️</span>,
-      title: '这个内容可能已被删除',
-      desc: '它可能被移动到了「最近删除」。',
-      action: '返回',
+      title: t(locale, 'demo.loading.error.missingTitle'),
+      desc: t(locale, 'demo.loading.error.missingDesc'),
+      action: t(locale, 'demo.loading.error.missingAction'),
     },
   }[kind];
 
   return (
-    <DemoStage caption="错误状态 ≠ 空状态。错误必须说清原因，并给一个能解决问题的按钮。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.error')}>
       <div className="mb-4 flex flex-wrap justify-center gap-2">
         {(
           [
-            ['network', '网络失败'],
-            ['permission', '权限不足'],
-            ['missing', '内容已删'],
+            ['network', 'demo.loading.error.tabNetwork'],
+            ['permission', 'demo.loading.error.tabPermission'],
+            ['missing', 'demo.loading.error.tabMissing'],
           ] as const
         ).map(([k, label]) => (
           <button
@@ -350,7 +375,7 @@ export function ErrorStateDemo() {
               kind === k ? 'bg-ink text-white' : 'bg-[#F2F0EB] text-ink2 hover:bg-[#E9E6DF]'
             }`}
           >
-            {label}
+            {t(locale, label)}
           </button>
         ))}
       </div>
@@ -372,7 +397,7 @@ export function ErrorStateDemo() {
         </button>
         <details className="mt-1 text-xs text-muted">
           <summary className="cursor-pointer underline-offset-4 hover:underline">
-            详细信息
+            {t(locale, 'demo.loading.error.details')}
           </summary>
           <p className="mt-1 font-mono text-[11px]">HTTP 503 · upstream timeout</p>
         </details>
@@ -382,8 +407,9 @@ export function ErrorStateDemo() {
 }
 
 export function SuccessStateDemo() {
+  const locale = useLocale();
   return (
-    <DemoStage caption="完成一个流程值得一个专属页面：确认 + 展示成果 + 下一步。">
+    <DemoStage caption={t(locale, 'demo.loading.caption.success')}>
       <div className="flex flex-col items-center gap-2.5 py-4 text-center">
         <span
           className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E6F2EC] text-[#2C7355]"
@@ -391,17 +417,23 @@ export function SuccessStateDemo() {
         >
           <Check size={24} strokeWidth={2.5} />
         </span>
-        <p className="text-base font-semibold text-ink">发布成功</p>
+        <p className="text-base font-semibold text-ink">
+          {t(locale, 'demo.loading.success.title')}
+        </p>
         <p className="max-w-[280px] text-[0.8125rem] leading-relaxed text-muted">
-          你的内容已经上线，所有人都能看到。
+          {t(locale, 'demo.loading.success.desc')}
         </p>
 
         <div className="mt-2 w-full max-w-[260px] rounded-xl border border-line bg-[#FCFBF8] p-3 text-left">
           <div className="flex items-center gap-2.5">
             <div className="h-10 w-10 shrink-0 rounded-lg bg-[#E2EAE4]" aria-hidden="true" />
             <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-ink">海岸线的一天</p>
-              <p className="mt-0.5 text-[11px] text-muted">刚刚 · 128 次浏览</p>
+              <p className="truncate text-xs font-medium text-ink">
+                {t(locale, 'demo.loading.success.item')}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted">
+                {t(locale, 'demo.loading.success.itemMeta')}
+              </p>
             </div>
           </div>
         </div>
@@ -411,13 +443,13 @@ export function SuccessStateDemo() {
             type="button"
             className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm text-ink transition-colors hover:bg-[#F5F3EE]"
           >
-            回到首页
+            {t(locale, 'demo.loading.success.home')}
           </button>
           <button
             type="button"
             className="rounded-lg bg-ink px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#35322C]"
           >
-            查看
+            {t(locale, 'demo.loading.success.view')}
           </button>
         </div>
       </div>

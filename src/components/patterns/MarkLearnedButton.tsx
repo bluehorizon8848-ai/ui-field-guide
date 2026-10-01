@@ -2,8 +2,11 @@
 
 import { Check, CheckCircle2 } from 'lucide-react';
 import { useProgress } from '@/hooks/useProgress';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 export function MarkLearnedButton({ patternId }: { patternId: string }) {
+  const locale = useLocale();
   const { isLearned, toggle, ready } = useProgress();
   const learned = ready && isLearned(patternId);
 
@@ -23,7 +26,7 @@ export function MarkLearnedButton({ patternId }: { patternId: string }) {
       ) : (
         <Check size={14} aria-hidden="true" />
       )}
-      {learned ? '已认识这个词' : '标记为已认识'}
+      {t(locale, learned ? 'pattern.markedLearned' : 'pattern.markLearned')}
     </button>
   );
 }

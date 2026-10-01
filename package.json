@@ -9,11 +9,14 @@
     "serve": "node scripts/serve-export.mjs 3111",
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify-content.mjs",
-    "check": "npm run typecheck && npm run verify",
-    "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/download.mjs && node scripts/e2e/verify-sharecard.mjs && node scripts/e2e/mobile.mjs",
+    "verify:i18n": "node scripts/verify-i18n.mjs",
+    "verify:search": "tsx scripts/verify-search.mjs",
+    "check": "npm run typecheck && npm run verify && npm run verify:i18n && npm run verify:search",
+    "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/i18n.mjs && node scripts/e2e/download.mjs && node scripts/e2e/verify-sharecard.mjs && node scripts/e2e/mobile.mjs",
     "e2e:sweep": "node scripts/e2e/sweep.mjs",
     "e2e:interact": "node scripts/e2e/interact.mjs",
     "e2e:visual": "node scripts/e2e/visual.mjs",
+    "e2e:i18n": "node scripts/e2e/i18n.mjs",
     "e2e:download": "node scripts/e2e/download.mjs",
     "e2e:measure": "node scripts/e2e/measure-demos.mjs",
     "e2e:crush": "node scripts/e2e/measure-crush.mjs",
@@ -35,6 +38,7 @@
     "playwright": "^1.49.1",
     "postcss": "8.5.1",
     "tailwindcss": "3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "5.7.3"
   }
 }

@@ -3,16 +3,19 @@
 import { useId, useRef, useState } from 'react';
 import { Archive, Check, Heart, MoreHorizontal, RefreshCw, Trash2 } from 'lucide-react';
 import { DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Swipe Action ---------------- */
 
 const SWIPE_ITEMS = [
-  { id: 1, t: '来自 iCloud 的邮件', s: '9:41' },
-  { id: 2, t: '周报 · 团队协作', s: '昨天' },
-  { id: 3, t: '账单提醒', s: '昨天' },
-];
+  { id: 1, tKey: 'demo.interaction.swipe.mail', time: '9:41', sKey: null },
+  { id: 2, tKey: 'demo.interaction.swipe.report', time: '', sKey: 'demo.interaction.swipe.yesterday' },
+  { id: 3, tKey: 'demo.interaction.swipe.bill', time: '', sKey: 'demo.interaction.swipe.yesterday' },
+] as const;
 
 export function SwipeActionDemo() {
+  const locale = useLocale();
   const [revealed, setRevealed] = useState<number | null>(null);
   const [removed, setRemoved] = useState<number[]>([]);
   const startX = useRef<number | null>(null);
@@ -22,16 +25,17 @@ export function SwipeActionDemo() {
   const remaining = SWIPE_ITEMS.filter((i) => !removed.includes(i.id));
 
   return (
-    <DemoStage caption="在某一行的内容上按住向左拖。注意：真实产品里还需要长按作为替代入口 —— 这里用右侧「⋮」代替。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.swipe')}>
       <div className="mx-auto w-full max-w-[400px]">
         <ul className="overflow-hidden rounded-xl border border-line">
           {remaining.length === 0 && (
             <li className="bg-surface px-4 py-6 text-center text-xs text-muted">
-              列表空了
+              {t(locale, 'demo.interaction.swipe.empty')}
             </li>
           )}
           {remaining.map((item) => {
             const open = revealed === item.id;
+            const title = t(locale, item.tKey);
             return (
               <li key={item.id} className="relative overflow-hidden border-b border-line last:border-b-0">
                 {/* 底层操作 */}
@@ -42,14 +46,18 @@ export function SwipeActionDemo() {
                     className="flex w-[72px] items-center justify-center bg-[#A8342C] text-white"
                   >
                     <Trash2 size={17} aria-hidden="true" />
-                    <span className="sr-only">删除 {item.t}</span>
+                    <span className="sr-only">
+                      {t(locale, 'demo.interaction.swipe.deleteItem', { name: title })}
+                    </span>
                   </button>
                   <button
                     type="button"
                     className="flex w-[72px] items-center justify-center bg-[#35618E] text-white"
                   >
                     <Archive size={17} aria-hidden="true" />
-                    <span className="sr-only">归档 {item.t}</span>
+                    <span className="sr-only">
+                      {t(locale, 'demo.interaction.swipe.archiveItem', { name: title })}
+                    </span>
                   </button>
                 </div>
 
@@ -87,13 +95,17 @@ export function SwipeActionDemo() {
                 >
                   <span className="h-8 w-8 shrink-0 rounded-lg bg-[#DCE6EF]" aria-hidden="true" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[0.8125rem] text-ink">{item.t}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{item.s}</span>
+                    <span className="block truncate text-[0.8125rem] text-ink">
+                      {title}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted">
+                      {item.time || t(locale, item.sKey!)}
+                    </span>
                   </span>
                   <button
                     type="button"
                     onClick={() => setRevealed(open ? null : item.id)}
-                    aria-label="更多操作"
+                    aria-label={t(locale, 'demo.interaction.swipe.more')}
                     aria-expanded={open}
                     className="shrink-0 rounded p-1.5 text-muted transition-colors hover:bg-[#F2F0EB]"
                   >
@@ -110,7 +122,7 @@ export function SwipeActionDemo() {
             onClick={() => setRemoved([])}
             className="mt-3 w-full rounded-lg border border-line py-2 text-xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
           >
-            撤销删除（{removed.length}）
+            {t(locale, 'demo.interaction.swipe.undo', { n: removed.length })}
           </button>
         )}
       </div>
@@ -120,7 +132,14 @@ export function SwipeActionDemo() {
 
 /* ---------------- Pull to Refresh ---------------- */
 
+const REFRESH_ITEMS = [
+  'demo.interaction.refresh.item1',
+  'demo.interaction.refresh.item2',
+  'demo.interaction.refresh.item3',
+] as const;
+
 export function PullToRefreshDemo() {
+  const locale = useLocale();
   const [dy, setDy] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const startY = useRef<number | null>(null);
@@ -142,7 +161,7 @@ export function PullToRefreshDemo() {
   };
 
   return (
-    <DemoStage caption="在内容区域按住往下拖（移动端手势）。注意阻尼 —— 越拉越沉，这是手感的关键。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.refresh')}>
       <div className="relative mx-auto w-full max-w-[380px] overflow-hidden rounded-xl border border-line">
         <div
           className="flex flex-col items-center justify-center overflow-hidden bg-[#FCFBF8] transition-[height] duration-200"
@@ -185,20 +204,20 @@ export function PullToRefreshDemo() {
         >
           <p className="text-center text-[0.8125rem] text-muted">
             {refreshing
-              ? '正在刷新…'
+              ? t(locale, 'demo.interaction.refresh.refreshing')
               : resistance > 0
                 ? resistance >= THRESHOLD
-                  ? '松手刷新'
-                  : '继续下拉'
-                : '在区域里按住往下拖'}
+                  ? t(locale, 'demo.interaction.refresh.release')
+                  : t(locale, 'demo.interaction.refresh.pullMore')
+                : t(locale, 'demo.interaction.refresh.hint')}
           </p>
           <div className="mt-3 space-y-2">
-            {['3 条新动态', '2 张新照片', '1 条新评论'].map((t) => (
+            {REFRESH_ITEMS.map((key) => (
               <div
-                key={t}
+                key={key}
                 className="rounded-lg border border-line px-3 py-2.5 text-[0.8125rem] text-ink2"
               >
-                {t}
+                {t(locale, key)}
               </div>
             ))}
           </div>
@@ -211,6 +230,7 @@ export function PullToRefreshDemo() {
 /* ---------------- Long Press ---------------- */
 
 export function LongPressDemo() {
+  const locale = useLocale();
   const [pressed, setPressed] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
@@ -232,13 +252,19 @@ export function LongPressDemo() {
   };
 
   const ITEMS = [
-    { id: 'a', t: 'IMG_0231 海岸线' },
-    { id: 'b', t: 'DSC_4478 城市夜景' },
-    { id: 'c', t: 'IMG_0155 旧照片' },
-  ];
+    { id: 'a', tKey: 'demo.interaction.longPress.name1' },
+    { id: 'b', tKey: 'demo.interaction.longPress.name2' },
+    { id: 'c', tKey: 'demo.interaction.longPress.name3' },
+  ] as const;
+
+  const MENU = [
+    { id: 'edit', tKey: 'demo.interaction.longPress.edit' },
+    { id: 'share', tKey: 'demo.interaction.longPress.share' },
+    { id: 'delete', tKey: 'demo.interaction.longPress.delete' },
+  ] as const;
 
   return (
-    <DemoStage caption="按住一项不放（约半秒）—— 会有震动和视觉高亮，然后弹出菜单。移开手指会取消。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.longPress')}>
       <div className="mx-auto w-full max-w-[400px]">
         <ul className="overflow-hidden rounded-xl border border-line">
           {ITEMS.map((it) => (
@@ -257,21 +283,21 @@ export function LongPressDemo() {
                 onPointerLeave={cancel}
                 onContextMenu={(e) => e.preventDefault()}
               >
-                <p className="text-[0.8125rem] text-ink">{it.t}</p>
+                <p className="text-[0.8125rem] text-ink">{t(locale, it.tKey)}</p>
               </div>
 
               {pressed === `${it.id}:menu` && (
                 <div className="absolute inset-x-4 top-full z-10 mt-1 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop animate-rise-in">
-                  {['编辑', '分享', '删除'].map((t) => (
+                  {MENU.map((m) => (
                     <button
-                      key={t}
+                      key={m.id}
                       type="button"
                       onClick={() => setPressed(null)}
                       className={`w-full px-3 py-2 text-left text-[0.8125rem] transition-colors hover:bg-[#F5F3EE] ${
-                        t === '删除' ? 'text-[#A8342C]' : 'text-ink2'
+                        m.id === 'delete' ? 'text-[#A8342C]' : 'text-ink2'
                       }`}
                     >
-                      {t}
+                      {t(locale, m.tKey)}
                     </button>
                   ))}
                 </div>
@@ -280,7 +306,9 @@ export function LongPressDemo() {
           ))}
         </ul>
         <p className="mt-3 text-center text-xs text-muted" role="status" aria-live="polite">
-          {pressed?.endsWith(':menu') ? '菜单已弹出' : '按住任意一项试试'}
+          {pressed?.endsWith(':menu')
+            ? t(locale, 'demo.interaction.longPress.menuOpen')
+            : t(locale, 'demo.interaction.longPress.hint')}
         </p>
       </div>
     </DemoStage>
@@ -289,14 +317,17 @@ export function LongPressDemo() {
 
 /* ---------------- Drag & Drop ---------------- */
 
-const COLS = [
-  { id: 'todo', label: '待处理', items: ['设计首页', '写文档'] },
-  { id: 'doing', label: '进行中', items: ['实现搜索'] },
-  { id: 'done', label: '已完成', items: ['搭脚手架', '定配色'] },
-];
+const COL_DEFS = [
+  { id: 'todo', labelKey: 'demo.interaction.drag.todo', itemKeys: ['demo.interaction.drag.item1', 'demo.interaction.drag.item2'] },
+  { id: 'doing', labelKey: 'demo.interaction.drag.doing', itemKeys: ['demo.interaction.drag.item3'] },
+  { id: 'done', labelKey: 'demo.interaction.drag.done', itemKeys: ['demo.interaction.drag.item4', 'demo.interaction.drag.item5'] },
+] as const;
 
 export function DragDropDemo() {
-  const [cols, setCols] = useState(COLS);
+  const locale = useLocale();
+  const [cols, setCols] = useState(() =>
+    COL_DEFS.map((c) => ({ ...c, items: [...c.itemKeys] }))
+  );
   const [drag, setDrag] = useState<{ col: number; item: number } | null>(null);
   const [over, setOver] = useState<number | null>(null);
 
@@ -312,7 +343,7 @@ export function DragDropDemo() {
   };
 
   return (
-    <DemoStage caption="用鼠标按住卡片拖动。触屏上需要处理更多手势冲突 —— 这是最难的交互之一。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.drag')}>
       <div className="grid grid-cols-3 gap-2.5">
         {cols.map((col, ci) => (
           <div
@@ -333,7 +364,7 @@ export function DragDropDemo() {
                 : 'border-dashed border-line bg-[#FCFBF8]'
             }`}
           >
-            <p className="meta mb-2 px-0.5">{col.label}</p>
+            <p className="meta mb-2 px-0.5">{t(locale, col.labelKey)}</p>
             <div className="space-y-1.5">
               {col.items.map((item, ii) => (
                 <div
@@ -348,7 +379,7 @@ export function DragDropDemo() {
                     drag?.col === ci && drag?.item === ii ? 'opacity-40' : ''
                   }`}
                 >
-                  {item}
+                  {t(locale, item)}
                 </div>
               ))}
             </div>
@@ -362,6 +393,7 @@ export function DragDropDemo() {
 /* ---------------- Optimistic UI ---------------- */
 
 export function OptimisticDemo() {
+  const locale = useLocale();
   const [liked, setLiked] = useState(false);
   const [pending, setPending] = useState(false);
   const [count, setCount] = useState(128);
@@ -391,10 +423,10 @@ export function OptimisticDemo() {
   };
 
   return (
-    <DemoStage caption="点一下：图标瞬间点亮（不等服务器）。开「模拟下次失败」再点一次，看回滚。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.optimistic')}>
       <div className="flex flex-col items-center gap-4">
         <div className="rounded-xl border border-line bg-surface p-5">
-          <p className="text-sm text-ink">海岸线的一天</p>
+          <p className="text-sm text-ink">{t(locale, 'demo.interaction.optimistic.item')}</p>
           <div className="mt-3 flex items-center gap-4">
             <button
               type="button"
@@ -418,15 +450,15 @@ export function OptimisticDemo() {
             onChange={(e) => setFailNext(e.target.checked)}
             className="h-3.5 w-3.5 accent-[#1A1917]"
           />
-          模拟下次请求失败
+          {t(locale, 'demo.interaction.optimistic.failNext')}
         </label>
 
         <p className="text-center text-xs text-muted" role="status" aria-live="polite">
           {pending
-            ? '正在同步…（UI 已经更新了）'
+            ? t(locale, 'demo.interaction.optimistic.pending')
             : liked
-              ? '已点赞'
-              : '未点赞'}
+              ? t(locale, 'demo.interaction.optimistic.liked')
+              : t(locale, 'demo.interaction.optimistic.unliked')}
         </p>
       </div>
     </DemoStage>
@@ -436,6 +468,7 @@ export function OptimisticDemo() {
 /* ---------------- Inline Validation ---------------- */
 
 export function InlineValidationDemo() {
+  const locale = useLocale();
   const [v, setV] = useState('');
   const [touched, setTouched] = useState(false);
   const uid = useId();
@@ -444,10 +477,10 @@ export function InlineValidationDemo() {
   const valid = v.length >= 8;
 
   return (
-    <DemoStage caption="点输入框然后移开鼠标（失焦）才会校验。注意错误文案写的是「怎么改」。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.validation')}>
       <div className="mx-auto w-full max-w-[380px]">
         <label htmlFor={pwId} className="mb-1.5 block text-sm text-ink2">
-          新密码
+          {t(locale, 'demo.interaction.validation.label')}
         </label>
         <input
           id={pwId}
@@ -469,13 +502,13 @@ export function InlineValidationDemo() {
           role={touched && !valid ? 'alert' : undefined}
         >
           {touched && !valid
-            ? '至少需要 8 个字符，现在有 ' + v.length + ' 个'
-            : '至少 8 个字符'}
+            ? t(locale, 'demo.interaction.validation.error', { n: v.length })
+            : t(locale, 'demo.interaction.validation.hint')}
         </p>
         {touched && valid && (
           <p className="mt-1 flex items-center gap-1 text-[0.8125rem] text-[#2C7355]">
             <Check size={13} aria-hidden="true" />
-            强度足够
+            {t(locale, 'demo.interaction.validation.ok')}
           </p>
         )}
       </div>
@@ -485,14 +518,25 @@ export function InlineValidationDemo() {
 
 /* ---------------- Progressive Disclosure ---------------- */
 
+// Amounts stay in ¥: this is a Chinese-market product mock, so the currency is
+// part of the scenario rather than something to localise.
+const DISCLOSURE_ITEMS = [
+  ['demo.interaction.disclosure.item1', '¥68'],
+  ['demo.interaction.disclosure.item2', '¥45'],
+  ['demo.interaction.disclosure.item3', '−¥15'],
+] as const;
+
 export function ProgressiveDisclosureDemo() {
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <DemoStage caption="默认只给摘要。用户点开才看到明细 —— 这能显著降低「选择过载」。">
+    <DemoStage caption={t(locale, 'demo.interaction.caption.disclosure')}>
       <div className="mx-auto w-full max-w-[400px] rounded-xl border border-line bg-surface p-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-sm text-ink2">订单合计</span>
+          <span className="text-sm text-ink2">
+            {t(locale, 'demo.interaction.disclosure.total')}
+          </span>
           <span className="text-lg font-semibold tabular-nums text-ink">¥128</span>
         </div>
         <button
@@ -501,7 +545,9 @@ export function ProgressiveDisclosureDemo() {
           aria-expanded={expanded}
           className="mt-2 text-xs text-ink underline-offset-4 hover:underline"
         >
-          {expanded ? '收起明细' : '查看明细'}
+          {expanded
+            ? t(locale, 'demo.interaction.disclosure.hide')
+            : t(locale, 'demo.interaction.disclosure.show')}
         </button>
         <div
           className={`grid transition-[grid-template-rows] duration-200 ${
@@ -510,13 +556,9 @@ export function ProgressiveDisclosureDemo() {
         >
           <div className="overflow-hidden">
             <ul className="space-y-1.5 border-t border-line2 pt-3 text-xs text-muted">
-              {[
-                ['相框 · 原木色 × 1', '¥68'],
-                ['冲印服务 · 20 张', '¥45'],
-                ['优惠券', '−¥15'],
-              ].map(([k, v]) => (
+              {DISCLOSURE_ITEMS.map(([k, v]) => (
                 <li key={k} className="flex justify-between">
-                  <span>{k}</span>
+                  <span>{t(locale, k)}</span>
                   <span className="tabular-nums">{v}</span>
                 </li>
               ))}

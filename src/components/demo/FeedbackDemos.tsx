@@ -3,36 +3,44 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Check, Info, RefreshCw, Undo2, X } from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- Toast ---------------- */
 
 export function ToastDemo() {
+  const locale = useLocale();
   const [toast, setToast] = useState<{ id: number; msg: string; ok: boolean } | null>(
     null
   );
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3000);
-    return () => clearTimeout(t);
+    // 局部变量曾叫 t，会盖住词典里的 t()
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
   }, [toast]);
 
   const show = (ok: boolean) => {
     // 重复触发时替换而非堆叠
-    setToast({ id: Date.now(), msg: ok ? '照片已保存' : '保存失败，请重试', ok });
+    setToast({
+      id: Date.now(),
+      msg: ok ? t(locale, 'demo.toast.saved') : t(locale, 'demo.toast.failed'),
+      ok,
+    });
   };
 
   return (
-    <DemoStage caption="点按钮看提示浮出顶部，3 秒后自动消失。它没有按钮 —— 需要按钮就该用 Snackbar。">
+    <DemoStage caption={t(locale, 'demo.caption.toast')}>
       <div className="flex flex-col items-center justify-center gap-3 pt-8">
         <div className="flex gap-2.5">
           <DemoButton variant="secondary" onClick={() => show(true)}>
             <Check size={15} aria-hidden="true" />
-            模拟保存成功
+            {t(locale, 'demo.upload.simulateOk')}
           </DemoButton>
           <DemoButton variant="secondary" onClick={() => show(false)}>
             <X size={15} aria-hidden="true" />
-            模拟失败
+            {t(locale, 'demo.upload.simulateFail')}
           </DemoButton>
         </div>
       </div>
@@ -59,30 +67,34 @@ export function ToastDemo() {
 /* ---------------- Snackbar ---------------- */
 
 export function SnackbarDemo() {
+  const locale = useLocale();
   const [snack, setSnack] = useState<{ msg: string; undone: boolean } | null>(null);
   const [count, setCount] = useState(3);
 
   useEffect(() => {
     if (!snack) return;
     if (snack.undone) return;
-    const t = setTimeout(() => setSnack(null), 6000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSnack(null), 6000);
+    return () => clearTimeout(timer);
   }, [snack]);
 
   return (
-    <DemoStage caption="删除后底部出现带「撤销」的提示条。注意它和 Toast 的区别：多了一个可以点的东西。">
+    <DemoStage caption={t(locale, 'demo.caption.snackbar')}>
       <div className="flex flex-col items-center justify-center gap-3">
         <DemoButton
           variant="secondary"
           onClick={() => {
             setCount((c) => c - 1);
-            setSnack({ msg: `已删除 1 张照片（剩余 ${count - 1} 张）`, undone: false });
+            setSnack({
+              msg: t(locale, 'demo.snack.deleted', { n: count - 1 }),
+              undone: false,
+            });
           }}
           disabled={count === 0}
         >
-          删除一张照片
+          {t(locale, 'demo.snack.deleteOne')}
         </DemoButton>
-        <p className="text-xs text-muted">当前：{count} 张</p>
+        <p className="text-xs text-muted">{t(locale, 'demo.snack.count', { n: count })}</p>
       </div>
 
       {snack && (
@@ -101,7 +113,7 @@ export function SnackbarDemo() {
             className="flex shrink-0 items-center gap-1 rounded px-1.5 py-1 text-[0.8125rem] font-semibold text-white/90 underline-offset-4 transition-colors hover:text-white hover:underline"
           >
             <Undo2 size={13} aria-hidden="true" />
-            撤销
+            {t(locale, 'demo.snack.undo')}
           </button>
         </div>
       )}
@@ -112,10 +124,11 @@ export function SnackbarDemo() {
 /* ---------------- Alert ---------------- */
 
 export function AlertDemo() {
+  const locale = useLocale();
   const [alert, setAlert] = useState(true);
 
   return (
-    <DemoStage caption="注意它不会自动消失，也不会自动收起 —— 因为用户必须处理这个问题。">
+    <DemoStage caption={t(locale, 'demo.caption.alert')}>
       <div className="mx-auto w-full max-w-[460px] space-y-3">
         <div
           role="alert"
@@ -123,9 +136,11 @@ export function AlertDemo() {
         >
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[#A8342C]" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <p className="text-[0.8125rem] font-semibold text-[#7A241F]">邮箱已被注册</p>
+            <p className="text-[0.8125rem] font-semibold text-[#7A241F]">
+              {t(locale, 'demo.alert.emailTaken')}
+            </p>
             <p className="mt-1 text-[0.8125rem] leading-relaxed text-[#7A241F]/85">
-              换个邮箱地址，或直接登录已有账号。
+              {t(locale, 'demo.alert.emailTakenBody')}
             </p>
             <div className="mt-2 flex gap-3">
               <button
@@ -133,14 +148,14 @@ export function AlertDemo() {
                 onClick={() => setAlert(false)}
                 className="text-xs font-semibold text-[#7A241F] underline-offset-4 hover:underline"
               >
-                去登录
+                {t(locale, 'demo.alert.signIn')}
               </button>
               <button
                 type="button"
                 onClick={() => setAlert(false)}
                 className="text-xs font-semibold text-[#7A241F] underline-offset-4 hover:underline"
               >
-                换个邮箱
+                {t(locale, 'demo.alert.useOther')}
               </button>
             </div>
           </div>
@@ -149,7 +164,7 @@ export function AlertDemo() {
         <div className="flex items-start gap-2.5 rounded-lg border-l-[3px] border-[#94701C] bg-[#F8F2E4] py-3 pl-3.5 pr-3.5">
           <Info size={16} className="mt-0.5 shrink-0 text-[#94701C]" aria-hidden="true" />
           <p className="text-[0.8125rem] leading-relaxed text-[#6B520F]">
-            你的云备份已满，清理后可以继续备份。
+            {t(locale, 'demo.alert.backupFull')}
           </p>
         </div>
 
@@ -159,7 +174,7 @@ export function AlertDemo() {
             onClick={() => setAlert(true)}
             className="w-full rounded-lg border border-dashed border-line py-3 text-xs text-muted transition-colors hover:border-[#C9C5BB] hover:text-ink2"
           >
-            重新显示红色 Alert
+            {t(locale, 'demo.alert.showAgain')}
           </button>
         )}
       </div>
@@ -170,10 +185,11 @@ export function AlertDemo() {
 /* ---------------- Banner ---------------- */
 
 export function BannerDemo() {
+  const locale = useLocale();
   const [hidden, setHidden] = useState(false);
 
   return (
-    <DemoStage caption="通栏的全局消息。Banner 是「整个应用都受影响」时用的，比如断网。">
+    <DemoStage caption={t(locale, 'demo.caption.banner')}>
       <div className="-m-5 -mt-7 sm:-m-7 sm:-mt-7">
         {!hidden ? (
           <div
@@ -182,18 +198,18 @@ export function BannerDemo() {
           >
             <Info size={15} className="shrink-0 text-[#94701C]" aria-hidden="true" />
             <p className="text-[0.8125rem] text-[#6B520F]">
-              网络连接已断开，内容可能不是最新的
+              {t(locale, 'demo.banner.offline')}
             </p>
             <button
               type="button"
               className="shrink-0 text-xs font-semibold text-[#6B520F] underline-offset-4 hover:underline"
             >
-              重试
+              {t(locale, 'demo.banner.retry')}
             </button>
             <button
               type="button"
               onClick={() => setHidden(true)}
-              aria-label="关闭提示"
+              aria-label={t(locale, 'demo.banner.dismiss')}
               className="shrink-0 rounded p-1 text-[#6B520F] transition-colors hover:bg-black/5"
             >
               <X size={14} aria-hidden="true" />
@@ -205,11 +221,11 @@ export function BannerDemo() {
             onClick={() => setHidden(false)}
             className="w-full border-b border-dashed border-line py-2.5 text-xs text-muted transition-colors hover:text-ink2"
           >
-            重新显示 Banner
+            {t(locale, 'demo.banner.showAgain')}
           </button>
         )}
         <div className="grid-lines flex h-24 items-center justify-center bg-[#FCFBF8]">
-          <p className="text-xs text-muted">页面内容在这里</p>
+          <p className="text-xs text-muted">{t(locale, 'demo.banner.pageContent')}</p>
         </div>
       </div>
     </DemoStage>

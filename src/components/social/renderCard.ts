@@ -1,4 +1,6 @@
 import type { UIPattern } from '@/data/types';
+import type { Locale } from '@/lib/i18n';
+import { t } from '@/lib/ui-strings';
 
 /**
  * 分享卡片渲染（纯 Canvas 2D，无外部依赖）。
@@ -150,6 +152,7 @@ export function drawShareCard(
   pattern: UIPattern,
   W: number,
   H: number,
+  locale: Locale,
   image?: ShareCardImage
 ) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -185,7 +188,7 @@ export function drawShareCard(
   ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 14, y + badgeSize * 0.38);
   ctx.fillStyle = C.ink2;
   ctx.font = `500 ${Math.round(W * 0.0165)}px ${SANS}`;
-  ctx.fillText('AI 独立开发者的 UI 词典', pad + badgeSize + 14, y + badgeSize * 0.72);
+  ctx.fillText(t(locale, 'meta.tagline'), pad + badgeSize + 14, y + badgeSize * 0.72);
 
   y += badgeSize + Math.round(W * 0.055);
 
@@ -254,10 +257,10 @@ export function drawShareCard(
     try {
       drawImageCover(ctx, image.demo, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
     } catch {
-      drawFallback(ctx, shotX, shotY, shotW, shotH, W);
+      drawFallback(ctx, shotX, shotY, shotW, shotH, W, locale);
     }
   } else {
-    drawFallback(ctx, shotX, shotY, shotW, shotH, W, image?.fallbackReason);
+    drawFallback(ctx, shotX, shotY, shotW, shotH, W, locale, image?.fallbackReason);
   }
 
   // 内描边，压住截图边缘
@@ -271,7 +274,7 @@ export function drawShareCard(
   // ---------- 适合什么场景 ----------
   ctx.fillStyle = C.muted;
   ctx.font = `500 ${fitLabelSize}px ${MONO}`;
-  ctx.fillText('适合', pad, y);
+  ctx.fillText(t(locale, 'share.fitsFor'), pad, y);
   y += Math.round(fitLabelSize * 1.7);
 
   ctx.fillStyle = C.ink2;
@@ -292,7 +295,7 @@ export function drawShareCard(
   ctx.font = `italic 400 ${askSize}px ${SERIF}`;
   wrapText(
     ctx,
-    `Use a ${pattern.name} to…`,
+    t(locale, 'share.useIt', { name: pattern.name }),
     pad + Math.round(W * 0.024),
     askY + Math.round(askH * 0.68),
     innerW - Math.round(W * 0.048),
@@ -315,6 +318,7 @@ function drawFallback(
   w: number,
   h: number,
   W: number,
+  locale: Locale,
   reason?: string
 ) {
   ctx.save();
@@ -326,7 +330,7 @@ function drawFallback(
   ctx.fillStyle = C.muted;
   ctx.font = `400 ${Math.round(W * 0.032)}px ${SANS}`;
   ctx.textAlign = 'center';
-  ctx.fillText(reason || '预览生成中…', x + w / 2, y + h / 2);
+  ctx.fillText(reason || t(locale, 'share.previewGenerating'), x + w / 2, y + h / 2);
   ctx.textAlign = 'left';
   ctx.restore();
 }

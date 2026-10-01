@@ -3,18 +3,21 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { DemoStage } from './DemoStage';
-
-const SECTIONS = [
-  { t: '照片与视频', d: '扫描相册中的图片和视频文件，识别重复项与相似项。' },
-  { t: '存储空间', d: '查看各类文件占用的空间，定位可清理的大文件。' },
-  { t: '回收站', d: '已删除内容保留 30 天，可随时恢复。' },
-];
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 export function CollapsibleDemo() {
+  const locale = useLocale();
+  // 分组标题与说明都要跟着语言走，只译标题会在英文版里露出中文说明
+  const SECTIONS = [
+    { t: t(locale, 'demo.collapsible.sec1t'), d: t(locale, 'demo.collapsible.sec1d') },
+    { t: t(locale, 'demo.collapsible.sec2t'), d: t(locale, 'demo.collapsible.sec2d') },
+    { t: t(locale, 'demo.collapsible.sec3t'), d: t(locale, 'demo.collapsible.sec3d') },
+  ];
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <DemoStage caption="点第二条试试 —— 第一条会自动收起。任何时刻最多只有一项展开，这就是 Collapsible。">
+    <DemoStage caption={t(locale, 'demo.caption.collapsible')}>
       <div className="mx-auto w-full max-w-[440px] overflow-hidden rounded-xl border border-line">
         {SECTIONS.map((s, i) => {
           const isOpen = open === i;

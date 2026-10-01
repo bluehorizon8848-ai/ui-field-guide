@@ -3,37 +3,40 @@
 import { useState } from 'react';
 import { Calendar, Check, ChevronDown, Home, Image as ImageIcon, Star, User } from 'lucide-react';
 import { DemoStage } from './DemoStage';
+import { useLocale } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 /* ---------------- List ---------------- */
 
 export function ListDemo() {
+  const locale = useLocale();
   const [active, setActive] = useState<string | null>(null);
 
   const ITEMS = [
-    { icon: ImageIcon, t: '照片与视频', v: '2,431 张' },
-    { icon: Star, t: '收藏', v: '86 项' },
-    { icon: User, t: '共享相簿', v: '3 个' },
-    { icon: Home, t: '家庭位置', v: '已开启' },
-  ];
+    { id: 'photos', icon: ImageIcon, labelKey: 'demo.data.list.photos', valueKey: 'demo.data.list.photosValue' },
+    { id: 'favorites', icon: Star, labelKey: 'demo.data.list.favorites', valueKey: 'demo.data.list.favoritesValue' },
+    { id: 'shared', icon: User, labelKey: 'demo.data.list.shared', valueKey: 'demo.data.list.sharedValue' },
+    { id: 'family', icon: Home, labelKey: 'demo.data.list.family', valueKey: 'demo.data.list.familyValue' },
+  ] as const;
 
   return (
-    <DemoStage caption="每一行都是独立可点的。整行 hover 有反馈 —— 不是只有文字能点。">
+    <DemoStage caption={t(locale, 'demo.data.caption.list')}>
       <ul className="mx-auto w-full max-w-[380px] overflow-hidden rounded-xl border border-line">
-        {ITEMS.map(({ icon: Icon, t, v }) => (
-          <li key={t}>
+        {ITEMS.map(({ id, icon: Icon, labelKey, valueKey }) => (
+          <li key={id}>
             <button
               type="button"
-              onClick={() => setActive(active === t ? null : t)}
-              aria-current={active === t ? 'true' : undefined}
+              onClick={() => setActive(active === id ? null : id)}
+              aria-current={active === id ? 'true' : undefined}
               className={`flex w-full items-center gap-3 border-b border-line px-4 py-3.5 text-left transition-colors last:border-b-0 ${
-                active === t ? 'bg-[#F2F0EB]' : 'hover:bg-[#F7F5F0]'
+                active === id ? 'bg-[#F2F0EB]' : 'hover:bg-[#F7F5F0]'
               }`}
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F2F0EB] text-ink2">
                 <Icon size={16} aria-hidden="true" />
               </span>
-              <span className="flex-1 text-sm text-ink">{t}</span>
-              <span className="text-[0.8125rem] text-muted">{v}</span>
+              <span className="flex-1 text-sm text-ink">{t(locale, labelKey)}</span>
+              <span className="text-[0.8125rem] text-muted">{t(locale, valueKey)}</span>
               <ChevronDown
                 size={14}
                 aria-hidden="true"
@@ -50,27 +53,28 @@ export function ListDemo() {
 /* ---------------- Table ---------------- */
 
 export function TableDemo() {
+  const locale = useLocale();
   const [sort, setSort] = useState<'name' | 'size'>('size');
 
   const ROWS = [
-    { name: 'IMG_0231.jpg', size: 3.2, type: '照片', status: '已清理' },
-    { name: 'DSC_4478.jpg', size: 4.8, type: '照片', status: '保留' },
-    { name: 'clip_01.mp4', size: 128.5, type: '视频', status: '已清理' },
-    { name: 'screen.png', size: 0.4, type: '截图', status: '忽略' },
-  ];
+    { name: 'IMG_0231.jpg', size: 3.2, typeKey: 'demo.data.table.photo', status: 'cleaned', statusKey: 'demo.data.table.cleaned' },
+    { name: 'DSC_4478.jpg', size: 4.8, typeKey: 'demo.data.table.photo', status: 'kept', statusKey: 'demo.data.table.kept' },
+    { name: 'clip_01.mp4', size: 128.5, typeKey: 'demo.data.table.video', status: 'cleaned', statusKey: 'demo.data.table.cleaned' },
+    { name: 'screen.png', size: 0.4, typeKey: 'demo.data.table.shot', status: 'ignored', statusKey: 'demo.data.table.ignored' },
+  ] as const;
 
   const sorted = [...ROWS].sort((a, b) =>
     sort === 'size' ? a.size - b.size : a.name.localeCompare(b.name)
   );
 
   const badge: Record<string, string> = {
-    已清理: 'bg-[#E6F2EC] text-[#2C7355]',
-    保留: 'bg-[#F2F0EB] text-ink2',
-    忽略: 'bg-[#F2F0EB] text-muted',
+    cleaned: 'bg-[#E6F2EC] text-[#2C7355]',
+    kept: 'bg-[#F2F0EB] text-ink2',
+    ignored: 'bg-[#F2F0EB] text-muted',
   };
 
   return (
-    <DemoStage caption="点表头排序。数字右对齐 + 等宽数字，这样大小一眼能比出来。">
+    <DemoStage caption={t(locale, 'demo.data.caption.table')}>
       {/* w-full 是必须的：舞台是 flex-col + items-center，子元素默认收缩包裹，
           表格会被撑到内容宽度（560px）并顶破 335px 的舞台。
           w-full 把滚动容器钉在舞台宽度上，min-w 让表格在容器内横向滚动。 */}
@@ -84,7 +88,7 @@ export function TableDemo() {
                   onClick={() => setSort('name')}
                   className="-mx-1.5 flex min-h-[44px] items-center gap-1 rounded px-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
                 >
-                  文件名
+                  {t(locale, 'demo.data.table.name')}
                   {sort === 'name' && <span aria-hidden="true">↓</span>}
                 </button>
               </th>
@@ -94,15 +98,15 @@ export function TableDemo() {
                   onClick={() => setSort('size')}
                   className="-mx-1.5 flex min-h-[44px] items-center gap-1 rounded px-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
                 >
-                  大小
+                  {t(locale, 'demo.data.table.size')}
                   {sort === 'size' && <span aria-hidden="true">↓</span>}
                 </button>
               </th>
               <th scope="col" className="pb-2 pr-3 text-left text-xs font-medium text-muted">
-                类型
+                {t(locale, 'demo.data.table.type')}
               </th>
               <th scope="col" className="pb-2 text-left text-xs font-medium text-muted">
-                状态
+                {t(locale, 'demo.data.table.status')}
               </th>
             </tr>
           </thead>
@@ -113,12 +117,14 @@ export function TableDemo() {
                 <td className="py-2.5 pr-3 text-right text-[0.8125rem] tabular-nums text-ink2">
                   {r.size} MB
                 </td>
-                <td className="py-2.5 pr-3 text-[0.8125rem] text-muted">{r.type}</td>
+                <td className="py-2.5 pr-3 text-[0.8125rem] text-muted">
+                  {t(locale, r.typeKey)}
+                </td>
                 <td className="py-2.5">
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-2xs font-medium ${badge[r.status]}`}
                   >
-                    {r.status}
+                    {t(locale, r.statusKey)}
                   </span>
                 </td>
               </tr>
@@ -133,16 +139,17 @@ export function TableDemo() {
 /* ---------------- Badge ---------------- */
 
 export function BadgeDemo() {
+  const locale = useLocale();
   const [counts, setCounts] = useState({ msg: 5, file: 128, cart: 0 });
 
   const items = [
-    { k: 'msg' as const, label: '消息', icon: <User size={18} /> },
-    { k: 'file' as const, label: '文件', icon: <ImageIcon size={18} /> },
-    { k: 'cart' as const, label: '购物车', icon: <Star size={18} /> },
-  ];
+    { k: 'msg' as const, labelKey: 'demo.data.badge.msg', icon: <User size={18} /> },
+    { k: 'file' as const, labelKey: 'demo.data.badge.file', icon: <ImageIcon size={18} /> },
+    { k: 'cart' as const, labelKey: 'demo.data.badge.cart', icon: <Star size={18} /> },
+  ] as const;
 
   return (
-    <DemoStage caption=">99 显示「99+」，为 0 时整个隐藏。点一下看看。">
+    <DemoStage caption={t(locale, 'demo.data.caption.badge')}>
       <div className="flex flex-wrap items-center justify-center gap-8">
         {items.map((it) => {
           const n = counts[it.k];
@@ -157,7 +164,10 @@ export function BadgeDemo() {
                 }))
               }
               className="relative flex flex-col items-center gap-2"
-              aria-label={`${it.label}，未读 ${n}`}
+              aria-label={t(locale, 'demo.data.badge.aria', {
+                name: t(locale, it.labelKey),
+                n,
+              })}
             >
               <span className="relative text-ink2">
                 {it.icon}
@@ -167,7 +177,7 @@ export function BadgeDemo() {
                   </span>
                 )}
               </span>
-              <span className="text-xs text-muted">{it.label}</span>
+              <span className="text-xs text-muted">{t(locale, it.labelKey)}</span>
             </button>
           );
         })}
@@ -179,29 +189,36 @@ export function BadgeDemo() {
 /* ---------------- Tag ---------------- */
 
 export function TagDemo() {
+  const locale = useLocale();
   const tags = [
-    { label: '视频', cls: 'bg-[#EEF3F8] text-[#35618E]' },
-    { label: '已收藏', cls: 'bg-[#F8F2E4] text-[#94701C]' },
-    { label: '已编辑', cls: 'bg-[#F2F0EB] text-muted' },
-    { label: '原始', cls: 'bg-[#ECF5F0] text-[#2C7355]' },
+    { labelKey: 'demo.data.tag.video', cls: 'bg-[#EEF3F8] text-[#35618E]' },
+    { labelKey: 'demo.data.tag.saved', cls: 'bg-[#F8F2E4] text-[#94701C]' },
+    { labelKey: 'demo.data.tag.edited', cls: 'bg-[#F2F0EB] text-muted' },
+    { labelKey: 'demo.data.tag.original', cls: 'bg-[#ECF5F0] text-[#2C7355]' },
+  ] as const;
+
+  const names = [
+    t(locale, 'demo.data.tag.name1'),
+    t(locale, 'demo.data.tag.name2'),
+    t(locale, 'demo.data.tag.name3'),
   ];
 
   return (
-    <DemoStage caption="Tag 是只读的（没有 hover、没有 pointer），这正是它和 Chip 的区别。">
+    <DemoStage caption={t(locale, 'demo.data.caption.tag')}>
       <div className="mx-auto w-full max-w-[400px] space-y-2.5">
-        {['IMG_0231 海岸线', 'clip_01 延时摄影', 'IMG_0155 旧照片'].map((name, i) => (
+        {names.map((name, i) => (
           <div
             key={name}
             className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3.5 py-3"
           >
             <span className="min-w-0 truncate text-[0.8125rem] text-ink">{name}</span>
             <span className="flex shrink-0 gap-1.5">
-              {tags.slice(0, (i % 2) + 1).map((t) => (
+              {tags.slice(0, (i % 2) + 1).map((tag) => (
                 <span
-                  key={t.label}
-                  className={`rounded-full px-2 py-0.5 text-2xs font-medium ${t.cls}`}
+                  key={tag.labelKey}
+                  className={`rounded-full px-2 py-0.5 text-2xs font-medium ${tag.cls}`}
                 >
-                  {t.label}
+                  {t(locale, tag.labelKey)}
                 </span>
               ))}
             </span>
@@ -215,19 +232,20 @@ export function TagDemo() {
 /* ---------------- Stat Card ---------------- */
 
 export function StatCardDemo() {
+  const locale = useLocale();
   const STATS = [
-    { label: '今日新增', value: '1,284', delta: '↑ 12%', up: true, base: '较昨日' },
-    { label: '活跃用户', value: '8,420', delta: '↓ 3%', up: false, base: '较上周' },
-    { label: '转化率', value: '4.2%', delta: '持平', up: null, base: '较上周' },
-    { label: '今日清理', value: '0', delta: '—', up: null, base: '较昨日' },
-  ];
+    { labelKey: 'demo.data.stat.newToday', value: '1,284', delta: '↑ 12%', up: true, baseKey: 'demo.data.stat.vsDay' },
+    { labelKey: 'demo.data.stat.active', value: '8,420', delta: '↓ 3%', up: false, baseKey: 'demo.data.stat.vsWeek' },
+    { labelKey: 'demo.data.stat.conversion', value: '4.2%', deltaKey: 'demo.data.stat.flat', up: null, baseKey: 'demo.data.stat.vsWeek' },
+    { labelKey: 'demo.data.stat.cleanedToday', value: '0', delta: '—', up: null, baseKey: 'demo.data.stat.vsDay' },
+  ] as const;
 
   return (
-    <DemoStage caption="注意变化率必须说清和什么比。国内习惯：红涨绿跌。">
+    <DemoStage caption={t(locale, 'demo.data.caption.stat')}>
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {STATS.map((s) => (
-          <div key={s.label} className="rounded-xl border border-line bg-surface p-3.5">
-            <p className="text-xs text-muted">{s.label}</p>
+          <div key={s.labelKey} className="rounded-xl border border-line bg-surface p-3.5">
+            <p className="text-xs text-muted">{t(locale, s.labelKey)}</p>
             <p className="mt-1.5 text-[1.375rem] font-semibold tabular-nums leading-none text-ink">
               {s.value}
             </p>
@@ -236,8 +254,8 @@ export function StatCardDemo() {
                 s.up === true ? 'text-[#A8342C]' : s.up === false ? 'text-[#2C7355]' : 'text-muted'
               }`}
             >
-              {s.delta}
-              <span className="ml-1 text-muted">{s.base}</span>
+              {'delta' in s ? s.delta : t(locale, s.deltaKey)}
+              <span className="ml-1 text-muted">{t(locale, s.baseKey)}</span>
             </p>
           </div>
         ))}
@@ -249,33 +267,37 @@ export function StatCardDemo() {
 /* ---------------- Avatar ---------------- */
 
 export function AvatarDemo() {
+  const locale = useLocale();
   const PEOPLE = [
-    { name: '陈小明', url: 'linear-gradient(135deg,#DCE6EF,#E9E2D4)' },
-    { name: '林晓', url: 'linear-gradient(135deg,#E2EAE4,#EFE1E1)' },
-    { name: '王大锤', url: 'linear-gradient(135deg,#EFE1E1,#E4E2EF)' },
-    { name: '赵敏', url: 'linear-gradient(135deg,#E9E2D4,#DCE6EF)' },
-  ];
+    { nameKey: 'demo.data.avatar.name1', url: 'linear-gradient(135deg,#DCE6EF,#E9E2D4)' },
+    { nameKey: 'demo.data.avatar.name2', url: 'linear-gradient(135deg,#E2EAE4,#EFE1E1)' },
+    { nameKey: 'demo.data.avatar.name3', url: 'linear-gradient(135deg,#EFE1E1,#E4E2EF)' },
+    { nameKey: 'demo.data.avatar.name4', url: 'linear-gradient(135deg,#E9E2D4,#DCE6EF)' },
+  ] as const;
 
   return (
-    <DemoStage caption="真实场景是照片；这里是降级方案 —— 用名字首字母生成柔和底色。">
+    <DemoStage caption={t(locale, 'demo.data.caption.avatar')}>
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-3">
-          {PEOPLE.map((p) => (
-            <span key={p.name} className="flex flex-col items-center gap-1.5">
+          {PEOPLE.map((p) => {
+            const name = t(locale, p.nameKey);
+            return (
+            <span key={p.nameKey} className="flex flex-col items-center gap-1.5">
               <span
                 className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-medium text-ink2 ring-2 ring-white"
                 style={{ background: p.url }}
                 role="img"
-                aria-label={p.name}
+                aria-label={name}
               >
-                {p.name[0]}
+                {name[0]}
               </span>
-              <span className="text-2xs text-muted">{p.name}</span>
+              <span className="text-2xs text-muted">{name}</span>
             </span>
-          ))}
+            );
+          })}
         </div>
         <p className="text-center text-xs text-muted">
-          头像永远要有降级方案：首字母 → 默认图标。
+          {t(locale, 'demo.data.avatar.note')}
         </p>
       </div>
     </DemoStage>
@@ -285,42 +307,47 @@ export function AvatarDemo() {
 /* ---------------- Timeline ---------------- */
 
 export function TimelineDemo() {
+  const locale = useLocale();
   const GROUPS = [
     {
-      label: '今天',
+      labelKey: 'demo.data.timeline.today',
       items: [
-        { t: '完成清理 128 张重复照片', time: '14:20' },
-        { t: '导出 2024 年度归档', time: '10:05' },
-        { t: '开启 iCloud 同步', time: '09:12' },
+        { tKey: 'demo.data.timeline.1', time: '14:20' },
+        { tKey: 'demo.data.timeline.2', time: '10:05' },
+        { tKey: 'demo.data.timeline.3', time: '09:12' },
       ],
     },
     {
-      label: '昨天',
+      labelKey: 'demo.data.timeline.yesterday',
       items: [
-        { t: '导入 342 张新照片', time: '21:40' },
-        { t: '创建相簿「2024 旅行」', time: '16:22' },
+        { tKey: 'demo.data.timeline.4', time: '21:40' },
+        { tKey: 'demo.data.timeline.5', time: '16:22' },
       ],
     },
-  ];
+  ] as const;
 
   return (
-    <DemoStage caption="一条竖线把所有事件串起来 —— 它表达的是「发生过一串事」。">
+    <DemoStage caption={t(locale, 'demo.data.caption.timeline')}>
       <div className="mx-auto w-full max-w-[400px]">
         {GROUPS.map((g, gi) => (
-          <div key={g.label} className="mb-5 last:mb-0">
-            <p className="meta sticky top-0 z-10 bg-surface py-1.5">{g.label}</p>
+          <div key={g.labelKey} className="mb-5 last:mb-0">
+            <p className="meta sticky top-0 z-10 bg-surface py-1.5">
+              {t(locale, g.labelKey)}
+            </p>
             <div className="relative mt-1 space-y-3.5 pl-6">
               <span
                 className="absolute left-[5px] top-1.5 h-[calc(100%-1rem)] w-px bg-line"
                 aria-hidden="true"
               />
               {g.items.map((it) => (
-                <div key={it.t} className="relative">
+                <div key={it.tKey} className="relative">
                   <span
                     className="absolute -left-6 top-1.5 h-[11px] w-[11px] rounded-full border-2 border-surface bg-ink"
                     aria-hidden="true"
                   />
-                  <p className="text-[0.8125rem] leading-snug text-ink">{it.t}</p>
+                  <p className="text-[0.8125rem] leading-snug text-ink">
+                    {t(locale, it.tKey)}
+                  </p>
                   <p className="mt-0.5 text-xs tabular-nums text-muted">{it.time}</p>
                 </div>
               ))}
@@ -335,6 +362,7 @@ export function TimelineDemo() {
 /* ---------------- Date Picker ---------------- */
 
 export function DatePickerDemo() {
+  const locale = useLocale();
   const [selected, setSelected] = useState<number | null>(12);
   const [month, setMonth] = useState(0); // 0 = 本月
 
@@ -342,7 +370,7 @@ export function DatePickerDemo() {
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
   return (
-    <DemoStage caption="过去的日期置灰不可点。今天加一圈描边标记。">
+    <DemoStage caption={t(locale, 'demo.data.caption.date')}>
       <div className="mx-auto w-full max-w-[300px]">
         <div className="rounded-xl border border-line bg-surface p-3.5">
           <div className="mb-3 flex items-center justify-between">
@@ -351,26 +379,28 @@ export function DatePickerDemo() {
               onClick={() => setMonth((m) => Math.max(0, m - 1))}
               disabled={month === 0}
               className="rounded p-1 text-muted transition-colors hover:bg-[#F2F0EB] disabled:opacity-30"
-              aria-label="上个月"
+              aria-label={t(locale, 'demo.data.date.prev')}
             >
               ‹
             </button>
             <span className="text-sm font-medium text-ink">
-              {month === 0 ? '2026 年 3 月' : '2026 年 2 月'}
+              {month === 0
+                ? t(locale, 'demo.data.date.month3')
+                : t(locale, 'demo.data.date.month2')}
             </span>
             <button
               type="button"
               onClick={() => setMonth((m) => Math.min(1, m + 1))}
               disabled={month === 1}
               className="rounded p-1 text-muted transition-colors hover:bg-[#F2F0EB] disabled:opacity-30"
-              aria-label="下个月"
+              aria-label={t(locale, 'demo.data.date.next')}
             >
               ›
             </button>
           </div>
           <div className="grid grid-cols-7 gap-0.5 text-center">
-            {['一', '二', '三', '四', '五', '六', '日'].map((d) => (
-              <span key={d} className="py-1 text-2xs text-muted">
+            {Array.from(t(locale, 'demo.data.date.weekdays')).map((d, i) => (
+              <span key={`${d}-${i}`} className="py-1 text-2xs text-muted">
                 {d}
               </span>
             ))}
@@ -399,7 +429,12 @@ export function DatePickerDemo() {
           </div>
         </div>
         <p className="mt-2.5 text-center text-xs text-muted">
-          {selected ? `已选择 2026 年 ${month === 0 ? 3 : 2} 月 ${selected} 日` : '未选择日期'}
+          {selected
+            ? t(locale, 'demo.data.date.picked', {
+                m: month === 0 ? 3 : 2,
+                d: selected,
+              })
+            : t(locale, 'demo.data.date.none')}
         </p>
       </div>
     </DemoStage>
@@ -408,11 +443,18 @@ export function DatePickerDemo() {
 
 /* ---------------- Popover ---------------- */
 
+const POPOVER_ITEMS = [
+  { icon: Calendar, labelKey: 'demo.data.popover.timeline' },
+  { icon: ImageIcon, labelKey: 'demo.data.popover.triple' },
+  { icon: Star, labelKey: 'demo.data.popover.rating' },
+] as const;
+
 export function PopoverDemo() {
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
 
   return (
-    <DemoStage caption="Popover 和 Tooltip 的区别：这里里面有可以点的东西（模板选择）。">
+    <DemoStage caption={t(locale, 'demo.data.caption.popover')}>
       <div className="flex min-h-[220px] items-center justify-center">
         <div className="relative">
           <button
@@ -422,7 +464,7 @@ export function PopoverDemo() {
             aria-expanded={open}
             className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-4 py-2 text-sm text-ink transition-colors hover:bg-[#F5F3EE]"
           >
-            插入模板
+            {t(locale, 'demo.data.popover.trigger')}
             <ChevronDown size={14} aria-hidden="true" className="text-muted" />
           </button>
           {open && (
@@ -432,20 +474,16 @@ export function PopoverDemo() {
                 role="menu"
                 className="absolute left-0 top-full z-20 mt-1.5 w-52 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop animate-rise-in"
               >
-                {[
-                  { icon: Calendar, label: '日期轴模板' },
-                  { icon: ImageIcon, label: '三图并排' },
-                  { icon: Star, label: '评分卡片' },
-                ].map(({ icon: Icon, label }) => (
+                {POPOVER_ITEMS.map(({ icon: Icon, labelKey }) => (
                   <button
-                    key={label}
+                    key={labelKey}
                     type="button"
                     role="menuitem"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[0.8125rem] text-ink2 transition-colors hover:bg-[#F5F3EE]"
                   >
                     <Icon size={14} className="text-muted" aria-hidden="true" />
-                    {label}
+                    {t(locale, labelKey)}
                   </button>
                 ))}
               </div>
@@ -459,11 +497,20 @@ export function PopoverDemo() {
 
 /* ---------------- Context Menu ---------------- */
 
+// The ⌘C hint keys off the item id, not its label, so it survives translation.
+const CONTEXT_MENU_ITEMS = [
+  ['copy', 'demo.data.menu.copy'],
+  ['move', 'demo.data.menu.move'],
+  ['rename', 'demo.data.menu.rename'],
+  ['link', 'demo.data.menu.link'],
+] as const;
+
 export function ContextMenuDemo() {
+  const locale = useLocale();
   const [pos, setPos] = useState<{ x: number | string; y: number | string } | null>(null);
 
   return (
-    <DemoStage caption="在文字上点右键（或点「模拟右键」）—— 菜单内容只对这个对象有效。">
+    <DemoStage caption={t(locale, 'demo.data.caption.menu')}>
       <div
         className="relative flex min-h-[220px] flex-wrap items-center justify-center gap-3 rounded-lg border border-dashed border-line bg-[#FCFBF8] p-4"
         onContextMenu={(e) => {
@@ -472,13 +519,13 @@ export function ContextMenuDemo() {
           setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
         }}
       >
-        <p className="select-none text-sm text-ink2">在这里点右键</p>
+        <p className="select-none text-sm text-ink2">{t(locale, 'demo.data.menu.hint')}</p>
         <button
           type="button"
           onClick={() => setPos({ x: '50%', y: 60 })}
           className="rounded-md border border-line bg-surface px-2.5 py-1 text-2xs text-ink2 transition-colors hover:bg-[#F5F3EE]"
         >
-          模拟右键
+          {t(locale, 'demo.data.menu.simulate')}
         </button>
 
         {pos && (
@@ -492,16 +539,16 @@ export function ContextMenuDemo() {
               }}
               className="absolute z-20 w-44 -translate-x-1/2 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-pop animate-rise-in"
             >
-              {['复制', '移动到…', '重命名', '复制链接'].map((t) => (
+              {CONTEXT_MENU_ITEMS.map(([id, labelKey]) => (
                 <button
-                  key={t}
+                  key={id}
                   type="button"
                   role="menuitem"
                   onClick={() => setPos(null)}
                   className="flex w-full items-center justify-between px-3 py-1.5 text-left text-[0.8125rem] text-ink2 transition-colors hover:bg-[#F5F3EE]"
                 >
-                  {t}
-                  {t === '复制' && <span className="text-2xs text-muted">⌘C</span>}
+                  {t(locale, labelKey)}
+                  {id === 'copy' && <span className="text-2xs text-muted">⌘C</span>}
                 </button>
               ))}
               <div className="my-1 h-px bg-line" role="separator" />
@@ -511,7 +558,7 @@ export function ContextMenuDemo() {
                 onClick={() => setPos(null)}
                 className="flex w-full items-center px-3 py-1.5 text-left text-[0.8125rem] text-[#A8342C] transition-colors hover:bg-[#FAEDEC]"
               >
-                删除
+                {t(locale, 'demo.data.menu.delete')}
               </button>
             </div>
           </>

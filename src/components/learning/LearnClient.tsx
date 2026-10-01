@@ -1,11 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { useProgress } from '@/hooks/useProgress';
-import { patternMap } from '@/data/patterns';
-import { learningLevels } from '@/data/learning';
+import { patterns } from '@/data/patterns';
+import { getLearningLevels, localizePatterns } from '@/data/i18n/resolve';
+import { useLocale, useHref } from '@/components/layout/LocaleProvider';
+import { t } from '@/lib/ui-strings';
 
 export function LearnClient({ total }: { total: number }) {
+  const locale = useLocale();
+  const h = useHref();
+  const learningLevels = getLearningLevels(locale);
+  // 进度统计的是 id 集合，但卡片要显示本地化的 oneLine，所以渲染用本地化版本
+  const patternById = useMemo(
+    () => new Map(localizePatterns(patterns, locale).map((p) => [p.id, p])),
+    [locale]
+  );
   const { learned, ready, toggle, reset } = useProgress();
   const pct = total > 0 ? Math.round((learned.length / total) * 100) : 0;
 
@@ -15,13 +26,13 @@ export function LearnClient({ total }: { total: number }) {
       <div className="rounded-card border border-line bg-surface p-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="meta mb-1.5">学习进度</p>
+            <p className="meta mb-1.5">{t(locale, 'learn.progress')}</p>
             <p className="text-[1.75rem] font-semibold leading-none tabular-nums text-ink">
               {ready ? learned.length : 0}
               <span className="text-base font-normal text-muted"> / {total}</span>
             </p>
             <p className="mt-1.5 text-xs text-muted">
-              你已经认识 {ready ? learned.length : 0} 个 UI Pattern
+              {t(locale, 'learn.known', { n: ready ? learned.length : 0 })}
             </p>
           </div>
           {ready && learned.length > 0 && (
@@ -30,7 +41,7 @@ export function LearnClient({ total }: { total: number }) {
               onClick={reset}
               className="text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
             >
-              清空进度
+              {t(locale, 'learn.reset')}
             </button>
           )}
         </div>
@@ -40,7 +51,7 @@ export function LearnClient({ total }: { total: number }) {
           aria-valuenow={ready ? learned.length : 0}
           aria-valuemin={0}
           aria-valuemax={total}
-          aria-label="总体学习进度"
+          aria-label={t(locale, 'learn.progressAria')}
           className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[#E6E3DB]"
         >
           <div
@@ -48,15 +59,15 @@ export function LearnClient({ total }: { total: number }) {
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="mt-2 text-2xs text-muted">
-          进度保存在本机浏览器（LocalStorage），不会上传任何数据。
-        </p>
+        <p className="mt-2 text-2xs text-muted">{t(locale, 'learn.local')}</p>
       </div>
 
       {/* 三级路径 */}
       <div className="mt-8 space-y-8">
         {learningLevels.map((level) => {
-          const items = level.patternIds.map((id) => patternMap[id]).filter(Boolean);
+          const items = level.patternIds
+            .map((id) => patternById.get(id))
+            .filter((p): p is NonNullable<typeof p> => Boolean(p));
           const done = items.filter((p) => learned.includes(p.id)).length;
 
           return (
@@ -89,7 +100,7 @@ export function LearnClient({ total }: { total: number }) {
                           type="button"
                           onClick={() => toggle(p.id)}
                           aria-pressed={on}
-                          aria-label={`${on ? '取消标记' : '标记为已认识'} ${p.name}`}
+                          aria-label={`${t(locale, on ? 'learn.unmark' : 'learn.mark')} ${p.name}`}
                           className={`group flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors ${
                             on ? 'text-[#2C7355]' : 'text-muted hover:text-ink'
                           }`}
@@ -120,7 +131,7 @@ export function LearnClient({ total }: { total: number }) {
                           </span>
                         </button>
 
-                        <Link href={`/patterns/${p.id}`} className="flex min-h-[44px] min-w-0 flex-1 flex-col justify-center py-1">
+                        <Link href={h(`/patterns/${p.id}`)} className="flex min-h-[44px] min-w-0 flex-1 flex-col justify-center py-1">
                           <span className="block text-[0.875rem] font-semibold text-ink">
                             {p.name}
                           </span>
