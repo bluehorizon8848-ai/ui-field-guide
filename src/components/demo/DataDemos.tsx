@@ -75,18 +75,15 @@ export function TableDemo() {
 
   return (
     <DemoStage caption={t(locale, 'demo.data.caption.table')}>
-      {/* w-full 是必须的：舞台是 flex-col + items-center，子元素默认收缩包裹，
-          表格会被撑到内容宽度（560px）并顶破 335px 的舞台。
-          w-full 把滚动容器钉在舞台宽度上，min-w 让表格在容器内横向滚动。 */}
-      <div className="table-scroll -mx-1 w-full px-1">
-        <table className="w-full min-w-[440px] text-sm">
+      <div className="table-scroll w-full max-w-[500px] overflow-hidden rounded-2xl border border-line bg-surface p-2 shadow-2xs">
+        <table className="w-full min-w-[420px] text-sm">
           <thead>
-            <tr className="border-b border-line">
-              <th scope="col" className="pb-2 pr-3 text-left">
+            <tr className="border-b border-line bg-[#FAF9F6]">
+              <th scope="col" className="py-1 px-3 text-left">
                 <button
                   type="button"
                   onClick={() => setSort('name')}
-                  className="-mx-1.5 flex min-h-[44px] items-center gap-1 rounded px-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
+                  className="flex min-h-[36px] items-center gap-1 text-xs font-semibold text-muted transition-colors hover:text-ink"
                 >
                   {t(locale, 'demo.data.table.name')}
                   {sort === 'name' && <span aria-hidden="true">↓</span>}
@@ -233,32 +230,209 @@ export function TagDemo() {
 
 export function StatCardDemo() {
   const locale = useLocale();
-  const STATS = [
-    { labelKey: 'demo.data.stat.newToday', value: '1,284', delta: '↑ 12%', up: true, baseKey: 'demo.data.stat.vsDay' },
-    { labelKey: 'demo.data.stat.active', value: '8,420', delta: '↓ 3%', up: false, baseKey: 'demo.data.stat.vsWeek' },
-    { labelKey: 'demo.data.stat.conversion', value: '4.2%', deltaKey: 'demo.data.stat.flat', up: null, baseKey: 'demo.data.stat.vsWeek' },
-    { labelKey: 'demo.data.stat.cleanedToday', value: '0', delta: '—', up: null, baseKey: 'demo.data.stat.vsDay' },
-  ] as const;
+  const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
+
+  const STATS = {
+    day: [
+      {
+        label: t(locale, 'demo.data.stat.newToday'),
+        value: '1,284',
+        delta: '+12.4%',
+        up: true,
+        points: '0,28 15,24 30,26 45,18 60,14 75,10 90,4',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+      {
+        label: t(locale, 'demo.data.stat.active'),
+        value: '8,420',
+        delta: '-3.2%',
+        up: false,
+        points: '0,8 15,12 30,10 45,20 60,18 75,25 90,26',
+        stroke: '#DC2626',
+        fill: '#FEF2F2',
+      },
+      {
+        label: t(locale, 'demo.data.stat.conversion'),
+        value: '4.2%',
+        delta: '+0.8%',
+        up: true,
+        points: '0,22 15,18 30,20 45,16 60,12 75,14 90,8',
+        stroke: '#2563EB',
+        fill: '#EFF6FF',
+      },
+      {
+        label: t(locale, 'demo.data.stat.cleanedToday'),
+        value: '128',
+        delta: '0.0%',
+        up: null,
+        points: '0,16 15,16 30,16 45,16 60,16 75,16 90,16',
+        stroke: '#8C887E',
+        fill: '#F4F2EC',
+      },
+    ],
+    week: [
+      {
+        label: t(locale, 'demo.data.stat.newToday'),
+        value: '8,920',
+        delta: '+24.8%',
+        up: true,
+        points: '0,30 15,22 30,18 45,16 60,10 75,8 90,2',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+      {
+        label: t(locale, 'demo.data.stat.active'),
+        value: '42,150',
+        delta: '+6.5%',
+        up: true,
+        points: '0,24 15,20 30,22 45,14 60,12 75,8 90,4',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+      {
+        label: t(locale, 'demo.data.stat.conversion'),
+        value: '4.6%',
+        delta: '+1.2%',
+        up: true,
+        points: '0,20 15,16 30,18 45,14 60,10 75,10 90,6',
+        stroke: '#2563EB',
+        fill: '#EFF6FF',
+      },
+      {
+        label: t(locale, 'demo.data.stat.cleanedToday'),
+        value: '960',
+        delta: '+18%',
+        up: true,
+        points: '0,26 15,22 30,18 45,14 60,12 75,8 90,4',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+    ],
+    month: [
+      {
+        label: t(locale, 'demo.data.stat.newToday'),
+        value: '36,400',
+        delta: '+48.2%',
+        up: true,
+        points: '0,32 15,25 30,20 45,15 60,10 75,6 90,2',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+      {
+        label: t(locale, 'demo.data.stat.active'),
+        value: '184,200',
+        delta: '+14.1%',
+        up: true,
+        points: '0,28 15,22 30,18 45,16 60,12 75,8 90,3',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+      {
+        label: t(locale, 'demo.data.stat.conversion'),
+        value: '5.1%',
+        delta: '+2.4%',
+        up: true,
+        points: '0,22 15,18 30,16 45,12 60,8 75,6 90,2',
+        stroke: '#2563EB',
+        fill: '#EFF6FF',
+      },
+      {
+        label: t(locale, 'demo.data.stat.cleanedToday'),
+        value: '4,120',
+        delta: '+32%',
+        up: true,
+        points: '0,28 15,24 30,20 45,16 60,10 75,8 90,2',
+        stroke: '#1D734C',
+        fill: '#E8F3ED',
+      },
+    ],
+  };
+
+  const currentStats = STATS[period];
 
   return (
     <DemoStage caption={t(locale, 'demo.data.caption.stat')}>
-      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-        {STATS.map((s) => (
-          <div key={s.labelKey} className="rounded-xl border border-line bg-surface p-3.5">
-            <p className="text-xs text-muted">{t(locale, s.labelKey)}</p>
-            <p className="mt-1.5 text-[1.375rem] font-semibold tabular-nums leading-none text-ink">
-              {s.value}
-            </p>
-            <p
-              className={`mt-2 text-xs ${
-                s.up === true ? 'text-[#A8342C]' : s.up === false ? 'text-[#2C7355]' : 'text-muted'
-              }`}
-            >
-              {'delta' in s ? s.delta : t(locale, s.deltaKey)}
-              <span className="ml-1 text-muted">{t(locale, s.baseKey)}</span>
-            </p>
+      <div className="w-full max-w-[620px] space-y-3.5">
+        {/* 时间范围切换器 */}
+        <div className="flex items-center justify-between px-1">
+          <span className="font-mono text-2xs font-semibold tracking-wider text-muted uppercase">
+            Performance Overview
+          </span>
+          <div className="flex rounded-lg border border-line bg-surface p-0.5 shadow-2xs">
+            {(
+              [
+                { id: 'day', label: 'Today' },
+                { id: 'week', label: '7 Days' },
+                { id: 'month', label: '30 Days' },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setPeriod(item.id)}
+                className={`rounded-md px-2.5 py-1 text-2xs font-medium transition-all ${
+                  period === item.id
+                    ? 'bg-ink text-white shadow-2xs'
+                    : 'text-muted hover:text-ink'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* 现代指标卡片网格 */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {currentStats.map((s, i) => (
+            <div
+              key={i}
+              className="flex flex-col justify-between rounded-xl border border-line bg-surface p-3.5 shadow-2xs transition-all hover:border-[#D8D4CA] hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-1">
+                <span className="truncate text-2xs font-medium text-muted">{s.label}</span>
+                <span
+                  className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums ${
+                    s.up === true
+                      ? 'bg-[#E8F3ED] text-[#1D734C]'
+                      : s.up === false
+                        ? 'bg-[#FEF2F2] text-[#DC2626]'
+                        : 'bg-[#F4F2EC] text-[#767269]'
+                  }`}
+                >
+                  {s.delta}
+                </span>
+              </div>
+
+              <div className="my-2">
+                <span className="font-sans text-xl font-bold tracking-tight tabular-nums text-ink sm:text-2xl">
+                  {s.value}
+                </span>
+              </div>
+
+              {/* 迷你平滑走势图 (Sparkline) */}
+              <div className="h-7 w-full overflow-hidden pt-1">
+                <svg viewBox="0 0 90 32" className="h-full w-full" preserveAspectRatio="none">
+                  <polyline
+                    fill="none"
+                    stroke={s.stroke}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    points={s.points}
+                  />
+                  <circle
+                    cx="90"
+                    cy={s.points.split(' ').slice(-1)[0].split(',')[1]}
+                    r="2.5"
+                    fill={s.stroke}
+                  />
+                </svg>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </DemoStage>
   );

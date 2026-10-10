@@ -4,13 +4,11 @@ import { t } from '@/lib/ui-strings';
 
 /**
  * 分享卡片渲染（纯 Canvas 2D，无外部依赖）。
- * 设计取向：商业级设计知识卡片，黄金比例、适度留白、精致展台化陈列。
+ * 设计取向：商业级设计知识卡片，严格自顶向下盒模型排版（Box Model）。
  *
- * 核心规范：
- * 1. 展台化视窗（Showcase Window）：模拟现代高质感应用视窗，组件以智能 Contain 居中呈现，
- *    严禁暴力拉伸 Cover 导致文字与布局被截断。
- * 2. 严谨字号层级：标题比例适中、呼吸感充分、中英排版协调。
- * 3. 完美兼容 3:4 与 1:1 双比例，自适应布局计算，无任何文字或元素溢出。
+ * 关键修正：
+ * 全局统一使用 `textBaseline = 'top'` 进行流式排版，彻底杜绝 alphabetic 基线导致的
+ * 大字号向上重叠、文字压盖、以及展台底边遮挡「适合场景」的排版缺陷。
  */
 
 const C = {
@@ -24,7 +22,6 @@ const C = {
   line2: '#F0EDE6',
   soft: '#F2F0EB',
   accent: '#1D734C',
-  accentSoft: '#EBF4EE',
 };
 
 const SANS =
@@ -32,8 +29,11 @@ const SANS =
 const SERIF = 'ui-serif, Georgia, "Songti SC", serif';
 const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
-/** 按宽度换行 */
-function wrapText(
+/**
+ * 基于 textBaseline = 'top' 的按宽度换行排版。
+ * (x, y) 为文本块左上角，返回绘制完毕后的底边 y 坐标。
+ */
+function wrapTextTop(
   ctx: CanvasRenderingContext2D,
   text: string,
   x: number,
@@ -42,6 +42,7 @@ function wrapText(
   lineHeight: number,
   maxLines = 3
 ): number {
+  ctx.textBaseline = 'top';
   const chars = Array.from(text);
   let line = '';
   let lines = 0;
@@ -122,8 +123,8 @@ function drawShowcaseDemo(
 ) {
   const radius = Math.round(W * 0.024);
 
-  // 1. 展台外框与底色
   ctx.save();
+  // 1. 展台外框与底色
   ctx.fillStyle = C.stageBg;
   roundRect(ctx, x, y, w, h, radius);
   ctx.fill();
@@ -135,7 +136,7 @@ function drawShowcaseDemo(
   ctx.stroke();
 
   // 2. 视窗标题栏（Window Chrome）
-  const headerH = Math.round(W * 0.048);
+  const headerH = Math.round(W * 0.046);
   ctx.fillStyle = '#FFFFFF';
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -152,7 +153,7 @@ function drawShowcaseDemo(
   hLine(ctx, x, y + headerH, w, C.line);
 
   // 窗口三色微圆点（Apple 极简风格）
-  const dotR = Math.max(3.5, Math.round(W * 0.006));
+  const dotR = Math.max(3.5, Math.round(W * 0.0055));
   const dotY = y + headerH / 2;
   const dotColors = ['#FF5F56', '#FFBD2E', '#27C93F'];
   dotColors.forEach((color, i) => {
@@ -164,12 +165,11 @@ function drawShowcaseDemo(
 
   // 视窗居中小标签
   ctx.fillStyle = C.muted;
-  ctx.font = `500 ${Math.round(W * 0.0135)}px ${MONO}`;
+  ctx.font = `600 ${Math.round(W * 0.0135)}px ${MONO}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('SHOWCASE VIEW', x + w / 2, dotY);
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
 
   // 3. 视窗内部舞台点阵底纹（微网格质感）
   const stageX = x;
@@ -182,7 +182,7 @@ function drawShowcaseDemo(
   ctx.clip();
 
   // 浅淡点阵
-  const dotGap = Math.round(W * 0.036);
+  const dotGap = Math.round(W * 0.038);
   ctx.fillStyle = 'rgba(0, 0, 0, 0.035)';
   for (let px = stageX + dotGap / 2; px < stageX + stageW; px += dotGap) {
     for (let py = stageY + dotGap / 2; py < stageY + stageH; py += dotGap) {
@@ -198,8 +198,8 @@ function drawShowcaseDemo(
     const ih = img.naturalHeight || img.height;
 
     // 可用内容区域留出呼吸内边距
-    const innerPadX = Math.round(stageW * 0.07);
-    const innerPadY = Math.round(stageH * 0.09);
+    const innerPadX = Math.round(stageW * 0.06);
+    const innerPadY = Math.round(stageH * 0.08);
     const maxDrawW = stageW - innerPadX * 2;
     const maxDrawH = stageH - innerPadY * 2;
 
@@ -222,6 +222,7 @@ function drawShowcaseDemo(
     ctx.fillStyle = C.muted;
     ctx.font = `400 ${Math.round(W * 0.024)}px ${SANS}`;
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText(fallbackReason || t(locale, 'share.previewGenerating'), stageX + stageW / 2, stageY + stageH / 2);
     ctx.textAlign = 'left';
   }
@@ -231,9 +232,7 @@ function drawShowcaseDemo(
 }
 
 export interface ShareCardImage {
-  /** 真实 Demo 截图 */
   demo: HTMLImageElement | null;
-  /** 截图失败时的兜底提示 */
   fallbackReason?: string;
 }
 
@@ -259,12 +258,14 @@ export function drawShareCard(
   ctx.fillStyle = C.canvas;
   ctx.fillRect(0, 0, W, H);
 
-  // 黄金比例间距计算
+  // 严格自顶向下的盒模型排版
+  ctx.textBaseline = 'top';
+
   const pad = Math.round(W * 0.075);
   const innerW = W - pad * 2;
   let y = pad;
 
-  // ---------- 顶部品牌与导航条 ----------
+  // ---------- 1. 顶部品牌与导航条 ----------
   const badgeSize = Math.round(W * 0.046);
   ctx.fillStyle = C.ink;
   roundRect(ctx, pad, y, badgeSize, badgeSize, badgeSize * 0.28);
@@ -276,17 +277,18 @@ export function drawShareCard(
   ctx.textBaseline = 'middle';
   ctx.fillText('UF', pad + badgeSize / 2, y + badgeSize / 2);
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
 
+  // 品牌文字采用 top 基线
   ctx.fillStyle = C.ink;
   ctx.font = `600 ${Math.round(W * 0.017)}px ${MONO}`;
-  ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 12, y + badgeSize * 0.42);
+  ctx.textBaseline = 'top';
+  ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 12, y + 2);
 
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${Math.round(W * 0.015)}px ${SANS}`;
-  ctx.fillText(t(locale, 'meta.tagline'), pad + badgeSize + 12, y + badgeSize * 0.88);
+  ctx.font = `400 ${Math.round(W * 0.0145)}px ${SANS}`;
+  ctx.fillText(t(locale, 'meta.tagline'), pad + badgeSize + 12, y + Math.round(badgeSize * 0.52));
 
-  // 右上角 Level & Category 标签
+  // 右上角 Level 标签
   const levelText = `LEVEL ${pattern.level}`;
   const tagSize = Math.round(W * 0.015);
   ctx.font = `600 ${tagSize}px ${MONO}`;
@@ -307,42 +309,46 @@ export function drawShareCard(
   ctx.fillStyle = C.ink2;
   ctx.textBaseline = 'middle';
   ctx.fillText(levelText, tagX + 10, tagY + tagH / 2);
-  ctx.textBaseline = 'alphabetic';
+  ctx.textBaseline = 'top';
 
-  y += badgeSize + Math.round(W * 0.05);
+  // Header 区域结束，留出充足间距（彻底解决标题向上重叠）
+  y += badgeSize + Math.round(W * 0.045);
 
-  // ---------- 英文组件名（优化字号与排版，典雅大气不粗暴） ----------
-  const nameSize = Math.round(W * 0.072);
+  // ---------- 2. 英文组件名（向下自然流动） ----------
+  const nameSize = Math.round(W * 0.068);
   ctx.fillStyle = C.ink;
   ctx.font = `700 ${nameSize}px ${SANS}`;
-  y = wrapText(ctx, pattern.name, pad, y, innerW, nameSize * 1.15, 2) + Math.round(W * 0.014);
+  y = wrapTextTop(ctx, pattern.name, pad, y, innerW, nameSize * 1.15, 2);
+  y += Math.round(W * 0.016);
 
-  // ---------- 中文名与一句话价值 ----------
-  const zhSize = Math.round(W * 0.034);
+  // ---------- 3. 中文名与一句话简介 ----------
+  const zhSize = Math.round(W * 0.033);
   ctx.fillStyle = C.muted;
   ctx.font = `400 ${zhSize}px ${SANS}`;
   const zhLabel = `${pattern.chineseName} · ${pattern.oneLine}`;
-  y = wrapText(ctx, zhLabel, pad, y, innerW, zhSize * 1.4, 2) + Math.round(W * 0.036);
+  y = wrapTextTop(ctx, zhLabel, pad, y, innerW, zhSize * 1.4, 2);
+  y += Math.round(W * 0.036);
 
-  // ---------- 展台主体（Showcase Window） ----------
-  // 动态测量底部保留空间，确保双比例完美居中
+  // ---------- 4. 展台主体（Showcase Window） ----------
   const fitLabelSize = Math.round(W * 0.015);
   const fitSize = Math.round(W * 0.032);
-  const askH = Math.round(W * 0.11);
+  const askH = Math.round(W * 0.105);
   const footH = Math.round(W * 0.045);
 
-  // 底部区块空间预留
+  // 底部保留高度计算（留有充足的安全内衬，绝不相互挤压）
   const bottomSpace =
-    fitLabelSize * 1.6 +
-    fitSize * 1.5 * 2 +
-    Math.round(W * 0.03) +
-    askH +
-    Math.round(W * 0.04) +
-    footH;
+    Math.round(W * 0.035) + // 展台与“适合”的间距
+    fitLabelSize + // 适合标签
+    Math.round(W * 0.012) + // 标签与正文间距
+    fitSize * 1.45 * 2 + // 正文两行
+    Math.round(W * 0.028) + // 正文与 Ask AI 间距
+    askH + // Ask AI 框
+    Math.round(W * 0.025) + // Ask AI 与底部分割线间距
+    footH; // 页脚
 
   const availStageH = H - y - bottomSpace;
   // 保持展台高宽比在 4:3 ~ 16:9 之间自适应
-  const shotH = Math.max(Math.round(innerW * 0.42), Math.min(availStageH, Math.round(innerW * 0.62)));
+  const shotH = Math.max(Math.round(innerW * 0.38), Math.min(availStageH, Math.round(innerW * 0.58)));
   const shotX = pad;
   const shotY = y;
   const shotW = innerW;
@@ -359,20 +365,23 @@ export function drawShareCard(
     image?.fallbackReason
   );
 
-  y = shotY + shotH + Math.round(W * 0.044);
+  // 展台结束，推进 y 坐标并留出清晰间距
+  y = shotY + shotH + Math.round(W * 0.038);
 
-  // ---------- 适合场景 ----------
+  // ---------- 5. 适合场景（顶部对齐，绝不被展台压挡） ----------
   ctx.fillStyle = C.muted;
   ctx.font = `600 ${fitLabelSize}px ${MONO}`;
+  ctx.textBaseline = 'top';
   ctx.fillText(t(locale, 'share.fitsFor').toUpperCase(), pad, y);
-  y += Math.round(fitLabelSize * 1.6);
+  y += fitLabelSize + Math.round(W * 0.012);
 
   ctx.fillStyle = C.ink2;
   ctx.font = `400 ${fitSize}px ${SANS}`;
-  y = wrapText(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.45, 2) + Math.round(W * 0.032);
+  y = wrapTextTop(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.45, 2);
+  y += Math.round(W * 0.025);
 
-  // ---------- 底部 Ask AI 精致提示卡 ----------
-  const askY = Math.min(y, H - pad - askH - footH);
+  // ---------- 6. 底部 Ask AI 精致提示卡 ----------
+  const askY = Math.min(y, H - pad - askH - footH + Math.round(W * 0.01));
   ctx.fillStyle = '#FFFFFF';
   roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.02));
   ctx.fill();
@@ -383,30 +392,32 @@ export function drawShareCard(
   ctx.stroke();
 
   // Ask AI 标识
-  const askBadgeSize = Math.round(W * 0.0135);
+  const askBadgeSize = Math.round(W * 0.013);
   ctx.fillStyle = C.accent;
   ctx.font = `700 ${askBadgeSize}px ${MONO}`;
-  ctx.fillText('ASK AI PROMPT', pad + Math.round(W * 0.028), askY + Math.round(askH * 0.35));
+  ctx.textBaseline = 'top';
+  ctx.fillText('ASK AI PROMPT', pad + Math.round(W * 0.028), askY + Math.round(askH * 0.22));
 
   // 提示词正文
   const askTextSize = Math.round(W * 0.028);
   ctx.fillStyle = C.ink;
   ctx.font = `italic 400 ${askTextSize}px ${SERIF}`;
-  wrapText(
+  wrapTextTop(
     ctx,
     `“${t(locale, 'share.useIt', { name: pattern.name })}”`,
     pad + Math.round(W * 0.028),
-    askY + Math.round(askH * 0.72),
+    askY + Math.round(askH * 0.54),
     innerW - Math.round(W * 0.056),
     askTextSize * 1.35,
     1
   );
 
-  // ---------- 底部品牌与网址 ----------
+  // ---------- 7. 底部品牌与网址 ----------
   const footY = H - Math.round(W * 0.028);
-  hLine(ctx, pad, footY - Math.round(W * 0.02), innerW, C.line);
+  hLine(ctx, pad, footY - Math.round(W * 0.016), innerW, C.line);
 
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${Math.round(W * 0.0145)}px ${MONO}`;
+  ctx.font = `400 ${Math.round(W * 0.014)}px ${MONO}`;
+  ctx.textBaseline = 'top';
   ctx.fillText('ui.lutivelab.com · LutiveLab Workflow Ecosystem', pad, footY);
 }

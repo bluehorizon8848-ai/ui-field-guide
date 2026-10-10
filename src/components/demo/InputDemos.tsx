@@ -370,15 +370,15 @@ export function SwitchDemo() {
 
   return (
     <DemoStage caption={t(locale, 'demo.input.caption.switch')}>
-      <div className="mx-auto w-full max-w-[400px]">
-        <div className="overflow-hidden rounded-xl border border-line">
+      <div className="mx-auto w-full max-w-[420px]">
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-2xs">
           {SWITCHES.map((s) => (
             <label
               key={s.id}
-              className="flex cursor-pointer items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0 hover:bg-[#F7F5F0]"
+              className="flex cursor-pointer items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0 hover:bg-[#F9F8F5] transition-colors"
             >
               <span className="min-w-0">
-                <span className="block text-sm text-ink">{t(locale, s.labelKey)}</span>
+                <span className="block text-sm font-semibold text-ink">{t(locale, s.labelKey)}</span>
                 <span className="mt-0.5 block text-xs text-muted">
                   {t(locale, s.descKey)}
                 </span>
@@ -393,13 +393,13 @@ export function SwitchDemo() {
               >
                 <span
                   aria-hidden="true"
-                  className={`relative block h-[26px] w-[44px] rounded-full transition-colors ${
-                    state[s.id] ? 'bg-[#2C7355]' : 'bg-[#D8D5CD]'
+                  className={`relative block h-[26px] w-[46px] rounded-full transition-colors ${
+                    state[s.id] ? 'bg-[#1D734C]' : 'bg-[#D8D5CD]'
                   }`}
                 >
                   <span
-                    className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                      state[s.id] ? 'translate-x-[21px]' : 'translate-x-[3px]'
+                    className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
+                      state[s.id] ? 'translate-x-[23px]' : 'translate-x-[3px]'
                     }`}
                   />
                 </span>

@@ -11,56 +11,89 @@ import { t } from '@/lib/ui-strings';
 export function BreadcrumbDemo() {
   const locale = useLocale();
   const [depth, setDepth] = useState(3);
-  const path = [t(locale, 'demo.nav.breadcrumb.album'), '2026', 'IMG_0231'].slice(0, depth);
+  const path = [t(locale, 'demo.nav.breadcrumb.album'), '2026', 'IMG_0231.heic'].slice(0, depth);
 
   return (
     <DemoStage caption={t(locale, 'demo.nav.caption.breadcrumb')}>
-      <nav aria-label={t(locale, 'demo.nav.breadcrumb.aria')} className="min-w-0">
-        <ol className="flex flex-wrap items-center gap-1.5 text-sm">
-          {path.map((item, i) => {
-            const isLast = i === path.length - 1;
-            return (
-              <li key={item} className="flex items-center gap-1.5">
-                {i > 0 && (
-                  <span aria-hidden="true" className="select-none text-[#C9C5BB]">
-                    ›
-                  </span>
-                )}
-                {isLast ? (
-                  <span
-                    aria-current="page"
-                    className="block max-w-[150px] truncate rounded px-1 py-0.5 font-medium text-ink"
-                  >
-                    {item}
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setDepth(i + 1)}
-                    className="rounded px-1 py-0.5 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-                  >
-                    {item}
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
+      <div className="w-full max-w-[460px] space-y-3">
+        {/* 高质感面包屑导航壳 */}
+        <nav
+          aria-label={t(locale, 'demo.nav.breadcrumb.aria')}
+          className="flex items-center rounded-xl border border-line bg-surface/95 px-3.5 py-2.5 shadow-2xs"
+        >
+          <ol className="flex flex-wrap items-center gap-1.5 text-xs">
+            {/* Home 根入口 */}
+            <li className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setDepth(1)}
+                className="flex h-6 w-6 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#F2F0EB] hover:text-ink"
+                title="Home"
+              >
+                <House size={13} aria-hidden="true" />
+              </button>
+              <span aria-hidden="true" className="select-none text-[#C9C5BB]">
+                ›
+              </span>
+            </li>
 
-      <p className="mt-4 text-xs text-muted">
-        {t(locale, 'demo.nav.breadcrumb.level')}{' '}
-        <span className="text-ink2">{path.join(' / ')}</span>
-        {depth < 3 && (
-          <button
-            type="button"
-            onClick={() => setDepth(3)}
-            className="ml-2 text-ink2 underline underline-offset-4 hover:text-ink"
-          >
-            {t(locale, 'demo.nav.breadcrumb.deep')}
-          </button>
-        )}
-      </p>
+            {path.map((item, i) => {
+              const isLast = i === path.length - 1;
+              return (
+                <li key={item} className="flex items-center gap-1.5">
+                  {i > 0 && (
+                    <span aria-hidden="true" className="select-none text-[#C9C5BB]">
+                      ›
+                    </span>
+                  )}
+                  {isLast ? (
+                    <span
+                      aria-current="page"
+                      className="rounded-md border border-line bg-[#FAF9F6] px-2 py-1 font-semibold text-ink shadow-2xs"
+                    >
+                      {item}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setDepth(i + 1)}
+                      className="rounded-md px-1.5 py-1 font-medium text-ink2 transition-colors hover:bg-[#F4F2EC] hover:text-ink"
+                    >
+                      {item}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
+
+        {/* 模拟当前层级文件卡片（具象生动） */}
+        <div className="rounded-xl border border-line bg-surface p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
+                <ImageIcon size={16} />
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-ink">{path[path.length - 1]}</p>
+                <p className="text-2xs text-muted">
+                  {depth === 3 ? '4.8 MB · RAW Image' : 'Folder · 124 Items'}
+                </p>
+              </div>
+            </div>
+            {depth < 3 && (
+              <button
+                type="button"
+                onClick={() => setDepth(3)}
+                className="rounded-md bg-[#F4F2EC] px-2.5 py-1 text-2xs font-semibold text-ink transition-colors hover:bg-ink hover:text-white"
+              >
+                {t(locale, 'demo.nav.breadcrumb.deep')} →
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </DemoStage>
   );
 }
@@ -80,11 +113,11 @@ export function TabsDemo() {
 
   return (
     <DemoStage caption={t(locale, 'demo.nav.caption.tabs')}>
-      <div>
+      <div className="w-full max-w-[460px] rounded-2xl border border-line bg-surface p-4 shadow-2xs">
         <div
           role="tablist"
           aria-label={t(locale, 'demo.nav.tabs.aria')}
-          className="flex gap-1 border-b border-line"
+          className="flex gap-1 border-b border-line pb-1"
         >
           {TABS.map((item) => (
             <button
@@ -95,14 +128,13 @@ export function TabsDemo() {
               aria-selected={tab === item.k}
               aria-controls={`panel-${item.k}`}
               onClick={() => setTab(item.k)}
-              className={`relative -mb-px whitespace-nowrap px-3.5 py-2.5 text-sm transition-colors ${
-                tab === item.k ? 'font-medium text-ink' : 'text-muted hover:text-ink2'
+              className={`relative whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
+                tab === item.k
+                  ? 'bg-ink text-white shadow-2xs'
+                  : 'text-muted hover:bg-[#F4F2EC] hover:text-ink'
               }`}
             >
               {item.label}
-              {tab === item.k && (
-                <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-ink" />
-              )}
             </button>
           ))}
         </div>

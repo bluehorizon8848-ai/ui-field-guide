@@ -89,20 +89,29 @@ export function DemoStage({
   return (
     <figure className="m-0">
       <div
-        className={`demo-stage overflow-hidden ${pad ? 'p-5 sm:p-7' : ''} ${className}`}
+        className={`demo-stage group relative overflow-hidden rounded-2xl border border-line bg-[#FAF9F6] shadow-sm ${className}`}
         style={stageH ? { minHeight: stageH } : undefined}
         role="group"
       >
-        {/*
-          测量容器：纵向排列 + 水平居中。
-          必须是 flex-col —— 早期用 flex-row 时，Demo 里多个并列的顶层元素
-          （比如 SkeletonDemo 的「重新加载」按钮 + 卡片列表）会被挤成左右并排，
-          按钮只剩 77px 宽。纵向排列才符合「一个 Demo 一摞」的直觉。
-          量完高度后用 justify-center 保持垂直居中。
-        */}
+        {/* 顶部微视窗工具条（与图鉴及分享卡片 1:1 风格呼应） */}
+        <div className="flex h-9 shrink-0 items-center justify-between border-b border-line/80 bg-surface/90 px-4 select-none backdrop-blur-sm">
+          <div className="flex items-center gap-1.5" aria-hidden="true">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]/80 transition-opacity" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]/80 transition-opacity" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]/80 transition-opacity" />
+          </div>
+          <span className="font-mono text-[0.625rem] font-semibold tracking-wider text-muted uppercase">
+            Live Demo Playground
+          </span>
+          <div className="w-10" />
+        </div>
+
+        {/* 舞台内部点阵底衬与居中内容 */}
         <div
           ref={measureRef}
-          className="flex h-full w-full flex-col items-center justify-center"
+          className={`flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(#E8E5DF_1px,transparent_1px)] [background-size:16px_16px] ${
+            pad ? 'p-5 sm:p-8' : ''
+          }`}
           style={stageH ? { minHeight: 0 } : undefined}
         >
           {children}
