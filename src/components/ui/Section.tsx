@@ -26,8 +26,15 @@ export function Section({
   );
 }
 
-export function PlatformTag({ platform }: { platform: 'web' | 'mobile' | 'desktop' }) {
-  const label = { web: 'Web', mobile: 'Mobile', desktop: 'Desktop' }[platform];
+export function PlatformTag({ platform }: { platform: 'web' | 'mobile' | 'desktop' | 'ios' | 'android' | 'harmonyos' }) {
+  const label = {
+    web: 'Web',
+    mobile: 'Mobile',
+    desktop: 'Desktop',
+    ios: 'iOS',
+    android: 'Android',
+    harmonyos: '鸿蒙',
+  }[platform] ?? platform;
   return (
     <span className="inline-block rounded-md border border-line bg-surface px-1.5 py-0.5 text-2xs font-medium text-ink2">
       {label}

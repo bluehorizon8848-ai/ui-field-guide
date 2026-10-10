@@ -707,4 +707,43 @@ export const containerFeedbackPatterns: PatternTranslations = {
     aliases: ['success state', 'success page', 'confirmation page', 'done state', 'completion screen', 'all set screen'],
     tags: ['complete', 'result', 'next-step'],
   },
+
+  'service-card': {
+    oneLine:
+      'The signature interactive widget of HarmonyOS — surfacing live app status and high-frequency services directly on the home screen without opening the app.',
+    description:
+      'Service Card (Universal Widget / Service Card) is the flagship micro-interface paradigm in HarmonyOS ArkUI. It transcends traditional isolated apps by condensing essential data and state (such as real-time ride tracking, delivery status, flight check-in, media playback, and fitness metrics) into 2x2, 2x4, or 4x4 desktop micro-windows. Users can view dynamic updates at a glance, trigger one-tap actions like play/pause directly on the card, or launch lightweight atomic services without full installation.',
+    looksLike:
+      'The weather or to-do memo widget pinned to a Huawei home screen that lets you check off tasks or glance at city temperatures without launching the main application.',
+    fitsFor: 'Desktop widgets · live ambient status · zero-install atomic services',
+    whenToUse: [
+      { situation: 'Time-sensitive or ambient app state needs continuous visibility (delivery tracking, market tickers, calendar reminders)', recommended: true },
+      { situation: 'Providing ultra-fast single-tap actions (music playback toggle, smart home switch, one-tap check-in)', recommended: true },
+      { situation: 'Serving as a direct interactive gateway into lightweight HarmonyOS atomic services', recommended: true },
+      { situation: 'Overloading the widget with deep multi-step forms or long scrolling lists (redirect to the app instead)', recommended: false },
+    ],
+    whenNotToUse: [
+      'Do not treat service cards as mini-browsers; space is constrained and requires restrained, high-signal information.',
+      'Avoid complex nested scrolling lists or multi-level navigation within desktop cards to avoid degrading home screen swipe physics.',
+    ],
+    anatomy: [
+      { label: 'Card Container', note: 'Standard grid form factor (2x2: 150x150, 2x4: 310x150) with 16-24px rounded corners' },
+      { label: 'Header / Brand', note: 'App micro-icon and card name at the top left' },
+      { label: 'Key Visual / Data', note: 'Large display numerals, dynamic sparkline charts, or state badges' },
+      { label: 'Quick Action', note: 'Micro-buttons and pill actions triggering card actions or atomic service routing' },
+    ],
+    aiPrompt: {
+      basic: 'Create a HarmonyOS desktop service card.',
+      detailed:
+        'Build a 2x2 weather service card following HarmonyOS ArkUI specs: ambient desktop widget displaying live temperature, weather icon, air quality, and one-tap refresh.',
+      implementation:
+        'Implement according to ArkUI service card guidelines: 2x2 square card (156px x 156px, rounded-3xl, subtle border border-line, Morandi gradient glassmorphism). Top header with 16px app icon and "Weather" title. Center body features 32px bold temperature and vector weather art. Bottom capsule status "Updated 10m ago". Outer card dispatches postCardAction router event to open atomic service.',
+    },
+    badPrompt: 'Draw a phone widget.',
+    betterPrompt:
+      'Follow HarmonyOS ArkUI Service Card specs: conform to standard 2x2 grid dimensions, expose vital live metrics and micro-actions, and support zero-install atomic service launching.',
+    aliases: ['service card', 'harmonyos widget', 'atomic service card', 'desktop widget', 'universal card'],
+    tags: ['HarmonyOS', 'ArkUI', 'service card', 'widget', 'atomic service'],
+  },
 };
+

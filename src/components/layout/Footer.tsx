@@ -11,27 +11,32 @@ import { useHref, useLocale } from './LocaleProvider';
 export function Footer() {
   const locale = useLocale();
   const h = useHref();
-  const featured = patterns.filter((p) => p.level === 1).slice(0, 10);
+  const featured = patterns.filter((p) => p.level === 1).slice(0, 6);
   const cats = getCategories(locale);
   const compares = allComparisonSlugs.slice(0, 6).map((s) => getComparison(s, locale)!);
 
   return (
     <footer className="mt-20 border-t border-line bg-[#F5F3EE]">
-      <div className="container-page py-10">
+      <div className="container-page py-10 sm:py-12">
+        {/* 4 列主导航区：严格水平基准线对齐，响应式双列/四列精简 */}
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="text-sm font-semibold text-ink">{site.name}</p>
-            <p className="mt-0.5 text-xs font-medium text-ink2">by {site.parentName}</p>
-            <p className="mt-2 max-w-[240px] text-[0.8125rem] leading-relaxed text-muted">
+          {/* 列 1：品牌与项目信息 */}
+          <div className="flex flex-col">
+            <p className="meta mb-3">{locale === 'zh' ? '关于 · ABOUT' : 'ABOUT'}</p>
+            <div>
+              <p className="text-sm font-semibold tracking-tight text-ink">{site.name}</p>
+              <p className="mt-0.5 text-xs font-medium text-ink2">by {site.parentName}</p>
+            </div>
+            <p className="mt-2.5 max-w-[260px] text-[0.8125rem] leading-relaxed text-muted">
               {t(locale, 'meta.tagline')}
               {t(locale, 'footer.taglineSuffix')}
             </p>
-            <div className="mt-3.5 flex flex-col gap-1 text-xs">
+            <div className="mt-4 flex flex-col space-y-1.5 text-[0.8125rem]">
               <a
                 href={site.parentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[36px] items-center text-ink2 underline-offset-4 hover:text-ink hover:underline"
+                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
               >
                 {t(locale, 'footer.visitLutiveLab')} ↗
               </a>
@@ -39,21 +44,22 @@ export function Footer() {
                 href={site.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[36px] items-center text-ink2 underline-offset-4 hover:text-ink hover:underline"
+                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
               >
                 GitHub · MIT License ↗
               </a>
             </div>
           </div>
 
-          <div>
-            <p className="meta mb-2.5">{t(locale, 'footer.fromL1')}</p>
+          {/* 列 2：从 Level 1 开始 */}
+          <div className="flex flex-col">
+            <p className="meta mb-3">{t(locale, 'footer.fromL1')}</p>
             <ul className="space-y-1.5">
-              {featured.slice(0, 6).map((p) => (
+              {featured.map((p) => (
                 <li key={p.id}>
                   <Link
                     href={h(`/patterns/${p.id}`)}
-                    className="inline-flex min-h-[44px] items-center text-[0.8125rem] text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                    className="inline-flex items-center py-1 text-[0.8125rem] text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
                   >
                     {p.name}
                   </Link>
@@ -62,14 +68,15 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <p className="meta mb-2.5">{t(locale, 'footer.compare')}</p>
+          {/* 列 3：对比 */}
+          <div className="flex flex-col">
+            <p className="meta mb-3">{t(locale, 'footer.compare')}</p>
             <ul className="space-y-1.5">
               {compares.map((c) => (
                 <li key={c.slug}>
                   <Link
                     href={h(`/compare/${c.slug}`)}
-                    className="inline-flex min-h-[44px] items-center text-[0.8125rem] leading-snug text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                    className="inline-flex items-center py-1 text-[0.8125rem] leading-snug text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
                   >
                     {c.title}
                   </Link>
@@ -78,16 +85,16 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <p className="meta mb-2.5">{t(locale, 'footer.cats')}</p>
+          {/* 列 4：分类 */}
+          <div className="flex flex-col">
+            <p className="meta mb-3">{t(locale, 'footer.cats')}</p>
             <ul className="space-y-1.5">
               {cats.slice(0, 7).map((c) => (
                 <li key={c.id}>
                   <Link
                     href={h(`/explore?c=${c.id}`)}
-                    className="inline-flex min-h-[44px] items-center text-[0.8125rem] text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                    className="inline-flex items-center py-1 text-[0.8125rem] text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
                   >
-                    {/* 中文页显示「导航 · Navigation」，英文页反过来——英文名在前更符合英文读者习惯 */}
                     {locale === 'zh' ? `${c.name} · ${c.chineseName}` : `${c.chineseName} · ${c.name}`}
                   </Link>
                 </li>
@@ -96,25 +103,26 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-9 flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
+        {/* 底部版权与条款栏 */}
+        <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1 leading-relaxed">
             <p>{t(locale, 'footer.stats', { n: patterns.length, m: allComparisonSlugs.length })}</p>
             <p>{t(locale, 'footer.privacy')}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 text-xs">
             <Link
               href={h('/privacy')}
-              className="inline-flex min-h-[36px] items-center underline-offset-4 hover:text-ink hover:underline"
+              className="inline-flex items-center py-1 underline-offset-4 transition-colors hover:text-ink hover:underline"
             >
               {t(locale, 'legal.privacyTitle')}
             </Link>
             <Link
               href={h('/terms')}
-              className="inline-flex min-h-[36px] items-center underline-offset-4 hover:text-ink hover:underline"
+              className="inline-flex items-center py-1 underline-offset-4 transition-colors hover:text-ink hover:underline"
             >
               {t(locale, 'legal.termsTitle')}
             </Link>
-            <span>© 2026 {site.parentName}</span>
+            <span className="py-1">© 2026 {site.parentName}</span>
           </div>
         </div>
       </div>

@@ -35,6 +35,11 @@ export function PatternCard({
       {showPreview && (
         <div className="relative h-[132px] shrink-0 overflow-hidden border-b border-line bg-[#FCFBF8]">
           <MiniPreview id={pattern.id} />
+          {pattern.specialBadge && (
+            <span className="absolute left-2.5 top-2.5 z-10 rounded-md border border-[#1D734C]/30 bg-surface/95 px-1.5 py-0.5 text-[10px] font-semibold text-[#1D734C] shadow-2xs backdrop-blur-sm">
+              {pattern.specialBadge}
+            </span>
+          )}
           {!has && (
             <span className="absolute right-2 top-2 rounded bg-white/90 px-1.5 py-0.5 text-2xs text-muted">
               {t(locale, 'card.noDemo')}
@@ -44,11 +49,18 @@ export function PatternCard({
       )}
 
       <div className="flex flex-1 flex-col p-3.5">
-        <div className="flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${cat?.tint ?? 'bg-[#F2F0EB]'}`} />
-          <span className="meta !text-[0.625rem]">{cat?.chineseName}</span>
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${cat?.tint ?? 'bg-[#F2F0EB]'}`} />
+            <span className="meta !text-[0.6875rem] truncate">{cat?.chineseName}</span>
+            {!showPreview && pattern.specialBadge && (
+              <span className="ml-1 rounded bg-[#1D734C]/10 px-1 py-0.2 text-[9px] font-semibold text-[#1D734C]">
+                {pattern.specialBadge}
+              </span>
+            )}
+          </div>
           {has && showPreview && (
-            <span className="ml-auto text-2xs text-[#2C7355]">
+            <span className="inline-flex shrink-0 items-center rounded bg-[#2C7355]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#2C7355]">
               {t(locale, 'card.interactive')}
             </span>
           )}

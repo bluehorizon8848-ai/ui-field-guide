@@ -543,4 +543,115 @@ export const navigationActionPatterns: PatternTranslations = {
     aliases: ['danger action', 'delete action', 'destructive button', 'double confirmation', 'irreversible action'],
     tags: ['risk', 'confirmation', 'undo'],
   },
+
+  'action-sheet': {
+    oneLine:
+      'A classic iOS modal sheet that presents contextual action options from the bottom, separating destructive actions and Cancel into a distinct island.',
+    description:
+      'Action Sheet is a foundational pattern from Apple Human Interface Guidelines (HIG). It presents two or more context-specific choices triggered by a user action. Unlike standard bottom sheets meant for complex views, an action sheet focuses strictly on rapid, thumb-friendly decision-making on mobile screens. A detached "Cancel" button island at the bottom prevents accidental taps.',
+    looksLike:
+      'Tap "..." on an iOS photo to bring up "Share", "Duplicate", and a red "Delete" option, with an isolated "Cancel" button pill at the very bottom.',
+    fitsFor: 'Contextual choices · single-thumb mobile exits · destructive confirmation',
+    whenToUse: [
+      { situation: 'Mobile action options need to be reachable within thumb range at screen bottom', recommended: true },
+      { situation: 'Confirming high-risk or irreversible destructive options on touch devices', recommended: true },
+      { situation: 'Offering 2 to 5 immediate contextual actions following a trigger', recommended: true },
+      { situation: 'Long complex forms or scrolling lists (use standard Bottom Sheet or Modal)', recommended: false },
+    ],
+    whenNotToUse: [
+      'Avoid cramming complex inputs, sliders, or heavy content into an Action Sheet.',
+      'Do not omit the detached Cancel button on iOS devices, as users rely heavily on it for escape.',
+    ],
+    anatomy: [
+      { label: 'Action Group', note: 'Translucent blur card housing standard and destructive options' },
+      { label: 'Destructive Item', note: 'Highlighted in danger red text for high-consequence items' },
+      { label: 'Cancel Island', note: 'Detached bottom pill physically separated from the main list' },
+    ],
+    aiPrompt: {
+      basic: 'Show an iOS action sheet with options and a cancel button.',
+      detailed:
+        'Implement an iOS HIG Action Sheet: frosted glass backdrop, stacked action items with a red destructive option, and a detached cancel button island at the bottom.',
+      implementation:
+        'Create an iOS Action Sheet component sliding up from the screen bottom with spring physics. Top group: rounded-2xl backdrop-blur-xl bg-surface/90 border border-line divide-y divide-line. Bottom group: separated by 8px gap, a full-width Cancel button (h-14 rounded-2xl bg-surface/95 font-semibold text-ink). Support tap outside and swipe-down to dismiss.',
+    },
+    badPrompt: 'Pop up a bottom list with some buttons.',
+    betterPrompt:
+      'Follow iOS Action Sheet guidelines: frosted glass upper card grouping actions with danger items highlighted, and a physically separated Cancel button island at the bottom.',
+    aliases: ['action sheet', 'ios sheet', 'bottom action menu', 'context sheet', 'action list'],
+    tags: ['iOS', 'HIG', 'glassmorphism', 'mobile', 'actions'],
+  },
+
+  'command-palette': {
+    oneLine:
+      'The central command hub of modern SaaS and desktop tools — invoked via ⌘K to instantly search, navigate, and execute shortcuts with the keyboard.',
+    description:
+      'Command Palette is popularized by Linear, VS Code, and Raycast as the gold standard for desktop efficiency. It unifies global search, deep-link navigation, and shortcut action triggering into a single keyboard-driven interface. Power users can hit ⌘K or Ctrl+K from anywhere to jump across views or trigger workflows without touching the mouse.',
+    looksLike:
+      'Press ⌘K in Linear, Notion, or GitHub to summon a centered floating modal with instant fuzzy search, grouped commands, and keyboard shortcut badges.',
+    fitsFor: 'Keyboard-first power tools · global navigation · quick command execution',
+    whenToUse: [
+      { situation: 'Desktop Web and SaaS products with multi-level deep navigation and dense workflows', recommended: true },
+      { situation: 'Power-user oriented apps that benefit from keyboard shortcuts and fuzzy commands', recommended: true },
+      { situation: 'Unifying page navigation, data search, and action dispatch into a single entry point', recommended: true },
+      { situation: 'Exclusively mobile touch-screen experiences without hardware keyboards', recommended: false },
+    ],
+    whenNotToUse: [
+      'Do not treat Command Palette as the sole navigation mechanism; casual users still need visible on-screen links.',
+      'Avoid stuffing massive multi-field forms into the palette; redirect to a dedicated modal or view instead.',
+    ],
+    anatomy: [
+      { label: 'Search Input', note: 'Auto-focused input with search icon, placeholder, and ESC indicator' },
+      { label: 'Category Group', note: 'Grouped list sections like Navigation, Actions, and Recent' },
+      { label: 'Shortcut Pill', note: 'Kbd badges displaying keys like ↵, ⌘K, ⌘C' },
+    ],
+    aiPrompt: {
+      basic: 'Add a ⌘K command search palette.',
+      detailed:
+        'Build a Linear-style Command Palette triggered by ⌘K / Ctrl+K: centered elevated modal, fuzzy search across actions and pages, keyboard arrow navigation, and shortcut badges.',
+      implementation:
+        'Create a Command Palette with a fixed overlay (backdrop-blur-sm bg-black/40). Modal card: w-[640px] rounded-2xl border border-line bg-surface/95 shadow-2xl. Top search bar with auto-focus. Body: grouped list (Navigation, Actions, Recent) with arrow up/down selection and Enter execution. Keyboard hints kbd pills on the right. ESC closes.',
+    },
+    badPrompt: 'Popup a search dialog.',
+    betterPrompt:
+      'Implement a Command Palette spec: centered 640px window, ⌘K global shortcut trigger, keyboard navigation, grouped actions and pages with shortcut kbd badges.',
+    aliases: ['command palette', 'cmdk', 'quick command', 'global search palette', 'keyboard palette'],
+    tags: ['SaaS', '⌘K', 'shortcuts', 'efficiency', 'global search'],
+  },
+
+  'extended-fab': {
+    oneLine:
+      'The hallmark floating button of Material Design 3 — displaying icon and label at rest, collapsing into a circular icon on scroll.',
+    description:
+      'Extended Floating Action Button is a core Material Design 3 component representing the primary constructive action on a screen (e.g. Compose, New Task, Add). It resolves the cognitive ambiguity of icon-only FABs by presenting an explicit text label alongside the icon. When the user scrolls down, it smoothly collapses into a circular icon to maximize content readability, re-expanding when idle.',
+    looksLike:
+      'The oval pill "Compose" button at the bottom-right of Gmail mobile that collapses into a pencil circle when scrolling through emails.',
+    fitsFor: 'Primary constructive action · persistent mobile CTA · collapsible scroll action',
+    whenToUse: [
+      { situation: 'The screen has one dominant constructive action (New Email, Create Post, Add Task)', recommended: true },
+      { situation: 'An icon alone is ambiguous and requires clear text to avoid hesitation', recommended: true },
+      { situation: 'Long scrolling feeds where the button should collapse to save vertical space', recommended: true },
+      { situation: 'Screens with multiple competing primary actions', recommended: false },
+    ],
+    whenNotToUse: [
+      'Never place two floating action buttons on the same screen.',
+      'Ensure a generous bottom padding (pb-24) on the scrollable container so content is never occluded.',
+    ],
+    anatomy: [
+      { label: 'Container', note: 'MD3 default 56px height capsule with 16px corner radius' },
+      { label: 'Icon', note: '24px leading vector icon such as plus or edit' },
+      { label: 'Label', note: 'Action verb label like Compose or Create' },
+    ],
+    aiPrompt: {
+      basic: 'Add a floating button with text in the bottom right corner.',
+      detailed:
+        'Build a Material Design 3 Extended FAB: floating bottom-right capsule with icon and text label, collapsing into a circle when scrolling down, and re-expanding when idle.',
+      implementation:
+        'Position fixed right-6 bottom-8 z-40. Expanded pill: h-14 px-5 rounded-2xl bg-ink text-white shadow-lg flex items-center gap-3. Icon + label. Track scroll offset: collapse width to w-14 and hide label with smooth CSS transition when scrolling down past 100px. Add ripple feedback and elevation.',
+    },
+    badPrompt: 'Pin a big button with text to the bottom right.',
+    betterPrompt:
+      'Follow Material Design 3 Extended FAB specification: bottom-right capsule at rest, collapsing to circular icon during scroll, with appropriate content bottom inset.',
+    aliases: ['extended fab', 'floating action pill', 'collapsible fab', 'material 3 fab', 'pill fab'],
+    tags: ['Material3', 'Android', 'FAB', 'scroll collapse', 'primary action'],
+  },
 };

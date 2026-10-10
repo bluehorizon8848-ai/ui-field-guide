@@ -1026,4 +1026,80 @@ const PREVIEWS: Record<string, ReactElement> = {
       <text x="36" y="102" fontSize="7" fill={GREEN}>✓ Suggestion: admin_root_2026</text>
     </g>
   ),
+
+  'action-sheet': (
+    <g>
+      <rect x="28" y="30" width="184" height="84" rx="6" fill="#EDE9DF" opacity="0.6" />
+      {/* iOS Action Sheet: 上部功能卡片 + 底部物理脱离取消岛 */}
+      <rect x="52" y="38" width="136" height="46" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <text x="120" y="53" fontSize="8" fontWeight="500" fill={BLUE} textAnchor="middle">Share Photo</text>
+      <line x1="52" y1="61" x2="188" y2="61" stroke={LINE} strokeWidth="0.8" />
+      <text x="120" y="75" fontSize="8" fontWeight="600" fill={RED} textAnchor="middle">Delete Permanently</text>
+      {/* 独立取消岛 */}
+      <rect x="52" y="88" width="136" height="22" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <text x="120" y="102" fontSize="8.5" fontWeight="600" fill={INK} textAnchor="middle">Cancel</text>
+    </g>
+  ),
+
+  'command-palette': (
+    <g>
+      {/* Linear 风格 ⌘K 居中浮窗 */}
+      <rect x="34" y="34" width="172" height="78" rx="8" fill={WHITE} stroke={INK} strokeWidth="1.2" filter="url(#mini-shadow)" />
+      {/* 顶部搜索栏 */}
+      <text x="44" y="48" fontSize="8" fill={MUTED}>🔍</text>
+      <text x="56" y="48" fontSize="8" fill={INK2}>Type a command...</text>
+      <rect x="180" y="41" width="18" height="10" rx="2" fill={SOFT} stroke={LINE} />
+      <text x="189" y="48" fontSize="6.5" fontWeight="600" fill={MUTED} textAnchor="middle">ESC</text>
+      <line x1="34" y1="54" x2="206" y2="54" stroke={LINE} strokeWidth="0.8" />
+      {/* 命令项目 1 */}
+      <rect x="40" y="58" width="160" height="18" rx="4" fill={BLUE_BG} />
+      <text x="48" y="70" fontSize="7.5" fontWeight="600" fill={BLUE}>Create New Issue</text>
+      <rect x="176" y="62" width="18" height="10" rx="2" fill={WHITE} stroke={LINE} />
+      <text x="185" y="69" fontSize="6.5" fontWeight="600" fill={BLUE} textAnchor="middle">⌘N</text>
+      {/* 命令项目 2 */}
+      <rect x="40" y="79" width="160" height="18" rx="4" fill={WHITE} />
+      <text x="48" y="91" fontSize="7.5" fill={INK2}>Switch Project...</text>
+      <rect x="176" y="83" width="18" height="10" rx="2" fill={SOFT} stroke={LINE} />
+      <text x="185" y="90" fontSize="6.5" fontWeight="600" fill={MUTED} textAnchor="middle">↵</text>
+    </g>
+  ),
+
+  'extended-fab': (
+    <g>
+      {/* 模拟页面列表项 */}
+      <rect x="36" y="34" width="168" height="16" rx="4" fill={SOFT} />
+      <rect x="36" y="54" width="168" height="16" rx="4" fill={SOFT} />
+      <rect x="36" y="74" width="168" height="16" rx="4" fill={SOFT} />
+      {/* 右下角 MD3 Extended FAB 展开胶囊 */}
+      <rect x="120" y="78" width="84" height="28" rx="14" fill={INK} filter="url(#mini-shadow)" />
+      <circle cx="134" cy="92" r="6" fill="#3A3832" />
+      <path d="M131 92 h6 M134 89 v6" stroke={WHITE} strokeWidth="1.5" strokeLinecap="round" />
+      <text x="145" y="95" fontSize="8" fontWeight="600" fill={WHITE}>Compose</text>
+    </g>
+  ),
+
+  'service-card': (
+    <g>
+      {/* 鸿蒙 HarmonyOS 2x2 桌面万能服务卡片 */}
+      <rect x="62" y="32" width="116" height="82" rx="16" fill="url(#mini-harmony-grad)" stroke="#D4E2F4" strokeWidth="1.2" filter="url(#mini-shadow)" />
+      <defs>
+        <linearGradient id="mini-harmony-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#F0F7FF" />
+          <stop offset="100%" stopColor="#E2EEFC" />
+        </linearGradient>
+      </defs>
+      {/* 头部微标识 */}
+      <circle cx="76" cy="45" r="4.5" fill={BLUE} />
+      <text x="85" y="48" fontSize="7" fontWeight="600" fill={INK2}>Weather</text>
+      <circle cx="164" cy="45" r="2" fill={BLUE} opacity="0.6" />
+      {/* 核心气温与天气图 */}
+      <text x="76" y="74" fontSize="19" fontWeight="700" fill={INK}>26°</text>
+      <circle cx="146" cy="64" r="8" fill="#F59E0B" />
+      <path d="M140 70 q6 -5 14 0" stroke={WHITE} strokeWidth="1.5" fill="none" />
+      {/* 底部微胶囊状态 */}
+      <rect x="74" y="84" width="68" height="14" rx="7" fill={WHITE} opacity="0.9" />
+      <text x="108" y="94" fontSize="6" fontWeight="600" fill={GREEN} textAnchor="middle">AQI 24 · Good</text>
+    </g>
+  ),
 };
+

@@ -351,6 +351,7 @@ const SWITCHES = [
 
 export function SwitchDemo() {
   const locale = useLocale();
+  const [os, setOs] = useState<'web' | 'ios' | 'android' | 'harmonyos'>('ios');
   const [state, setState] = useState<Record<string, boolean>>({
     dark: true,
     autoplay: false,
@@ -368,44 +369,137 @@ export function SwitchDemo() {
     setTimeout(() => setToast(null), 2200);
   };
 
+  const osLabels = {
+    web: '🌐 Web 极简',
+    ios: ' iOS HIG',
+    android: '🤖 Android MD3',
+    harmonyos: '鸿蒙 ArkUI',
+  };
+
   return (
     <DemoStage caption={t(locale, 'demo.input.caption.switch')}>
-      <div className="mx-auto w-full max-w-[420px]">
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-2xs">
-          {SWITCHES.map((s) => (
-            <label
-              key={s.id}
-              className="flex cursor-pointer items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0 hover:bg-[#F9F8F5] transition-colors"
+      <div className="mx-auto w-full max-w-[440px]">
+        {/* 多端形态切换栏 (OS Switcher) */}
+        <div className="mb-3.5 flex items-center justify-between rounded-xl border border-line bg-[#F2F0EB] p-1 text-xs">
+          {(['ios', 'android', 'harmonyos', 'web'] as const).map((platform) => (
+            <button
+              key={platform}
+              type="button"
+              onClick={() => setOs(platform)}
+              className={`rounded-lg px-2.5 py-1.5 font-medium transition-all ${
+                os === platform
+                  ? 'bg-surface text-ink shadow-2xs font-semibold'
+                  : 'text-ink2 hover:text-ink'
+              }`}
             >
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-ink">{t(locale, s.labelKey)}</span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {t(locale, s.descKey)}
-                </span>
-              </span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={state[s.id]}
-                aria-label={t(locale, s.labelKey)}
-                onClick={() => toggle(s.id, t(locale, s.labelKey))}
-                className="relative grid h-11 w-11 shrink-0 place-items-center"
-              >
-                <span
-                  aria-hidden="true"
-                  className={`relative block h-[26px] w-[46px] rounded-full transition-colors ${
-                    state[s.id] ? 'bg-[#1D734C]' : 'bg-[#D8D5CD]'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                      state[s.id] ? 'translate-x-[23px]' : 'translate-x-[3px]'
-                    }`}
-                  />
-                </span>
-              </button>
-            </label>
+              {osLabels[platform]}
+            </button>
           ))}
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-2xs">
+          {SWITCHES.map((s) => {
+            const isChecked = state[s.id];
+            return (
+              <label
+                key={s.id}
+                className="flex cursor-pointer items-center justify-between gap-3 border-b border-line px-4 py-3.5 last:border-b-0 hover:bg-[#F9F8F5] transition-colors"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-ink">{t(locale, s.labelKey)}</span>
+                  <span className="mt-0.5 block text-xs text-muted">
+                    {t(locale, s.descKey)}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isChecked}
+                  aria-label={t(locale, s.labelKey)}
+                  onClick={() => toggle(s.id, t(locale, s.labelKey))}
+                  className="relative grid h-12 w-14 shrink-0 place-items-center"
+                >
+                  {/* 1. iOS 规范：31px 饱满胶囊 + 绿色 + 柔和阴影 */}
+                  {os === 'ios' && (
+                    <span
+                      aria-hidden="true"
+                      className={`relative block h-[31px] w-[51px] rounded-full transition-colors duration-300 ${
+                        isChecked ? 'bg-[#34C759]' : 'bg-[#E9E9EB]'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow-[0_3px_8px_rgba(0,0,0,0.15),0_1px_1px_rgba(0,0,0,0.16)] transition-transform duration-300 ${
+                          isChecked ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                        }`}
+                      />
+                    </span>
+                  )}
+
+                  {/* 2. Android MD3 规范：大 thumb + 图标与轮廓切换 */}
+                  {os === 'android' && (
+                    <span
+                      aria-hidden="true"
+                      className={`relative block h-[32px] w-[52px] rounded-full transition-colors duration-200 ${
+                        isChecked
+                          ? 'bg-[#0B57D0]'
+                          : 'border-2 border-[#79747E] bg-[#E6E1E5]'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-[4px] flex items-center justify-center rounded-full transition-all duration-200 ${
+                          isChecked
+                            ? 'translate-x-[24px] h-[24px] w-[24px] bg-white text-[#0B57D0]'
+                            : 'translate-x-[6px] h-[20px] w-[20px] bg-[#49454F] text-transparent'
+                        }`}
+                      >
+                        {isChecked && (
+                          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <polyline points="3.5 8.5 6.5 11.5 12.5 4.5" />
+                          </svg>
+                        )}
+                      </span>
+                    </span>
+                  )}
+
+                  {/* 3. 鸿蒙 ArkUI 规范：渐变高光 + 弹性缩放回弹 */}
+                  {os === 'harmonyos' && (
+                    <span
+                      aria-hidden="true"
+                      className={`relative block h-[28px] w-[48px] rounded-full shadow-inner transition-all duration-300 ${
+                        isChecked
+                          ? 'bg-gradient-to-r from-[#0A59F7] to-[#2E75F8]'
+                          : 'bg-[#DCD8CF]'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-[2px] h-[24px] w-[24px] rounded-full bg-white shadow-md transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
+                          isChecked ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                        }`}
+                      />
+                    </span>
+                  )}
+
+                  {/* 4. Web 极简规范：扁平微边框 */}
+                  {os === 'web' && (
+                    <span
+                      aria-hidden="true"
+                      className={`relative block h-[24px] w-[44px] rounded-full border transition-colors ${
+                        isChecked
+                          ? 'border-ink bg-ink'
+                          : 'border-[#C9C5BB] bg-[#EDE9E1]'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform ${
+                          isChecked ? 'translate-x-[21px]' : 'translate-x-[2px]'
+                        }`}
+                      />
+                    </span>
+                  )}
+                </button>
+              </label>
+            );
+          })}
         </div>
         {toast && (
           <p className="mt-3 text-center text-xs text-muted" role="status" aria-live="polite">

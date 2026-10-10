@@ -296,4 +296,155 @@ export const actionPatterns: UIPattern[] = [
     fitsFor: '删除 · 清除 · 注销',
     tags: ['风险', '二次确认', '撤销'],
   },
+  {
+    id: 'action-sheet',
+    name: 'Action Sheet',
+    chineseName: '操作表',
+    aliases: ['操作表', 'action sheet', 'ios底部菜单', '底部操作列表', '苹果弹窗', '行动列表', 'actionsheet'],
+    category: 'actions',
+    level: 2,
+    dedicatedPlatform: 'ios',
+    specialBadge: 'iOS 专属',
+    supportedOS: ['ios', 'web', 'android', 'harmonyos'],
+    appearance: ['on-click'],
+    position: ['bottom'],
+    job: ['select', 'confirm'],
+    oneLine: 'iOS 经典的底部悬浮操作表，将一组行动选项与独立的取消按钮分离陈列。',
+    description:
+      'Action Sheet 是 Apple Human Interface Guidelines (HIG) 的标志性组件。它从屏幕底部升起，拥有优雅的半透明毛玻璃背景（Materials）。最关键的规范在于：常规操作与破坏性操作成组聚合，而「取消」按钮必须在视觉上完全独立分离为一个单独的底部岛屿，让单手盲操退出具有确定性。',
+    looksLike:
+      '微信或 iOS 相册中点击「更多」或「分享」时从底部滑出的列表，上面一排选项（保存、复制、举报），最底下单独浮着一个圆角「取消」药丸。',
+    platforms: ['mobile', 'ios'],
+    difficulty: 'medium',
+    whenToUse: [
+      { situation: '响应一个明确的按钮触发，在 2~6 个具体操作中做出选择', recommended: true },
+      { situation: '涉及可能丢失数据的危险操作，需要显式区分红色文字', recommended: true },
+      { situation: '移动端需要单手便捷触达屏幕下半部分', recommended: true },
+      { situation: '包含复杂输入或多步骤向导的表单页面', recommended: false },
+    ],
+    whenNotToUse: [
+      '不要在 Action Sheet 内部塞入文本输入框或复杂表格，那是 Bottom Sheet 或 Modal 的职责。',
+      '永远不要省略底部的独立「取消」按钮，否则用户在全面屏手势误触时极难安全退出。',
+    ],
+    anatomy: [
+      { label: 'Action Group', labelZh: '操作选项组', note: '圆角毛玻璃卡片，支持常规与危险红字选项' },
+      { label: 'Destructive Item', labelZh: '破坏性项', note: '红色警示文字，表示不可逆操作' },
+      { label: 'Cancel Island', labelZh: '独立取消岛', note: '与上方选项物理分离，单手盲操可轻松点击' },
+    ],
+    similarPatterns: ['bottom-sheet', 'modal', 'destructive-action'],
+    compareWith: 'bottom-sheet',
+    aiPrompt: {
+      basic: '从底部弹出一个包含保存、分享和删除的操作列表。',
+      detailed:
+        '设计一个标准的 iOS 风格 Action Sheet：半透明毛玻璃底板，顶部包含「保存到相册」、「分享到社交网络」与红色的「删除该动态」，底部带有视觉独立分离的圆角「取消」按钮，点击遮罩或取消均可平滑退出。',
+      implementation:
+        '使用 iOS HIG 规范的 Action Sheet：外层半透明遮罩背景 rgba(0,0,0,0.4)。操作弹窗由两部分组成，间距 8px。上方主卡片：纯白背景或带 backdrop-blur-md 毛玻璃，rounded-2xl，内部分隔线划分「保存图片」(font-medium)、「复制链接」和危险操作「彻底删除」(文字 #DC2626)。下方独立取消卡片：单独的 rounded-2xl 白色按钮「取消」，font-semibold。支持物理弹簧滑入滑出动画与 ESC/遮罩关闭。',
+    },
+    badPrompt: '底部弹一个列表放几个按钮。',
+    betterPrompt:
+      '使用 iOS Action Sheet 规范：将功能选项和危险操作聚合在上方毛玻璃卡片中，底部物理分离出独立的「取消」按钮岛，确保单手操作容错。',
+    fitsFor: '操作选择 · 退出单手确认 · 破坏性选项',
+    tags: ['iOS', 'HIG', '毛玻璃', '单手操作', '菜单'],
+  },
+  {
+    id: 'command-palette',
+    name: 'Command Palette',
+    chineseName: '命令面板 (⌘K)',
+    aliases: ['命令面板', 'command palette', '快捷键搜索', 'cmdk', '全局命令', '⌘K', '快捷指令', '命令行面板'],
+    category: 'actions',
+    level: 2,
+    dedicatedPlatform: 'web',
+    specialBadge: 'Web/SaaS 专属',
+    supportedOS: ['web', 'desktop'],
+    appearance: ['on-click'],
+    position: ['center', 'top'],
+    job: ['navigate', 'create', 'select'],
+    oneLine: 'SaaS 与桌面效率工具的核心中枢——用 ⌘K 一键唤起，通过键盘快速检索全站并执行指令。',
+    description:
+      'Command Palette（命令面板）是由 Linear、VS Code、Raycast 发扬光大的现代桌面 Web/SaaS 标配。它将全局搜索、功能导航与操作快捷触发合三为一。用户无需在繁杂的多级菜单中反复寻找，只需敲击 ⌘K 或 Ctrl+K，输入几个模糊拼音或关键词，就能瞬时直达目标或直接运行动作。',
+    looksLike:
+      'Linear、Notion 或 GitHub 里按下 ⌘K 弹出的深灰居中浮窗，支持上下键选择、分类标签筛选（导航、文档、操作）并回车执行。',
+    platforms: ['web', 'desktop'],
+    difficulty: 'hard',
+    whenToUse: [
+      { situation: 'Web/桌面端专业 SaaS 系统，功能层级多、深、复杂', recommended: true },
+      { situation: '面向极客、开发者或重度键盘流用户的效率产品', recommended: true },
+      { situation: '需要统一“页面跳转”、“数据搜索”与“快速执行命令”三合一', recommended: true },
+      { situation: '纯移动端小屏体验（更适合常规底部导航与顶栏搜索）', recommended: false },
+    ],
+    whenNotToUse: [
+      '不要把它作为产品唯一的导航路径——普通初级用户不一定知道 ⌘K 快捷键，页面仍需要直观的点击路径。',
+      '输入内容过多时不要塞进命令面板，复杂数据录入请使用专用表单或 Modal。',
+    ],
+    anatomy: [
+      { label: 'Search Input', labelZh: '命令搜索框', note: '自动聚焦，带放大镜与 ESC 提示' },
+      { label: 'Category Group', labelZh: '分组列表', note: '按页面导航、常用操作、近期记录清晰分组' },
+      { label: 'Shortcut Pill', labelZh: '快捷键微胶囊', note: '右侧显示执行快捷键，如 ↵、⌘C' },
+    ],
+    similarPatterns: ['search-field', 'modal', 'popover'],
+    compareWith: 'search-field',
+    aiPrompt: {
+      basic: '加一个 ⌘K 弹出的命令搜索框。',
+      detailed:
+        '实现一个 Linear 风格的 Command Palette：全局监听 ⌘K / Ctrl+K 唤起，居中高质感浮窗，支持模糊搜索，按「常用动作」、「页面跳转」、「最近项目」分组展示，支持键盘上下箭头高亮与 Enter 触发。',
+      implementation:
+        '设计快捷命令面板：全屏居中悬浮卡片（宽 640px，rounded-2xl，阴影 shadow-2xl，边框 border border-line，背景 bg-surface/95 backdrop-blur-xl）。顶栏为沉浸式搜索输入框，placeholder 显示「Type a command or search...」。主体为指令列表，分为「Navigation」、「Actions」和「Recent」，每个项目展示左侧图标、标题与右侧快捷键微胶囊（如 ⌘N、↵）。支持纯键盘导航（↑/↓/Enter/Escape），移动端隐去快捷键提示。',
+    },
+    badPrompt: '弹一个搜索弹窗。',
+    betterPrompt:
+      '实现 Command Palette 规范：居中 640px 视窗，支持 ⌘K 全局唤起、键盘上下导航、分组展示命令动作与跳转，右侧附带快捷键提示。',
+    fitsFor: '效率键盘流 · 全局检索 · 快捷指令直达',
+    tags: ['SaaS', '⌘K', '快捷键', '效率工具', '全局搜索'],
+  },
+  {
+    id: 'extended-fab',
+    name: 'Extended FAB',
+    chineseName: '扩展悬浮按钮',
+    aliases: ['扩展fab', 'extended fab', '带文字的悬浮按钮', '浮动动作条', 'md3按钮', '安卓悬浮药丸'],
+    category: 'actions',
+    level: 2,
+    dedicatedPlatform: 'android',
+    specialBadge: 'Android MD3',
+    supportedOS: ['android', 'mobile', 'harmonyos'],
+    appearance: ['always', 'on-scroll'],
+    position: ['floating', 'bottom'],
+    job: ['create'],
+    oneLine: 'Material Design 3 的核心悬浮组件——静止时展示图标与文字，页面滚动时自动收起为纯圆点。',
+    description:
+      'Extended Floating Action Button 是 Google Material Design 3 (MD3) 中用于承载最重要屏幕核心动作（如 Compose、新建、添加）的高阶组件。它克服了经典 FAB 仅有图标导致认知门槛高的缺陷，默认以展开的圆角药丸形式呈现文字与图标；当用户向下浏览内容时，平滑折叠为极简圆形图标，把阅读空间让渡给正文。',
+    looksLike:
+      'Gmail 移动端右下角的「写邮件」椭圆药丸按钮，往下划动列表时文字自动收进圆圈里，停止滑动后重新展开。',
+    platforms: ['mobile', 'android'],
+    difficulty: 'medium',
+    whenToUse: [
+      { situation: '屏幕内有一个绝对统领全局的核心正向操作（新建邮件、发布动态、创建工单）', recommended: true },
+      { situation: '单纯图标难以表达操作含义，必须配合文字消除疑虑', recommended: true },
+      { situation: '列表内容长，向下滚动时需要优雅退缩以扩大阅读视野', recommended: true },
+      { situation: '页面已有多个并列核心动作（容易引发选择冲突）', recommended: false },
+    ],
+    whenNotToUse: [
+      '不要在同一个页面放置两个悬浮按钮，这会完全破坏 Material Design 的层级统一性。',
+      '遮挡底部列表关键内容时，必须留出与 FAB 同高的滚动安全垫（pb-24）。',
+    ],
+    anatomy: [
+      { label: 'Container', labelZh: '椭圆胶囊容器', note: 'MD3 默认高度 56px，圆角 16px' },
+      { label: 'Icon', labelZh: '操作图标', note: '左侧 24px 图标，如铅笔、加号' },
+      { label: 'Label', labelZh: '操作文案', note: '动词短语，如「Compose」、「新建项目」' },
+    ],
+    similarPatterns: ['fab', 'cta', 'button'],
+    compareWith: 'fab',
+    aiPrompt: {
+      basic: '在右下角放一个带文字的悬浮按钮。',
+      detailed:
+        '实现一个 Material Design 3 风格的 Extended FAB：悬浮在移动端右下角，展开态带有图标和文字「新建记录」，页面向下滚动时平滑过渡收起为纯圆形图标，向上滚动或停止时重新展开。',
+      implementation:
+        '设计 Extended FAB：固定定位 fixed right-6 bottom-8 z-40。常态为展开药丸胶囊（h-14 px-5 rounded-2xl bg-ink text-white shadow-lg flex items-center gap-3），左侧加号图标 + 右侧「新建笔记」文字。监听窗口滚动事件：向下滚动超过 100px 时触发折叠动画，宽度平滑缩短为 w-14，文字 opacity 渐隐并收缩为圆角正方形/圆形，向上回滚时恢复展开。自带水波纹点击反馈与提升阴影。',
+    },
+    badPrompt: '右下角固定一个大按钮写字。',
+    betterPrompt:
+      '遵循 Material Design 3 Extended FAB 规范：右下角悬浮药丸形态，静止时展示图标+文字，滚动时平滑折叠为纯图标，留出内容安全边距。',
+    fitsFor: '核心创建动作 · 移动端常驻 · 滚动收起',
+    tags: ['Material3', 'Android', 'FAB', '滚动折叠', '核心操作'],
+  },
 ];
+

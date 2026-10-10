@@ -1,4 +1,5 @@
-export type Platform = 'web' | 'mobile' | 'desktop';
+export type Platform = 'web' | 'mobile' | 'desktop' | 'ios' | 'android' | 'harmonyos';
+export type Ecosystem = 'all' | Platform;
 export type Level = 1 | 2 | 3;
 export type CategoryId =
   | 'navigation'
@@ -60,6 +61,12 @@ export interface UIPattern {
   description: string;
 
   platforms: Platform[];
+  /** 所属专属平台/生态（若为空则为通用跨平台） */
+  dedicatedPlatform?: Platform;
+  /** 专有进阶徽标 */
+  specialBadge?: string;
+  /** 支持进行真实多端形态切换的系统列表 */
+  supportedOS?: Platform[];
   difficulty: 'easy' | 'medium' | 'hard';
 
   /** 「它长什么样」——用生活化场景说，不写学术定义 */

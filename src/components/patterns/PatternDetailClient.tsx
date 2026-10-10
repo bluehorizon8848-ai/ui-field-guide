@@ -17,7 +17,16 @@ import { ShareCardModal } from '@/components/social/ShareCardModal';
 import { MarkLearnedButton } from './MarkLearnedButton';
 import { Tocs } from './Tocs';
 
-const PLATFORM_LABEL = { web: 'Web', mobile: 'Mobile', desktop: 'Desktop' } as const;
+import type { Platform } from '@/data/types';
+
+const PLATFORM_LABEL: Record<Platform, string> = {
+  web: 'Web',
+  mobile: 'Mobile',
+  desktop: 'Desktop',
+  ios: 'iOS',
+  android: 'Android',
+  harmonyos: 'HarmonyOS',
+};
 const DIFFICULTY = { easy: 'easy', medium: 'medium', hard: 'hard' } as const;
 
 /** TOC 的 label 两种语言一致（本来就是英文术语），所以放在模块作用域不随语言变 */
@@ -87,6 +96,11 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
             <p className="mt-1 text-[1.0625rem] text-muted">{pattern.chineseName}</p>
 
             <div className="mt-3.5 flex flex-wrap items-center gap-2">
+              {pattern.specialBadge && (
+                <span className="rounded-md border border-[#1D734C]/30 bg-[#1D734C]/10 px-2 py-0.5 text-2xs font-semibold text-[#1D734C]">
+                  {pattern.specialBadge}
+                </span>
+              )}
               {pattern.platforms.map((p) => (
                 <span
                   key={p}

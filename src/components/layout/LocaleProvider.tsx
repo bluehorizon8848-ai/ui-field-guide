@@ -59,32 +59,34 @@ export function LocaleSwitch() {
 
   return (
     <div
-      className="flex items-center rounded-lg border border-line bg-surface p-0.5"
+      className="inline-flex h-9 items-center gap-1 rounded-lg border border-line bg-surface p-1 shadow-xs"
       role="group"
       aria-label={current === 'zh' ? '语言' : 'Language'}
     >
-      <Globe size={13} aria-hidden="true" className="ml-1.5 shrink-0 text-muted" />
-      {LOCALES.map((l) => {
-        const active = l === current;
-        return (
-          <Link
-            key={l}
-            // 每枚按钮指向自己的语言，不是「切换后的语言」。
-            // href() 会先剥掉现有前缀再加，所以中英两个页面互相跳转都不会出现 /en/en/。
-            href={withQuery(href(pathname, l))}
-            hrefLang={l}
-            lang={l}
-            aria-current={active ? 'true' : undefined}
-            className={`inline-flex min-h-[38px] items-center rounded-[6px] px-2 text-xs transition-colors ${
-              active
-                ? 'bg-ink font-medium text-white'
-                : 'text-ink2 hover:bg-[#F2F0EB] hover:text-ink'
-            }`}
-          >
-            {LOCALE_LABEL[l]}
-          </Link>
-        );
-      })}
+      <Globe size={14} aria-hidden="true" className="ml-1 shrink-0 text-muted" />
+      <div className="flex items-center gap-0.5">
+        {LOCALES.map((l) => {
+          const active = l === current;
+          return (
+            <Link
+              key={l}
+              // 每枚按钮指向自己的语言，不是「切换后的语言」。
+              // href() 会先剥掉现有前缀再加，所以中英两个页面互相跳转都不会出现 /en/en/。
+              href={withQuery(href(pathname, l))}
+              hrefLang={l}
+              lang={l}
+              aria-current={active ? 'true' : undefined}
+              className={`inline-flex h-7 items-center justify-center rounded-md px-2 text-xs font-medium transition-colors ${
+                active
+                  ? 'bg-ink text-white shadow-xs'
+                  : 'text-ink2 hover:bg-[#F2F0EB] hover:text-ink'
+              }`}
+            >
+              {LOCALE_LABEL[l]}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -121,7 +121,7 @@ export function Header() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"
-            className="hidden h-11 w-11 items-center justify-center rounded-md text-ink2 transition-colors hover:bg-[#F2F0EB] hover:text-ink sm:flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-transparent text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink sm:flex"
           >
             <svg
               className="h-4 w-4 fill-current"
@@ -135,10 +135,10 @@ export function Header() {
           <Link
             href={h('/search')}
             aria-label={`${t(locale, 'nav.search')} (⌘K)`}
-            className="flex h-11 items-center gap-1.5 rounded-md px-2.5 text-ink2 transition-colors hover:bg-[#F2F0EB] hover:text-ink"
+            className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2.5 text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink"
           >
-            <Search size={17} aria-hidden="true" />
-            <kbd className="hidden rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] text-muted lg:inline-block">
+            <Search size={16} aria-hidden="true" />
+            <kbd className="hidden rounded border border-line bg-[#FAF9F6] px-1.5 py-0.5 font-mono text-[10px] text-muted lg:inline-block">
               ⌘K
             </kbd>
           </Link>
@@ -148,7 +148,7 @@ export function Header() {
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? t(locale, 'nav.closeMenu') : t(locale, 'nav.openMenu')}
             aria-expanded={menuOpen}
-            className="flex h-11 w-11 items-center justify-center rounded-md text-ink2 transition-colors hover:bg-[#F2F0EB] hover:text-ink md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink md:hidden"
           >
             {menuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
           </button>

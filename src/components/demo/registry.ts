@@ -74,6 +74,13 @@ import {
   InlineValidationDemo,
   ProgressiveDisclosureDemo,
 } from './InteractionDemos';
+import {
+  ActionSheetDemo,
+  CommandPaletteDemo,
+  ExtendedFabDemo,
+  ServiceCardDemo,
+} from './PlatformDemos';
+
 
 export const demoRegistry: Record<string, ComponentType> = {
   // Navigation
@@ -95,6 +102,9 @@ export const demoRegistry: Record<string, ComponentType> = {
   fab: FabDemo,
   'split-button': SplitButtonDemo,
   'destructive-action': DestructiveActionDemo,
+  'action-sheet': ActionSheetDemo,
+  'command-palette': CommandPaletteDemo,
+  'extended-fab': ExtendedFabDemo,
 
   // Input
   'text-field': TextFieldDemo,
@@ -121,6 +131,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   popover: PopoverDemo,
   tooltip: IconButtonDemo,
   'modal-stateful': DialogDemo,
+  'service-card': ServiceCardDemo,
 
   // Feedback
   toast: ToastDemo,

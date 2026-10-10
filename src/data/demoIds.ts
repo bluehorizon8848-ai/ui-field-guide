@@ -69,6 +69,10 @@ export const demoIds: readonly string[] = [
   'progressive-disclosure',
   'optimistic-ui',
   'inline-validation',
+  'action-sheet',
+  'command-palette',
+  'extended-fab',
+  'service-card',
 ] as const;
 
 const demoIdSet = new Set<string>(demoIds);

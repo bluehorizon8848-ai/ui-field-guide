@@ -398,4 +398,56 @@ export const containerPatterns: UIPattern[] = [
     fitsFor: '图标命名 · 缩写解释 · 全文',
     tags: ['悬停', '命名', '键盘'],
   },
+  {
+    id: 'service-card',
+    name: 'Service Card',
+    chineseName: '服务卡片 / 原子化万能卡片',
+    aliases: ['服务卡片', '万能卡片', '原子化服务', '桌面微件', 'service card', 'widget', '鸿蒙卡片'],
+    category: 'containers',
+    level: 3,
+    dedicatedPlatform: 'harmonyos',
+    specialBadge: '鸿蒙专属',
+    supportedOS: ['harmonyos', 'mobile'],
+    appearance: ['always'],
+    position: ['inline', 'floating'],
+    job: ['inform', 'create'],
+    oneLine: '鸿蒙 HarmonyOS 的核心特色交互载体——将应用的关键信息与高频服务外显至桌面，无需打开 App 即可一触即达。',
+    description:
+      'Service Card（服务卡片 / 万能卡片）是 HarmonyOS ArkUI 生态中最具标志性的微界面范式。它打破了传统 App 孤岛，将最核心的内容与状态（如实时打车轨迹、快递动态、航班值机、音乐播放控制、健康步数）按 2x2、2x4、4x4 等标准栅格提炼为常驻桌面微视窗。用户不仅能实时通览信息流，还可以直接在卡片上完成播放/暂停、一键打卡等快捷操作，或者点击直接拉起轻量原子化服务。',
+    looksLike:
+      '华为手机桌面上常驻的「待办备忘录」或「实时天气」磁贴，无需点进 App 就能实时打钩完成事项或切换城市。',
+    platforms: ['mobile', 'harmonyos'],
+    difficulty: 'medium',
+    whenToUse: [
+      { situation: '应用有高时效性或高频次的状态需要被用户持续感知（如外卖骑手进度、股票走势、日程提醒）', recommended: true },
+      { situation: '提供极简的单步高频操作（如播放暂停音乐、智能家居开关、一键签到）', recommended: true },
+      { situation: '希望通过桌面原子化服务入口为应用提供直达引流', recommended: true },
+      { situation: '卡片内塞入过于复杂的长列表或多步嵌套表单（应拉起完整 App）', recommended: false },
+    ],
+    whenNotToUse: [
+      '不要把服务卡片当成迷你浏览器或微型 App，卡片面积有限，信息必须高度提炼、克制呈现。',
+      '避免在桌面卡片中设计复杂的滚动列表或多级导航跳转，这会大幅劣化桌面滑动体验。',
+    ],
+    anatomy: [
+      { label: 'Card Container', labelZh: '微卡片容器', note: '标准栅格尺寸（如 2x2: 150x150, 2x4: 310x150），圆角 16-24px' },
+      { label: 'Header / Brand', labelZh: '服务标识区', note: '左上角应用微图标与卡片名称' },
+      { label: 'Key Visual / Data', labelZh: '核心指标与状态', note: '大字态、动态折线图或核心进度' },
+      { label: 'Quick Action', labelZh: '一键动作触发', note: '胶囊按钮或微按钮，支持表单提交与能力拉起' },
+    ],
+    similarPatterns: ['stat-card', 'card', 'banner'],
+    compareWith: 'stat-card',
+    aiPrompt: {
+      basic: '做一个鸿蒙桌面的服务卡片。',
+      detailed:
+        '实现一个 HarmonyOS 规范的 2x2 天气服务卡片：支持常驻桌面展示，显示当前气温、天气图标与空气质量，点击卡片直接拉起原子化服务，提供一键刷新交互。',
+      implementation:
+        '按照 ArkUI 服务卡片规范设计：尺寸为 2x2 方形（156px × 156px，rounded-3xl，border border-line，背景采用细腻莫兰迪渐变材质搭配 backdrop-blur）。卡片头部显示 16px 应用微图标与「实时天气」微字样；中部居中展示大号气温数字（32px font-bold）与动态天气矢量图；底部设置微胶囊胶囊动作条「更新于 10 分钟前」，点击卡片外层通过 postCardAction 发送 router 事件拉起原子化落地页。',
+    },
+    badPrompt: '画一个桌面小组件。',
+    betterPrompt:
+      '遵循 HarmonyOS ArkUI 服务卡片规范：适配 2x2 栅格尺寸与圆角曲线，外显关键数据与微操作，支持一键触达原子化落地页。',
+    fitsFor: '桌面常驻 · 状态外显 · 原子化服务一触即达',
+    tags: ['鸿蒙', 'ArkUI', '服务卡片', '桌面微件', '原子化服务'],
+  },
 ];
+

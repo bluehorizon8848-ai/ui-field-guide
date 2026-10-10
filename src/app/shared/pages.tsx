@@ -93,17 +93,17 @@ export function createHomePage(locale: Locale) {
               </p>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-2.5">
+            <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:items-center">
               <Link
                 href={href('/identify', locale)}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-ink px-5 text-sm font-medium text-white shadow-xs transition-colors hover:bg-[#33312C]"
               >
                 <Compass size={16} aria-hidden="true" />
                 {t(locale, 'home.identify')}
               </Link>
               <Link
                 href={href('/learn', locale)}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
               >
                 <Sparkles size={16} aria-hidden="true" />
                 {t(locale, 'home.learnL1')}
@@ -215,7 +215,7 @@ export function createHomePage(locale: Locale) {
                     href={href(`/explore?c=${c.id}`, locale)}
                     className="group flex items-start gap-3.5 rounded-card border border-line bg-surface p-4 card-hover"
                   >
-                    <span className={`mt-0.5 h-9 w-1.5 shrink-0 rounded-full ${c.tint}`} />
+                    <span className={`my-0.5 self-stretch w-1.5 shrink-0 rounded-full ${c.tint}`} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline gap-2">
                         <span className="text-sm font-semibold text-ink">{c.name}</span>

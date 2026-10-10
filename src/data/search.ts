@@ -105,6 +105,38 @@ const colloquialMap: Record<string, string[]> = {
   工具栏: ['icon-button', 'split-button'],
   小图标按钮: ['icon-button'],
   危险操作: ['destructive-action'],
+  苹果底部操作: ['action-sheet'],
+  底部动作列表: ['action-sheet', 'bottom-sheet'],
+  底部操作单: ['action-sheet'],
+  ios底部弹窗: ['action-sheet'],
+  快捷指令: ['command-palette'],
+  命令面板: ['command-palette'],
+  快捷键搜索: ['command-palette', 'search-field'],
+  全局命令: ['command-palette'],
+  快捷键: ['command-palette'],
+  按键呼出: ['command-palette'],
+  带文字的悬浮按钮: ['extended-fab', 'fab'],
+  悬浮药丸: ['extended-fab', 'fab'],
+  滚动收起按钮: ['extended-fab'],
+  安卓新建按钮: ['extended-fab', 'fab'],
+  服务卡片: ['service-card'],
+  万能卡片: ['service-card'],
+  桌面卡片: ['service-card', 'card'],
+  桌面微件: ['service-card'],
+  原子化服务: ['service-card'],
+  鸿蒙卡片: ['service-card'],
+  撤销操作: ['snackbar', 'destructive-action'],
+  误删找回: ['snackbar', 'destructive-action'],
+  防止误删: ['destructive-action', 'modal'],
+  二次确认: ['destructive-action', 'modal'],
+  核心指标: ['stat-card'],
+  数据大盘: ['stat-card', 'table'],
+  折线走势: ['stat-card'],
+  滑动删除: ['swipe-action'],
+  步骤引导: ['stepper'],
+  分步表单: ['stepper'],
+  骨架占位: ['skeleton'],
+  弱网加载: ['skeleton', 'spinner'],
 };
 
 /**
@@ -233,6 +265,25 @@ const colloquialEn: Record<string, string[]> = {
   'filtering options': ['drawer', 'chip', 'select'],
   'sort the list': ['table', 'list'],
   'simple list': ['list'],
+  'action sheet': ['action-sheet', 'bottom-sheet'],
+  'ios action sheet': ['action-sheet'],
+  'bottom action options': ['action-sheet', 'bottom-sheet'],
+  'command palette': ['command-palette'],
+  'quick command': ['command-palette'],
+  'keyboard search': ['command-palette', 'search-field'],
+  'press cmd k': ['command-palette'],
+  'cmdk': ['command-palette'],
+  'extended fab': ['extended-fab', 'fab'],
+  'collapsible fab': ['extended-fab'],
+  'floating action pill': ['extended-fab', 'fab'],
+  'service card': ['service-card'],
+  'harmonyos widget': ['service-card'],
+  'desktop widget': ['service-card', 'card'],
+  'atomic service': ['service-card'],
+  'undo delete': ['snackbar', 'destructive-action'],
+  'prevent accidental delete': ['destructive-action', 'modal'],
+  'kpi metrics': ['stat-card', 'table'],
+  'dashboard card': ['stat-card', 'table'],
 };
 
 /** 英文停用词，匹配时剔除，否则 "on and off" 里的 on 会污染所有词条 */
@@ -294,12 +345,126 @@ function colloquialScore(query: string, patternId: string): number {
   return best;
 }
 
-/** 返回带命中原因的搜索结果 */
+/** 返回带命中原因与功能场景推荐理由的搜索结果 */
 export interface SearchHit {
   pattern: UIPattern;
   score: number;
   matchedBy: string;
+  scenarioReason?: string;
 }
+
+export interface FunctionalScenario {
+  id: string;
+  emoji: string;
+  label: string;
+  labelEn: string;
+  query: string;
+  description: string;
+  descriptionEn: string;
+  patternIds: string[];
+}
+
+export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
+  {
+    id: 'cmd-palette',
+    emoji: '⚡️',
+    label: '全局快捷键与命令直达',
+    labelEn: 'Global ⌘K Command Palette',
+    query: 'command palette',
+    description: 'SaaS 与桌面效率工具中枢，通过 ⌘K 键盘流快速检索全站并执行快捷指令',
+    descriptionEn: 'Keyboard-first power tools hub invoked via ⌘K for fuzzy navigation and action dispatch',
+    patternIds: ['command-palette', 'search-field'],
+  },
+  {
+    id: 'undo-regret',
+    emoji: '🗑️',
+    label: '破坏性删除与撤销反悔',
+    labelEn: 'Undo & Destructive Safeguards',
+    query: '撤销',
+    description: '降低用户误操作焦虑：高危操作二步确认，完成后提供 5 秒 Undo 撤销逃生通道',
+    descriptionEn: 'Prevent accidental loss with confirmations and immediate Undo escape hatches',
+    patternIds: ['destructive-action', 'snackbar', 'modal'],
+  },
+  {
+    id: 'mobile-actions',
+    emoji: '📱',
+    label: '移动端底部操作与确认',
+    labelEn: 'Mobile Thumb Action Sheets',
+    query: '底部操作',
+    description: '大屏单手触控优化：将高频操作收拢在拇指热区，独立物理取消岛大幅减少误触',
+    descriptionEn: 'Thumb-reachable bottom modals with isolated cancel islands preventing mis-taps',
+    patternIds: ['action-sheet', 'bottom-sheet', 'bottom-navigation'],
+  },
+  {
+    id: 'service-widget',
+    emoji: '🧩',
+    label: '桌面微件与原子化状态',
+    labelEn: 'Desktop & Atomic Service Cards',
+    query: '服务卡片',
+    description: '鸿蒙 ArkUI 与系统特色：将关键动态与单步动作直接外显至桌面，一触即达',
+    descriptionEn: 'Surface live metrics and high-frequency actions directly on the OS home screen',
+    patternIds: ['service-card', 'card', 'stat-card'],
+  },
+  {
+    id: 'fab-actions',
+    emoji: '🚀',
+    label: '核心动作常驻与滚动让渡',
+    labelEn: 'Primary Action & Collapsible FAB',
+    query: 'extended fab',
+    description: 'Material Design 3 范式：核心正向动作带文案常驻，向下滚动时平滑折叠为小圆点',
+    descriptionEn: 'MD3 hallmark action pill at rest, collapsing gracefully during scrolling',
+    patternIds: ['extended-fab', 'fab', 'cta'],
+  },
+  {
+    id: 'stat-metrics',
+    emoji: '📊',
+    label: '数据看板与指标概览',
+    labelEn: 'KPI Metrics & Trend Dashboard',
+    query: '核心指标',
+    description: '大号 KPI 数字、涨跌幅微胶囊与平滑折线走势图，一目了然看清业务全貌',
+    descriptionEn: 'Large numerals, delta pills, and trend sparklines for instant business health overview',
+    patternIds: ['stat-card', 'table'],
+  },
+  {
+    id: 'step-wizard',
+    emoji: '🪜',
+    label: '复杂流程分步引导填写',
+    labelEn: 'Multi-Step Guided Wizards',
+    query: '一步一步填写',
+    description: '将长表单任务切分为清晰的阶段向导（Stepper），显著降低心理认知负荷',
+    descriptionEn: 'Break complex workflows into digestible sequential steps to reduce drop-offs',
+    patternIds: ['stepper'],
+  },
+  {
+    id: 'async-loading',
+    emoji: '⏳',
+    label: '弱网占位与首屏抗焦虑',
+    labelEn: 'Skeleton & Perceived Loading',
+    query: '骨架屏',
+    description: '告别白屏与突兀等待：首屏先绘制灰色几何骨架，建立稳定的页面秩序预期',
+    descriptionEn: 'Replace sudden layout shifts and spinners with steady geometrical placeholders',
+    patternIds: ['skeleton', 'spinner', 'progress-bar'],
+  },
+];
+
+const SCENARIO_REASONS: Record<string, string> = {
+  'command-palette': '推荐理由：适合 ⌘K 键盘流与 SaaS 全站高效检索执行',
+  'action-sheet': '推荐理由：适合 iOS 移动端单手高容错操作与破坏性选项确认',
+  'extended-fab': '推荐理由：适合 Android MD3 核心正向动作，向下滚动时智能收起',
+  'service-card': '推荐理由：适合鸿蒙 ArkUI 桌面常驻、动态指标外显与轻量服务一触即达',
+  'snackbar': '推荐理由：适合操作后提供轻量状态反馈，并附带 5 秒 Undo 撤销逃生通道',
+  'destructive-action': '推荐理由：适合不可逆高危操作，结合红色警示与二次确认消除误触焦虑',
+  'stat-card': '推荐理由：适合业务看板核心 KPI 指标、涨跌幅及微趋势走势展示',
+  'stepper': '推荐理由：适合多阶段复杂表单任务的向导分步引导，降低认知负荷',
+  'skeleton': '推荐理由：适合首屏弱网加载占位，规避突兀跳变与白屏焦虑',
+  'bottom-sheet': '推荐理由：适合移动端从屏幕底部拉起丰富面板，符合单手操作习惯',
+  'modal': '推荐理由：适合强断点操作与阻断式二次确认，背后内容半透明遮罩',
+  'tabs': '推荐理由：适合同级平行内容视图切换，保持上下文连贯',
+  'switch': '推荐理由：适合瞬时生效的二元开关偏好控制，无需点击保存',
+  'segmented-control': '推荐理由：适合 2–4 个互斥轻量视图或模式切换',
+  'pull-to-refresh': '推荐理由：适合移动端长列表顶部拉动实时刷新最新数据',
+  'swipe-action': '推荐理由：适合列表条目快捷滑动标记或删除，节省行内屏幕空间',
+};
 
 export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit[] {
   const q = query.trim().toLowerCase();
@@ -339,7 +504,9 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
       if (phrase.includes(q) || q.includes(phrase)) {
         const idx = ids.indexOf(p.id);
         if (idx >= 0) {
-          const s = 10 - idx;
+          // 精确相等加分，避免子串短语打乱顺序
+          const exactBonus = phrase === q ? 4 : 0;
+          const s = 10 - idx + exactBonus;
           if (s > score) {
             score = s;
             matchedBy = '口语描述';
@@ -358,12 +525,14 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
     }
 
     if (score > 0) {
-      hits.push({ pattern: p, score, matchedBy });
+      const scenarioReason = SCENARIO_REASONS[p.id] ?? (p.fitsFor ? `适合场景：${p.fitsFor}` : undefined);
+      hits.push({ pattern: p, score, matchedBy, scenarioReason });
     }
   }
 
   return hits.sort((a, b) => b.score - a.score);
 }
+
 
 /**
  * 「我不知道它叫什么」的分步规则。
