@@ -611,7 +611,7 @@ const PREVIEWS: Record<string, ReactElement> = {
     <g>
       {/* 全屏通栏 Banner */}
       <rect x="14" y="27" width="212" height="26" fill={BLUE} />
-      <text x="110" y="43" fontSize="8" fontWeight="600" fill={WHITE} textAnchor="middle">🎉 2026 Spring Design Tokens Released</text>
+      <text x="110" y="43" fontSize="8" fontWeight="600" fill={WHITE} textAnchor="middle">2026 Spring Design Tokens Released</text>
       <rect x="180" y="32" width="36" height="16" rx="3" fill={WHITE} />
       <text x="198" y="43" fontSize="7" fontWeight="600" fill={BLUE} textAnchor="middle">Read →</text>
       {/* 下方正文示意 */}
@@ -1046,8 +1046,9 @@ const PREVIEWS: Record<string, ReactElement> = {
       {/* Linear 风格 ⌘K 居中浮窗 */}
       <rect x="34" y="34" width="172" height="78" rx="8" fill={WHITE} stroke={INK} strokeWidth="1.2" filter="url(#mini-shadow)" />
       {/* 顶部搜索栏 */}
-      <text x="44" y="48" fontSize="8" fill={MUTED}>🔍</text>
-      <text x="56" y="48" fontSize="8" fill={INK2}>Type a command...</text>
+      <circle cx="44" cy="45" r="2.5" stroke={MUTED} strokeWidth="1" fill="none" />
+      <line x1="46" y1="47" x2="48" y2="49" stroke={MUTED} strokeWidth="1" strokeLinecap="round" />
+      <text x="54" y="48" fontSize="8" fill={INK2}>Type a command...</text>
       <rect x="180" y="41" width="18" height="10" rx="2" fill={SOFT} stroke={LINE} />
       <text x="189" y="48" fontSize="6.5" fontWeight="600" fill={MUTED} textAnchor="middle">ESC</text>
       <line x1="34" y1="54" x2="206" y2="54" stroke={LINE} strokeWidth="0.8" />

@@ -355,7 +355,7 @@ export interface SearchHit {
 
 export interface FunctionalScenario {
   id: string;
-  emoji: string;
+  icon: 'command' | 'undo' | 'smartphone' | 'component' | 'plus-circle' | 'bar-chart' | 'list-ordered' | 'loader';
   label: string;
   labelEn: string;
   query: string;
@@ -367,7 +367,7 @@ export interface FunctionalScenario {
 export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   {
     id: 'cmd-palette',
-    emoji: '⚡️',
+    icon: 'command',
     label: '全局快捷键与命令直达',
     labelEn: 'Global ⌘K Command Palette',
     query: 'command palette',
@@ -377,7 +377,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'undo-regret',
-    emoji: '🗑️',
+    icon: 'undo',
     label: '破坏性删除与撤销反悔',
     labelEn: 'Undo & Destructive Safeguards',
     query: '撤销',
@@ -387,7 +387,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'mobile-actions',
-    emoji: '📱',
+    icon: 'smartphone',
     label: '移动端底部操作与确认',
     labelEn: 'Mobile Thumb Action Sheets',
     query: '底部操作',
@@ -397,7 +397,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'service-widget',
-    emoji: '🧩',
+    icon: 'component',
     label: '桌面微件与原子化状态',
     labelEn: 'Desktop & Atomic Service Cards',
     query: '服务卡片',
@@ -407,7 +407,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'fab-actions',
-    emoji: '🚀',
+    icon: 'plus-circle',
     label: '核心动作常驻与滚动让渡',
     labelEn: 'Primary Action & Collapsible FAB',
     query: 'extended fab',
@@ -417,7 +417,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'stat-metrics',
-    emoji: '📊',
+    icon: 'bar-chart',
     label: '数据看板与指标概览',
     labelEn: 'KPI Metrics & Trend Dashboard',
     query: '核心指标',
@@ -427,7 +427,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'step-wizard',
-    emoji: '🪜',
+    icon: 'list-ordered',
     label: '复杂流程分步引导填写',
     labelEn: 'Multi-Step Guided Wizards',
     query: '一步一步填写',
@@ -437,7 +437,7 @@ export const FUNCTIONAL_SCENARIOS: FunctionalScenario[] = [
   },
   {
     id: 'async-loading',
-    emoji: '⏳',
+    icon: 'loader',
     label: '弱网占位与首屏抗焦虑',
     labelEn: 'Skeleton & Perceived Loading',
     query: '骨架屏',

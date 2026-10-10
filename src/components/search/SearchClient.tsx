@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search as SearchIcon, X, Sparkles, ArrowRight } from 'lucide-react';
+import { Search as SearchIcon, X, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import { patterns } from '@/data/patterns';
 import { searchPatterns, FUNCTIONAL_SCENARIOS } from '@/data/search';
+import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { PatternCard } from '@/components/patterns/PatternCard';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
 import { t, matchedByLabel } from '@/lib/ui-strings';
@@ -122,7 +123,7 @@ export function SearchClient() {
                 >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xl">{s.emoji}</span>
+                      <ScenarioBadge icon={s.icon} size={15} />
                       <ArrowRight size={13} className="text-muted" />
                     </div>
                     <p className="mt-2 text-xs font-semibold text-ink">
@@ -196,7 +197,7 @@ export function SearchClient() {
                 </div>
                 {scenarioReason && (
                   <div className="mt-1.5 flex items-start gap-1.5 rounded-lg border border-[#1D734C]/20 bg-[#E8F3ED]/40 p-2.5 text-xs text-[#1D734C]">
-                    <span className="shrink-0 text-xs">💡</span>
+                    <Lightbulb size={13} className="shrink-0 text-[#D97706] mt-0.5" />
                     <span className="font-medium text-ink2">{scenarioReason}</span>
                   </div>
                 )}

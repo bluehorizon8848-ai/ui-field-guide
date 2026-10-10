@@ -120,9 +120,9 @@ export function ExploreClient() {
           </span>
           {[
             { id: 'all', labelZh: '全部生态', labelEn: 'All Ecosystems' },
-            { id: 'web', labelZh: '🌐 Web / SaaS', labelEn: '🌐 Web & SaaS' },
-            { id: 'ios', labelZh: ' iOS (Apple HIG)', labelEn: ' iOS (HIG)' },
-            { id: 'android', labelZh: '🤖 Android (MD3)', labelEn: '🤖 Android (MD3)' },
+            { id: 'web', labelZh: 'Web / SaaS', labelEn: 'Web & SaaS' },
+            { id: 'ios', labelZh: 'iOS (Apple HIG)', labelEn: 'iOS (HIG)' },
+            { id: 'android', labelZh: 'Android (MD3)', labelEn: 'Android (MD3)' },
             { id: 'harmonyos', labelZh: '鸿蒙 (HarmonyOS)', labelEn: 'HarmonyOS ArkUI' },
           ].map((e) => (
             <button

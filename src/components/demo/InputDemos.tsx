@@ -370,9 +370,9 @@ export function SwitchDemo() {
   };
 
   const osLabels = {
-    web: '🌐 Web 极简',
-    ios: ' iOS HIG',
-    android: '🤖 Android MD3',
+    web: 'Web 极简',
+    ios: 'iOS HIG',
+    android: 'Android MD3',
     harmonyos: '鸿蒙 ArkUI',
   };
 

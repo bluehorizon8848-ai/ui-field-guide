@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, RefreshCw, WifiOff } from 'lucide-react';
+import {
+  Check,
+  RefreshCw,
+  WifiOff,
+  Camera,
+  SearchX,
+  Sparkles,
+  ShieldAlert,
+  FileQuestion,
+} from 'lucide-react';
 import { DemoButton, DemoStage } from './DemoStage';
 import { useLocale } from '@/components/layout/LocaleProvider';
 import { t } from '@/lib/ui-strings';
@@ -269,19 +278,19 @@ export function EmptyStateDemo() {
 
   const content = {
     first: {
-      icon: '📷',
+      icon: <Camera size={22} className="text-muted" />,
       title: t(locale, 'demo.loading.empty.firstTitle'),
       desc: t(locale, 'demo.loading.empty.firstDesc'),
       action: t(locale, 'demo.loading.empty.firstAction'),
     },
     filtered: {
-      icon: '🔍',
+      icon: <SearchX size={22} className="text-muted" />,
       title: t(locale, 'demo.loading.empty.filteredTitle'),
       desc: t(locale, 'demo.loading.empty.filteredDesc'),
       action: t(locale, 'demo.loading.empty.filteredAction'),
     },
     done: {
-      icon: '✨',
+      icon: <Sparkles size={22} className="text-[#D97706]" />,
       title: t(locale, 'demo.loading.empty.doneTitle'),
       desc: t(locale, 'demo.loading.empty.doneDesc'),
       action: t(locale, 'demo.loading.empty.doneAction'),
@@ -313,7 +322,10 @@ export function EmptyStateDemo() {
       </div>
 
       <div className="flex flex-col items-center gap-2.5 py-4 text-center">
-        <span className="text-3xl" aria-hidden="true">
+        <span
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line/80 bg-[#F7F6F2] text-ink2 shadow-2xs"
+          aria-hidden="true"
+        >
           {content.icon}
         </span>
         <p className="text-sm font-semibold text-ink">{content.title}</p>
@@ -337,19 +349,40 @@ export function ErrorStateDemo() {
 
   const content = {
     network: {
-      icon: <WifiOff size={26} className="text-muted" aria-hidden="true" />,
+      icon: (
+        <span
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#F5D5D5] bg-[#FDF2F2] text-[#A8342C] shadow-2xs"
+          aria-hidden="true"
+        >
+          <WifiOff size={22} />
+        </span>
+      ),
       title: t(locale, 'demo.loading.error.networkTitle'),
       desc: t(locale, 'demo.loading.error.networkDesc'),
       action: t(locale, 'demo.loading.error.networkAction'),
     },
     permission: {
-      icon: <span className="text-3xl" aria-hidden="true">🔒</span>,
+      icon: (
+        <span
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#FAD7B2] bg-[#FEF6EE] text-[#D97706] shadow-2xs"
+          aria-hidden="true"
+        >
+          <ShieldAlert size={22} />
+        </span>
+      ),
       title: t(locale, 'demo.loading.error.permissionTitle'),
       desc: t(locale, 'demo.loading.error.permissionDesc'),
       action: t(locale, 'demo.loading.error.permissionAction'),
     },
     missing: {
-      icon: <span className="text-3xl" aria-hidden="true">🕳️</span>,
+      icon: (
+        <span
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-[#F7F6F2] text-muted shadow-2xs"
+          aria-hidden="true"
+        >
+          <FileQuestion size={22} />
+        </span>
+      ),
       title: t(locale, 'demo.loading.error.missingTitle'),
       desc: t(locale, 'demo.loading.error.missingDesc'),
       action: t(locale, 'demo.loading.error.missingAction'),
@@ -412,7 +445,7 @@ export function SuccessStateDemo() {
     <DemoStage caption={t(locale, 'demo.loading.caption.success')}>
       <div className="flex flex-col items-center gap-2.5 py-4 text-center">
         <span
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E6F2EC] text-[#2C7355]"
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#C6E6D4] bg-[#E6F2EC] text-[#2C7355] shadow-2xs"
           aria-hidden="true"
         >
           <Check size={24} strokeWidth={2.5} />

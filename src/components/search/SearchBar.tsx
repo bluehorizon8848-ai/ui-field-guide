@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search as SearchIcon, X, Sparkles, ArrowRight } from 'lucide-react';
+import { Search as SearchIcon, X, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import { patterns } from '@/data/patterns';
 import { searchPatterns, FUNCTIONAL_SCENARIOS } from '@/data/search';
+import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
 import { t, matchedByLabel } from '@/lib/ui-strings';
 
@@ -118,9 +119,9 @@ export function SearchBar({ autoFocus = false }: { autoFocus?: boolean }) {
                 key={s.id}
                 type="button"
                 onClick={() => handleScenarioClick(s.query)}
-                className="flex items-center gap-2 rounded-lg border border-line/60 bg-[#FAF9F6] p-2 text-left transition-colors hover:border-ink/30 hover:bg-[#F2F0EB]"
+                className="flex items-center gap-2.5 rounded-lg border border-line/60 bg-[#FAF9F6] p-2 text-left transition-colors hover:border-ink/30 hover:bg-[#F2F0EB]"
               >
-                <span className="text-base">{s.emoji}</span>
+                <ScenarioBadge icon={s.icon} size={14} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-xs font-semibold text-ink">
                     {locale === 'zh' ? s.label : s.labelEn}
@@ -166,8 +167,9 @@ export function SearchBar({ autoFocus = false }: { autoFocus?: boolean }) {
                     {pattern.oneLine}
                   </span>
                   {scenarioReason && (
-                    <span className="mt-1 block truncate text-[11px] font-medium text-[#1D734C]">
-                      💡 {scenarioReason}
+                    <span className="mt-1 flex items-center gap-1 truncate text-[11px] font-medium text-[#1D734C]">
+                      <Lightbulb size={12} className="shrink-0 text-[#D97706]" />
+                      <span className="truncate">{scenarioReason}</span>
                     </span>
                   )}
                 </span>

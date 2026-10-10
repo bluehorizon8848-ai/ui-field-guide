@@ -9,16 +9,29 @@ import {
   Search,
   Command,
   Plus,
+  PlusCircle,
   ArrowRight,
   Sun,
+  SunMedium,
   CloudSun,
   Play,
   Pause,
   SkipForward,
   RotateCw,
+  RotateCcw,
   ExternalLink,
   Sparkles,
   Check,
+  Link2,
+  Compass,
+  Scale,
+  ToggleRight,
+  BarChart3,
+  ArrowDown,
+  Cloud,
+  Music,
+  Disc3,
+  type LucideIcon,
 } from 'lucide-react';
 import { DemoStage, DemoButton } from './DemoStage';
 import { useLocale } from '@/components/layout/LocaleProvider';
@@ -138,19 +151,21 @@ export function ActionSheetDemo() {
 interface CommandItem {
   id: string;
   group: 'Navigation' | 'Actions' | 'Recent';
-  icon: string;
+  icon: LucideIcon;
+  iconBg: string;
+  iconColor: string;
   title: string;
   shortcut: string;
 }
 
 const COMMAND_DATA: CommandItem[] = [
-  { id: '1', group: 'Actions', icon: '⚡️', title: '新建 Issue / 任务工单', shortcut: '⌘N' },
-  { id: '2', group: 'Actions', icon: '🔗', title: '复制当前卡片链接', shortcut: '⌘L' },
-  { id: '3', group: 'Actions', icon: '🌓', title: '切换深浅主题配色', shortcut: '⌘T' },
-  { id: '4', group: 'Navigation', icon: '🧭', title: '前往组件图鉴库 (Explore)', shortcut: '⌘E' },
-  { id: '5', group: 'Navigation', icon: '⚖️', title: '前往多端设计对比 (Compare)', shortcut: '⌘C' },
-  { id: '6', group: 'Recent', icon: '🔘', title: '查看 Switch 多端开关规范', shortcut: '↵' },
-  { id: '7', group: 'Recent', icon: '📊', title: '查看 Stat Card 核心指标卡', shortcut: '↵' },
+  { id: '1', group: 'Actions', icon: PlusCircle, iconBg: 'bg-[#EFF6FF]', iconColor: 'text-[#2563EB]', title: '新建 Issue / 任务工单', shortcut: '⌘N' },
+  { id: '2', group: 'Actions', icon: Link2, iconBg: 'bg-[#F0FDF4]', iconColor: 'text-[#16A34A]', title: '复制当前卡片链接', shortcut: '⌘L' },
+  { id: '3', group: 'Actions', icon: SunMedium, iconBg: 'bg-[#FFFBEB]', iconColor: 'text-[#D97706]', title: '切换深浅主题配色', shortcut: '⌘T' },
+  { id: '4', group: 'Navigation', icon: Compass, iconBg: 'bg-[#F3E8FF]', iconColor: 'text-[#7E22CE]', title: '前往组件图鉴库 (Explore)', shortcut: '⌘E' },
+  { id: '5', group: 'Navigation', icon: Scale, iconBg: 'bg-[#FDF2F8]', iconColor: 'text-[#DB2777]', title: '前往多端设计对比 (Compare)', shortcut: '⌘C' },
+  { id: '6', group: 'Recent', icon: ToggleRight, iconBg: 'bg-[#ECFDF5]', iconColor: 'text-[#059669]', title: '查看 Switch 多端开关规范', shortcut: '↵' },
+  { id: '7', group: 'Recent', icon: BarChart3, iconBg: 'bg-[#F1F5F9]', iconColor: 'text-[#475569]', title: '查看 Stat Card 核心指标卡', shortcut: '↵' },
 ];
 
 export function CommandPaletteDemo() {
@@ -238,19 +253,28 @@ export function CommandPaletteDemo() {
                 <div className="space-y-1">
                   {filtered.map((item, idx) => {
                     const isSelected = idx === selectedIdx;
+                    const IconComp = item.icon;
                     return (
                       <button
                         key={item.id}
                         type="button"
                         onClick={() => runCommand(item)}
                         onMouseEnter={() => setSelectedIdx(idx)}
-                        className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-colors ${
+                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors ${
                           isSelected ? 'bg-ink text-white' : 'text-ink2 hover:bg-[#F5F3EE]'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-sm">{item.icon}</span>
-                          <span className="font-medium">{item.title}</span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${
+                              isSelected
+                                ? 'border-transparent bg-white/20 text-white'
+                                : `border-line/60 ${item.iconBg} ${item.iconColor}`
+                            }`}
+                          >
+                            <IconComp size={13} strokeWidth={2} />
+                          </span>
+                          <span className="truncate font-medium">{item.title}</span>
                           <span
                             className={`rounded px-1.5 py-0.2 text-[0.625rem] ${
                               isSelected ? 'bg-white/20 text-white' : 'bg-[#F2F0EB] text-muted'
@@ -300,9 +324,19 @@ export function ExtendedFabDemo() {
           <button
             type="button"
             onClick={() => setScrolled((prev) => !prev)}
-            className="rounded-lg bg-[#F2F0EB] px-3 py-1 font-medium text-ink2 transition-colors hover:bg-[#E9E6DF]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#F2F0EB] px-3 py-1 font-medium text-ink2 transition-colors hover:bg-[#E9E6DF]"
           >
-            {scrolled ? '🔄 回滚到顶部 (展开)' : '⬇️ 向下滚动列表 (收起)'}
+            {scrolled ? (
+              <>
+                <RotateCcw size={13} className="shrink-0" />
+                <span>回滚到顶部 (展开)</span>
+              </>
+            ) : (
+              <>
+                <ArrowDown size={13} className="shrink-0" />
+                <span>向下滚动列表 (收起)</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -390,8 +424,8 @@ export function ServiceCardDemo() {
               {/* 卡片头部 */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0A59F7] text-[0.625rem] text-white">
-                    ☁️
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0A59F7] text-white shadow-2xs">
+                    <Cloud size={11} className="fill-current" />
                   </span>
                   <span className="text-2xs font-semibold text-ink2">实时天气</span>
                 </div>
@@ -426,8 +460,8 @@ export function ServiceCardDemo() {
               {/* 头部微标识 */}
               <div className="flex items-center justify-between text-2xs text-white/70">
                 <div className="flex items-center gap-1.5">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FA2D48] text-white">
-                    🎵
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FA2D48] text-white shadow-2xs">
+                    <Music size={11} />
                   </span>
                   <span className="font-semibold text-white">华为音乐 · 超级终端流转</span>
                 </div>
@@ -439,7 +473,7 @@ export function ServiceCardDemo() {
               {/* 音乐曲目信息与控制条 */}
               <div className="flex items-center gap-3.5">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5E3A] to-[#FF2A68] shadow-md">
-                  <span className="text-xl">🎧</span>
+                  <Disc3 size={24} className={`text-white/95 ${playing ? 'animate-spin' : ''}`} style={{ animationDuration: '3s' }} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-white">Summer Resonance</p>
