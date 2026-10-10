@@ -21,10 +21,29 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <p className="text-sm font-semibold text-ink">{site.name}</p>
+            <p className="mt-0.5 text-xs font-medium text-ink2">by {site.parentName}</p>
             <p className="mt-2 max-w-[240px] text-[0.8125rem] leading-relaxed text-muted">
               {t(locale, 'meta.tagline')}
               {t(locale, 'footer.taglineSuffix')}
             </p>
+            <div className="mt-3.5 flex flex-col gap-1 text-xs">
+              <a
+                href={site.parentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[36px] items-center text-ink2 underline-offset-4 hover:text-ink hover:underline"
+              >
+                {t(locale, 'footer.visitLutiveLab')} ↗
+              </a>
+              <a
+                href={site.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[36px] items-center text-ink2 underline-offset-4 hover:text-ink hover:underline"
+              >
+                GitHub · MIT License ↗
+              </a>
+            </div>
           </div>
 
           <div>
@@ -77,9 +96,26 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-9 flex flex-col gap-2 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>{t(locale, 'footer.stats', { n: patterns.length, m: allComparisonSlugs.length })}</p>
-          <p>{t(locale, 'footer.privacy')}</p>
+        <div className="mt-9 flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p>{t(locale, 'footer.stats', { n: patterns.length, m: allComparisonSlugs.length })}</p>
+            <p>{t(locale, 'footer.privacy')}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href={h('/privacy')}
+              className="inline-flex min-h-[36px] items-center underline-offset-4 hover:text-ink hover:underline"
+            >
+              {t(locale, 'legal.privacyTitle')}
+            </Link>
+            <Link
+              href={h('/terms')}
+              className="inline-flex min-h-[36px] items-center underline-offset-4 hover:text-ink hover:underline"
+            >
+              {t(locale, 'legal.termsTitle')}
+            </Link>
+            <span>© 2026 {site.parentName}</span>
+          </div>
         </div>
       </div>
     </footer>

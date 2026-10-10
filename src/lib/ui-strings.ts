@@ -148,6 +148,9 @@ const zh = {
   'footer.taglineSuffix': '。看到 → 理解 → 知道名字 → 知道什么时候用 → 学会怎么告诉 AI。',
   'footer.stats': '{n} 个 Pattern · {m} 组对比 · 静态部署，无账号无后端',
   'footer.privacy': '学习进度保存在你自己的浏览器里（LocalStorage），不上传任何数据。',
+  'footer.visitLutiveLab': 'LutiveLab 独立开发者工作流',
+  'legal.privacyTitle': '隐私政策',
+  'legal.termsTitle': '服务条款',
 
   'notfound.title': '这个 Pattern 不在词典里',
   'notfound.desc': '可能是链接过期了，也可能是我们还没收录这个词条。',
@@ -291,6 +294,10 @@ const zh = {
 'share.canvasLabel': '{name} 分享卡片预览',
 'share.shotPreparing': '正在生成预览…',
 'share.shotUnsupported': '该组件暂不支持预览',
+  'share.copyImage': '复制图片',
+  'share.copiedImage': '已复制到剪贴板',
+  'share.copyImageFailed': '复制失败，请保存 PNG',
+  'share.systemShare': '系统分享',
 
   'notfound.generic': '页面不存在',
 
@@ -986,6 +993,9 @@ const en: UI = {
   'footer.taglineSuffix': '. See it → understand it → learn the name → learn when to use it → learn to tell AI.',
   'footer.stats': '{n} patterns · {m} comparisons · fully static, no account, no backend',
   'footer.privacy': 'Your progress is stored in your own browser (LocalStorage). Nothing is uploaded.',
+  'footer.visitLutiveLab': 'LutiveLab Indie Dev Suite',
+  'legal.privacyTitle': 'Privacy Policy',
+  'legal.termsTitle': 'Terms of Service',
 
   'notfound.title': 'This pattern isn\'t in the dictionary',
   'notfound.desc': 'The link may be outdated, or we haven\'t added this entry yet.',
@@ -1127,6 +1137,10 @@ const en: UI = {
 'share.canvasLabel': '{name} share card preview',
 'share.shotPreparing': 'Generating preview…',
 'share.shotUnsupported': 'No preview for this component',
+  'share.copyImage': 'Copy image',
+  'share.copiedImage': 'Copied to clipboard',
+  'share.copyImageFailed': 'Copy failed, save PNG instead',
+  'share.systemShare': 'Share',
 
   'notfound.generic': 'Page not found',
 

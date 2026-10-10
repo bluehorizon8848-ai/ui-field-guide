@@ -308,7 +308,7 @@ export function drawShareCard(
   hLine(ctx, pad, footY - Math.round(W * 0.022), innerW, C.line);
   ctx.fillStyle = C.muted;
   ctx.font = `400 ${Math.round(W * 0.0155)}px ${MONO}`;
-  ctx.fillText('ui-field-guide.pages.dev', pad, footY);
+  ctx.fillText('ui.lutivelab.com · LutiveLab', pad, footY);
 }
 
 function drawFallback(

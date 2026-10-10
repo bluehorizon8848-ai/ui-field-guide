@@ -11,7 +11,7 @@
 import { chromium } from 'playwright';
 
 const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3111';
-const SITE = 'https://ui-field-guide.pages.dev';
+const SITE = 'https://ui.lutivelab.com';
 
 let pass = 0;
 let fail = 0;

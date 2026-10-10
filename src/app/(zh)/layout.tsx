@@ -30,13 +30,23 @@ export const metadata: Metadata = {
     title: `${site.name} — ${siteMeta.zh.tagline}`,
     description: siteMeta.zh.description,
     url: site.url,
+    images: [
+      {
+        url: `${site.url}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: `${site.name} by ${site.parentName}`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${site.name} — ${siteMeta.zh.tagline}`,
     description: siteMeta.zh.description,
+    images: [`${site.url}/og-image.png`],
   },
   robots: { index: true, follow: true },
+  manifest: '/site.webmanifest',
 };
 
 export const viewport: Viewport = {

@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { PatternDetailClient } from '@/components/patterns/PatternDetailClient';
 import { allPatternIds, patterns } from '@/data/patterns';
 import { getPattern } from '@/data/i18n/resolve';
-import { patternTitle, patternDescription } from '@/lib/site';
+import { site, patternTitle, patternDescription } from '@/lib/site';
 import { languageAlternates, href, OG_LOCALE } from '@/lib/i18n';
 import type { Locale } from '@/lib/i18n';
 import { t } from '@/lib/ui-strings';
@@ -82,8 +82,21 @@ export function createPatternMetadata(locale: Locale) {
         url: href(`/patterns/${p.id}`, locale),
         siteName: 'UI Field Guide',
         locale: OG_LOCALE[locale],
+        images: [
+          {
+            url: `${site.url}/og-image.png`,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
-      twitter: { card: 'summary_large_image', title, description },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [`${site.url}/og-image.png`],
+      },
     };
   };
 }

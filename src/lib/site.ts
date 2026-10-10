@@ -4,7 +4,10 @@ import { OG_LOCALE, HTML_LANG } from './i18n';
 export const site = {
   name: 'UI Field Guide',
   chineseName: 'UI Field Guide',
-  url: 'https://ui-field-guide.pages.dev',
+  url: 'https://ui.lutivelab.com',
+  parentName: 'LutiveLab',
+  parentUrl: 'https://lutivelab.com',
+  githubUrl: 'https://github.com/bluehorizon8848-ai/ui-field-guide',
 };
 
 /**

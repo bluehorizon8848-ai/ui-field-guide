@@ -26,6 +26,7 @@ import {
 import { languageAlternates, href, OG_LOCALE } from '@/lib/i18n';
 import type { Locale } from '@/lib/i18n';
 import { t } from '@/lib/ui-strings';
+import { site } from '@/lib/site';
 
 /**
  * 静态页的中英双版本工厂。
@@ -679,8 +680,21 @@ export function createCompareDetailMetadata(locale: Locale) {
         description,
         url: href(`/compare/${c.slug}`, locale),
         locale: OG_LOCALE[locale],
+        images: [
+          {
+            url: `${site.url}/og-image.png`,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
-      twitter: { card: 'summary_large_image', title, description },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [`${site.url}/og-image.png`],
+      },
     };
   };
 }
@@ -775,6 +789,26 @@ const META: Record<string, { zh: [string, string]; en: [string, string] }> = {
     en: [
       'Search UI Terms',
       'Search UI patterns by English name, Chinese name, alias, or a vague description of what you remember seeing.',
+    ],
+  },
+  '/privacy': {
+    zh: [
+      '隐私政策',
+      'UI Field Guide by LutiveLab 隐私保护声明与数据安全原则。纯本地运行，不收集任何用户隐私。',
+    ],
+    en: [
+      'Privacy Policy',
+      'Privacy policy and data protection principles of UI Field Guide by LutiveLab. Fully client-side, zero user data collected.',
+    ],
+  },
+  '/terms': {
+    zh: [
+      '服务条款',
+      'UI Field Guide by LutiveLab 平台服务条款与免责声明。',
+    ],
+    en: [
+      'Terms of Service',
+      'Terms of service and disclaimers for UI Field Guide by LutiveLab.',
     ],
   },
 };

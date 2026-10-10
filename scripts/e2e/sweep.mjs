@@ -10,7 +10,7 @@ const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3111';
 // 从 sitemap 拿全量 URL
 const xml = await (await fetch(`${BASE}/sitemap.xml`)).text();
 const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
-  .map((m) => m[1].replace('https://ui-field-guide.pages.dev', BASE));
+  .map((m) => m[1].replace(/https?:\/\/[^/]+/, BASE));
 
 // 追加关键页面
 const extra = [

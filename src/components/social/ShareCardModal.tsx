@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Download, Loader2, X } from 'lucide-react';
+import { Check, Copy, Download, Loader2, Share2, X } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { UIPattern } from '@/data/types';
 import { useLocale } from '@/components/layout/LocaleProvider';
@@ -29,12 +29,20 @@ export function ShareCardModal({
   const locale = useLocale();
   const [ratio, setRatio] = useState<RatioId>('3:4');
   const [busy, setBusy] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [canShare, setCanShare] = useState(false);
   const [shotState, setShotState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   /** 隐藏的离屏容器：把真实 Demo 渲染一份用于截图 */
   const shotRef = useRef<HTMLDivElement>(null);
   const shotImgRef = useRef<HTMLImageElement | null>(null);
   const spec = RATIOS.find((r) => r.id === ratio)!;
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      setCanShare(true);
+    }
+  }, []);
 
   /* ---------- Esc 关闭 + body 滚动锁 ---------- */
   useEffect(() => {
@@ -144,6 +152,61 @@ export function ShareCardModal({
     }, 'image/png');
   };
 
+  const copyImage = () => {
+    const c = canvasRef.current;
+    if (!c || busy) return;
+    setBusy(true);
+    c.toBlob(async (blob) => {
+      try {
+        if (!blob) throw new Error('Blob creation failed');
+        if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          setCopyState('copied');
+          setTimeout(() => setCopyState('idle'), 2500);
+        } else {
+          setCopyState('failed');
+          setTimeout(() => setCopyState('idle'), 2500);
+        }
+      } catch {
+        setCopyState('failed');
+        setTimeout(() => setCopyState('idle'), 2500);
+      } finally {
+        setBusy(false);
+      }
+    }, 'image/png');
+  };
+
+  const shareSystem = () => {
+    const c = canvasRef.current;
+    if (!c || busy) return;
+    setBusy(true);
+    c.toBlob(async (blob) => {
+      try {
+        if (!blob) return;
+        const file = new File([blob], `${pattern.id}-${ratio.replace(':', 'x')}.png`, {
+          type: 'image/png',
+        });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `${pattern.name} — UI Field Guide`,
+            text: `${pattern.name} (${pattern.chineseName}) · UI Field Guide by LutiveLab`,
+            files: [file],
+          });
+        } else {
+          await navigator.share({
+            title: `${pattern.name} — UI Field Guide`,
+            text: `${pattern.name} (${pattern.chineseName}) · UI Field Guide by LutiveLab`,
+            url: window.location.href,
+          });
+        }
+      } catch {
+        /* user cancelled */
+      } finally {
+        setBusy(false);
+      }
+    }, 'image/png');
+  };
+
   return (
     <div
       className="fixed inset-0 z-[80] flex flex-col bg-[rgba(26,25,23,0.5)] p-3 animate-fade-in sm:p-6"
@@ -206,19 +269,52 @@ export function ShareCardModal({
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={download}
-            disabled={busy}
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#35322C] disabled:opacity-50"
-          >
-            {busy ? (
-              <Loader2 size={15} aria-hidden="true" className="animate-spin" />
-            ) : (
-              <Download size={15} aria-hidden="true" />
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={download}
+              disabled={busy}
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#35322C] disabled:opacity-50"
+            >
+              {busy ? (
+                <Loader2 size={15} aria-hidden="true" className="animate-spin" />
+              ) : (
+                <Download size={15} aria-hidden="true" />
+              )}
+              {busy ? t(locale, 'share.exporting') : t(locale, 'share.saving')}
+            </button>
+
+            <button
+              type="button"
+              onClick={copyImage}
+              disabled={busy}
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-[#F2F0EB] disabled:opacity-50"
+            >
+              {copyState === 'copied' ? (
+                <Check size={15} className="text-[#2C7355]" aria-hidden="true" />
+              ) : (
+                <Copy size={15} aria-hidden="true" />
+              )}
+              {copyState === 'copied'
+                ? t(locale, 'share.copiedImage')
+                : copyState === 'failed'
+                  ? t(locale, 'share.copyImageFailed')
+                  : t(locale, 'share.copyImage')}
+            </button>
+
+            {canShare && (
+              <button
+                type="button"
+                onClick={shareSystem}
+                disabled={busy}
+                aria-label={t(locale, 'share.systemShare')}
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-[#F2F0EB] disabled:opacity-50"
+              >
+                <Share2 size={15} aria-hidden="true" />
+                <span className="sm:hidden">{t(locale, 'share.systemShare')}</span>
+              </button>
             )}
-            {busy ? t(locale, 'share.exporting') : t(locale, 'share.saving')}
-          </button>
+          </div>
         </footer>
       </div>
 

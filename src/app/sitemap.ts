@@ -27,6 +27,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/identify', priority: 0.8, changeFrequency: 'monthly' as const },
     { path: '/compare', priority: 0.8, changeFrequency: 'monthly' as const },
     { path: '/search', priority: 0.5, changeFrequency: 'monthly' as const },
+    { path: '/privacy', priority: 0.3, changeFrequency: 'monthly' as const },
+    { path: '/terms', priority: 0.3, changeFrequency: 'monthly' as const },
   ];
 
   const entries: MetadataRoute.Sitemap = [];

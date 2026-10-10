@@ -1,0 +1,16 @@
+{
+  "name": "UI Field Guide by LutiveLab",
+  "short_name": "UI Guide",
+  "description": "AI 独立开发者的 UI / UX 可视化词典",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#FAF9F6",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
