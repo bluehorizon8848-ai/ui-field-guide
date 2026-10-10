@@ -63,26 +63,20 @@ export function ShareCardModal({
 
     setShotState('loading');
     try {
-      // 离屏容器是 max-content，但 Demo 内部常有 w-full / 拉伸类，
-      // 实测宽度常常大于内容真实宽度。先量出内容的紧致框再按它裁剪，
-      // 否则组件左侧留一大片空白，在卡片里依旧偏小、看不清。
-      const box = (() => {
-        const root = node.querySelector<HTMLElement>('[data-shot-content]');
-        if (!root) return null;
-        const r = root.getBoundingClientRect();
-        return { w: Math.ceil(r.width), h: Math.ceil(r.height) };
-      })();
+      // 获取规范化的快照舞台容器
+      const stage = node.querySelector<HTMLElement>('[data-shot-stage]');
+      if (!stage) return;
 
-      const dataUrl = await toPng(node, {
-        width: box?.w,
-        height: box?.h,
+      const rect = stage.getBoundingClientRect();
+      const stageW = Math.ceil(rect.width);
+      const stageH = Math.ceil(rect.height);
+
+      const dataUrl = await toPng(stage, {
+        width: stageW,
+        height: stageH,
         pixelRatio: 2,
-        backgroundColor: '#F5F3EE',
+        backgroundColor: '#FFFFFF',
         cacheBust: true,
-        // 关键：离屏节点用 position:fixed + left:-12000px 移出视口。
-        // html-to-image 会把克隆节点塞进 SVG <foreignObject>，若沿用该定位，
-        // 内容会被画到画布外 12000px 处，结果是一张纯背景色的空白图。
-        // 这里在克隆体上把定位复位成正常流式布局。
         style: {
           position: 'static',
           left: '0',
@@ -319,9 +313,6 @@ export function ShareCardModal({
       </div>
 
       {/* ---------- 离屏截图容器：渲染真实 Demo ---------- */}
-      {/* 用 clip 移出视口而不是 opacity:0 —— html-to-image 会跳过不可见元素 */}
-      {/* 容器用 max-content 收缩包裹实际组件：固定尺寸会让小组件在卡片里
-          只占很小一块（就是「看不出是哪个组件」的根因），按内容裁剪才清晰。 */}
       <div
         ref={shotRef}
         aria-hidden="true"
@@ -330,7 +321,6 @@ export function ShareCardModal({
           left: '-12000px',
           top: '0',
           width: 'max-content',
-          maxWidth: '820px',
           pointerEvents: 'none',
         }}
       >
@@ -342,11 +332,7 @@ export function ShareCardModal({
 
 /**
  * 离屏渲染用的 Demo 快照。
- * 独立于页面上的 Demo 实例，避免截图抓到用户交互后的状态。
- *
- * 尺寸策略：宽度给一个上限（820px，和卡片视觉密度匹配），高度跟随内容。
- * 小组件（按钮、Badge）会自然收缩成贴合内容的小图；
- * 复杂组件（表格、时间线）撑满上限宽度。两种情况在卡片里都清晰。
+ * 独立于页面上的 Demo 实例，自带高质感微舞台包装与自然内容流式展开。
  */
 function ShareCardDemoSnapshot({ pattern }: { pattern: UIPattern }) {
   const [Demo, setDemo] = useState<React.ComponentType | null>(null);
@@ -365,21 +351,17 @@ function ShareCardDemoSnapshot({ pattern }: { pattern: UIPattern }) {
   }, [pattern.id]);
 
   return (
-    <div className="w-[820px] max-w-full bg-[#F5F3EE] p-4">
-      <div className="w-fit min-w-[260px] max-w-full rounded-xl border border-line bg-surface p-4">
-        {/*
-          Demo 组件内部自带 .demo-stage（固定边框 + padding + 最小高度）。
-          截图时把它压平：去掉边框/背景/内边距和最小高度，
-          让组件按内容自然尺寸排版 —— 否则组件被撑在 260px 高的空盒子里居中，
-          在卡片里就只占很小一块，看不出是哪个组件。
-          用继承式 CSS 覆盖，不改 Demo 组件本身。
-        */}
-        <div
-          data-shot-content=""
-          className="w-fit [&_.demo-stage]:!min-h-0 [&_.demo-stage]:!border-0 [&_.demo-stage]:!bg-transparent [&_.demo-stage]:!p-0 [&_.demo-stage]:!rounded-none"
-        >
-          {Demo ? <Demo /> : null}
-        </div>
+    <div
+      data-shot-stage=""
+      className="w-fit max-w-[700px] min-w-[280px] rounded-2xl border border-line bg-surface p-5 shadow-sm"
+    >
+      {/*
+        Demo 组件内部自带 .demo-stage（固定边框 + padding + 最小高度）。
+        截图时把它压平：去掉边框/背景/内边距和最小高度，
+        让组件按内容自然尺寸排版，由外部舞台提供统一的呼吸感与质感。
+      */}
+      <div className="w-fit [&_.demo-stage]:!min-h-0 [&_.demo-stage]:!border-0 [&_.demo-stage]:!bg-transparent [&_.demo-stage]:!p-0 [&_.demo-stage]:!rounded-none">
+        {Demo ? <Demo /> : null}
       </div>
     </div>
   );

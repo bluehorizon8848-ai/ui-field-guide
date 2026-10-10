@@ -4,21 +4,27 @@ import { t } from '@/lib/ui-strings';
 
 /**
  * 分享卡片渲染（纯 Canvas 2D，无外部依赖）。
- * 设计取向：知识卡片，不是营销海报。留白大、字号层级强、只讲一件事。
+ * 设计取向：商业级设计知识卡片，黄金比例、适度留白、精致展台化陈列。
  *
- * 关键约定：卡片中部是**真实 Demo 截图**（由 html-to-image 在运行时抓取），
- * 不用简化重绘 —— 重绘既认不出是哪个组件，缩放后还会糊。
+ * 核心规范：
+ * 1. 展台化视窗（Showcase Window）：模拟现代高质感应用视窗，组件以智能 Contain 居中呈现，
+ *    严禁暴力拉伸 Cover 导致文字与布局被截断。
+ * 2. 严谨字号层级：标题比例适中、呼吸感充分、中英排版协调。
+ * 3. 完美兼容 3:4 与 1:1 双比例，自适应布局计算，无任何文字或元素溢出。
  */
 
 const C = {
   canvas: '#FAF9F6',
   surface: '#FFFFFF',
+  stageBg: '#F8F7F3',
   ink: '#1A1917',
   ink2: '#4A4740',
-  muted: '#6E6A61',
+  muted: '#767269',
   line: '#E6E3DB',
   line2: '#F0EDE6',
   soft: '#F2F0EB',
+  accent: '#1D734C',
+  accentSoft: '#EBF4EE',
 };
 
 const SANS =
@@ -47,7 +53,6 @@ function wrapText(
       lines++;
       line = chars[i];
       if (lines >= maxLines) {
-        // 截断并加省略号
         let rest = chars.slice(i).join('');
         while (ctx.measureText(rest + '…').width > maxWidth && rest.length > 1) {
           rest = rest.slice(0, -1);
@@ -89,7 +94,7 @@ function roundRect(
   ctx.closePath();
 }
 
-/** 画一条圆角线（分隔用） */
+/** 分隔线 */
 function hLine(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, color: string) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 1;
@@ -100,43 +105,128 @@ function hLine(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, c
 }
 
 /**
- * 把一张图片按「覆盖裁切」方式画进指定矩形，保持原图宽高比，不留白不变形。
- * 这是解决「同一张图被压缩变形」的关键：不用 contain（会有letterbox），
- * 也不用 stretch（会变形），而是按需裁掉溢出部分。
+ * 展台化组件居中展示。
+ * 规范：采用 Contain 模式居中放置在微视窗内，限制最大放大比例不超过 1.05x，
+ * 绝不过度放大截断，保留完整组件设计细节与周围舒适呼吸感。
  */
-function drawImageCover(
+function drawShowcaseDemo(
   ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
+  img: HTMLImageElement | null,
   x: number,
   y: number,
   w: number,
   h: number,
-  radius: number
+  W: number,
+  locale: Locale,
+  fallbackReason?: string
 ) {
-  const ir = img.naturalWidth || img.width;
-  const ih = img.naturalHeight || img.height;
-  if (!ir || !ih) return;
+  const radius = Math.round(W * 0.024);
 
-  // 目标框的宽高比
-  const target = w / h;
-  const src = ir / ih;
+  // 1. 展台外框与底色
+  ctx.save();
+  ctx.fillStyle = C.stageBg;
+  roundRect(ctx, x, y, w, h, radius);
+  ctx.fill();
+
+  // 展台微边框
+  ctx.strokeStyle = C.line;
+  ctx.lineWidth = 1.5;
+  roundRect(ctx, x, y, w, h, radius);
+  ctx.stroke();
+
+  // 2. 视窗标题栏（Window Chrome）
+  const headerH = Math.round(W * 0.048);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + headerH);
+  ctx.lineTo(x, y + headerH);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.fill();
+
+  // 视窗底分割线
+  hLine(ctx, x, y + headerH, w, C.line);
+
+  // 窗口三色微圆点（Apple 极简风格）
+  const dotR = Math.max(3.5, Math.round(W * 0.006));
+  const dotY = y + headerH / 2;
+  const dotColors = ['#FF5F56', '#FFBD2E', '#27C93F'];
+  dotColors.forEach((color, i) => {
+    ctx.beginPath();
+    ctx.arc(x + Math.round(W * 0.028) + i * Math.round(W * 0.018), dotY, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+
+  // 视窗居中小标签
+  ctx.fillStyle = C.muted;
+  ctx.font = `500 ${Math.round(W * 0.0135)}px ${MONO}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SHOWCASE VIEW', x + w / 2, dotY);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  // 3. 视窗内部舞台点阵底纹（微网格质感）
+  const stageX = x;
+  const stageY = y + headerH;
+  const stageW = w;
+  const stageH = h - headerH;
 
   ctx.save();
-  roundRect(ctx, x, y, w, h, radius);
+  roundRect(ctx, stageX, stageY, stageW, stageH, radius);
   ctx.clip();
 
-  if (src > target) {
-    // 原图更宽：按高度铺满，裁掉左右
-    const drawW = ih * target;
-    const cropX = (ir - drawW) / 2;
-    ctx.drawImage(img, cropX, 0, drawW, ih, x, y, w, h);
-  } else {
-    // 原图更高或等比：按宽度铺满，裁掉上下（偏上，保留组件顶部）
-    const drawH = ir / target;
-    const cropY = (ih - drawH) * 0.28; // 28% 偏上，组件标题通常在顶部
-    ctx.drawImage(img, 0, cropY, ir, drawH, x, y, w, h);
+  // 浅淡点阵
+  const dotGap = Math.round(W * 0.036);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.035)';
+  for (let px = stageX + dotGap / 2; px < stageX + stageW; px += dotGap) {
+    for (let py = stageY + dotGap / 2; py < stageY + stageH; py += dotGap) {
+      ctx.beginPath();
+      ctx.arc(px, py, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
+  // 4. 居中渲染真实组件截图
+  if (img && img.width > 0 && img.height > 0) {
+    const ir = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+
+    // 可用内容区域留出呼吸内边距
+    const innerPadX = Math.round(stageW * 0.07);
+    const innerPadY = Math.round(stageH * 0.09);
+    const maxDrawW = stageW - innerPadX * 2;
+    const maxDrawH = stageH - innerPadY * 2;
+
+    // 关键算法：Contain 且限制最大缩放倍率不超过 1.05x，保证锐利且绝不裁切截断
+    const scale = Math.min(1.05, maxDrawW / ir, maxDrawH / ih);
+    const drawW = Math.round(ir * scale);
+    const drawH = Math.round(ih * scale);
+
+    const drawX = stageX + Math.round((stageW - drawW) / 2);
+    const drawY = stageY + Math.round((stageH - drawH) / 2);
+
+    // 柔和微外投影
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+    ctx.shadowBlur = Math.round(W * 0.02);
+    ctx.shadowOffsetY = Math.round(W * 0.008);
+
+    ctx.drawImage(img, 0, 0, ir, ih, drawX, drawY, drawW, drawH);
+  } else {
+    // 兜底提示居中
+    ctx.fillStyle = C.muted;
+    ctx.font = `400 ${Math.round(W * 0.024)}px ${SANS}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(fallbackReason || t(locale, 'share.previewGenerating'), stageX + stageW / 2, stageY + stageH / 2);
+    ctx.textAlign = 'left';
+  }
+
+  ctx.restore();
   ctx.restore();
 }
 
@@ -165,172 +255,158 @@ export function drawShareCard(
   if (!ctx) return;
   ctx.scale(dpr, dpr);
 
-  // 底
+  // 全局卡片画布底色
   ctx.fillStyle = C.canvas;
   ctx.fillRect(0, 0, W, H);
 
-  const pad = Math.round(W * 0.085);
+  // 黄金比例间距计算
+  const pad = Math.round(W * 0.075);
   const innerW = W - pad * 2;
   let y = pad;
 
-  // ---------- 顶部标识 ----------
-  const badgeSize = Math.round(W * 0.052);
+  // ---------- 顶部品牌与导航条 ----------
+  const badgeSize = Math.round(W * 0.046);
   ctx.fillStyle = C.ink;
-  roundRect(ctx, pad, y, badgeSize, badgeSize, badgeSize * 0.26);
+  roundRect(ctx, pad, y, badgeSize, badgeSize, badgeSize * 0.28);
   ctx.fill();
+
   ctx.fillStyle = C.canvas;
-  ctx.font = `600 ${Math.round(badgeSize * 0.37)}px ${SANS}`;
+  ctx.font = `700 ${Math.round(badgeSize * 0.44)}px ${SANS}`;
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('UF', pad + badgeSize / 2, y + badgeSize / 2);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
 
-  ctx.fillStyle = C.muted;
-  ctx.font = `500 ${Math.round(W * 0.0145)}px ${MONO}`;
-  ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 14, y + badgeSize * 0.38);
-  ctx.fillStyle = C.ink2;
-  ctx.font = `500 ${Math.round(W * 0.0165)}px ${SANS}`;
-  ctx.fillText(t(locale, 'meta.tagline'), pad + badgeSize + 14, y + badgeSize * 0.72);
-
-  y += badgeSize + Math.round(W * 0.055);
-
-  // ---------- 英文名（大） ----------
-  const nameSize = Math.round(W * 0.108);
   ctx.fillStyle = C.ink;
-  ctx.font = `600 ${nameSize}px ${SANS}`;
-  y = wrapText(ctx, pattern.name, pad, y, innerW, nameSize * 1.16, 2) + Math.round(W * 0.012);
+  ctx.font = `600 ${Math.round(W * 0.017)}px ${MONO}`;
+  ctx.fillText('UI FIELD GUIDE', pad + badgeSize + 12, y + badgeSize * 0.42);
 
-  // ---------- 中文名 ----------
-  const zhSize = Math.round(W * 0.045);
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${zhSize}px ${SANS}`;
-  y = wrapText(ctx, pattern.chineseName, pad, y, innerW, zhSize * 1.45, 2) + Math.round(W * 0.026);
+  ctx.font = `400 ${Math.round(W * 0.015)}px ${SANS}`;
+  ctx.fillText(t(locale, 'meta.tagline'), pad + badgeSize + 12, y + badgeSize * 0.88);
 
-  // ---------- LEVEL 标签 ----------
-  const tagText = `LEVEL ${pattern.level}`;
-  const tagSize = Math.round(W * 0.0145);
-  ctx.font = `500 ${tagSize}px ${MONO}`;
-  const tagW = ctx.measureText(tagText).width + 24;
-  const tagH = Math.round(W * 0.032);
+  // 右上角 Level & Category 标签
+  const levelText = `LEVEL ${pattern.level}`;
+  const tagSize = Math.round(W * 0.015);
+  ctx.font = `600 ${tagSize}px ${MONO}`;
+  const tagW = ctx.measureText(levelText).width + 20;
+  const tagH = Math.round(W * 0.034);
+  const tagX = W - pad - tagW;
+  const tagY = y + (badgeSize - tagH) / 2;
+
   ctx.fillStyle = C.soft;
-  roundRect(ctx, pad, y, tagW, tagH, tagH / 2);
+  roundRect(ctx, tagX, tagY, tagW, tagH, tagH / 2);
   ctx.fill();
+
+  ctx.strokeStyle = C.line;
+  ctx.lineWidth = 1;
+  roundRect(ctx, tagX, tagY, tagW, tagH, tagH / 2);
+  ctx.stroke();
+
   ctx.fillStyle = C.ink2;
   ctx.textBaseline = 'middle';
-  ctx.fillText(tagText, pad + 12, y + tagH / 2);
+  ctx.fillText(levelText, tagX + 10, tagY + tagH / 2);
   ctx.textBaseline = 'alphabetic';
-  y += tagH + Math.round(W * 0.042);
 
-  // ---------- 真实 Demo 截图（卡片主体） ----------
-  // 高度完全由「剩余空间」驱动：先给底部区块留够，再把剩下的都给截图。
-  // 之前用固定最小值会撑破 1:1 卡片（底部溢出），这里改成先算底部实际占用。
-  const fitLabelSize = Math.round(W * 0.0145);
-  const fitSize = Math.round(W * 0.035);
-  const askSize = Math.round(W * 0.034);
-  const askH = Math.round(W * 0.105);
+  y += badgeSize + Math.round(W * 0.05);
 
-  // 底部区块 = 「适合」标签 + 2 行正文 + Ask AI 框 + 分隔线/站点名
-  const bottomReserve =
-    fitLabelSize * 1.7 + // 标签行
-    fitSize * 1.55 * 2 + // 正文两行
-    W * 0.03 + // 间距
-    askH + // Ask AI 框
-    W * 0.052 + // 间距
-    W * 0.022 + // 分隔线
-    W * 0.032; // 站点名基线
+  // ---------- 英文组件名（优化字号与排版，典雅大气不粗暴） ----------
+  const nameSize = Math.round(W * 0.072);
+  ctx.fillStyle = C.ink;
+  ctx.font = `700 ${nameSize}px ${SANS}`;
+  y = wrapText(ctx, pattern.name, pad, y, innerW, nameSize * 1.15, 2) + Math.round(W * 0.014);
 
-  const availH = Math.max(H - y - bottomReserve, Math.round(innerW * 0.45));
+  // ---------- 中文名与一句话价值 ----------
+  const zhSize = Math.round(W * 0.034);
+  ctx.fillStyle = C.muted;
+  ctx.font = `400 ${zhSize}px ${SANS}`;
+  const zhLabel = `${pattern.chineseName} · ${pattern.oneLine}`;
+  y = wrapText(ctx, zhLabel, pad, y, innerW, zhSize * 1.4, 2) + Math.round(W * 0.036);
 
-  // 理想比例 4:3，但在可用空间内浮动，并留出 45% 的下限保证不塌
-  const idealH = Math.round(innerW * 0.75);
-  const minH = Math.min(Math.round(innerW * 0.5), availH);
-  const shotH = Math.max(minH, Math.min(idealH, availH));
+  // ---------- 展台主体（Showcase Window） ----------
+  // 动态测量底部保留空间，确保双比例完美居中
+  const fitLabelSize = Math.round(W * 0.015);
+  const fitSize = Math.round(W * 0.032);
+  const askH = Math.round(W * 0.11);
+  const footH = Math.round(W * 0.045);
 
+  // 底部区块空间预留
+  const bottomSpace =
+    fitLabelSize * 1.6 +
+    fitSize * 1.5 * 2 +
+    Math.round(W * 0.03) +
+    askH +
+    Math.round(W * 0.04) +
+    footH;
+
+  const availStageH = H - y - bottomSpace;
+  // 保持展台高宽比在 4:3 ~ 16:9 之间自适应
+  const shotH = Math.max(Math.round(innerW * 0.42), Math.min(availStageH, Math.round(innerW * 0.62)));
   const shotX = pad;
   const shotY = y;
   const shotW = innerW;
 
-  // 截图底板
-  ctx.fillStyle = C.surface;
-  roundRect(ctx, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
-  ctx.fill();
+  drawShowcaseDemo(
+    ctx,
+    image?.demo ?? null,
+    shotX,
+    shotY,
+    shotW,
+    shotH,
+    W,
+    locale,
+    image?.fallbackReason
+  );
 
-  if (image?.demo) {
-    try {
-      drawImageCover(ctx, image.demo, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
-    } catch {
-      drawFallback(ctx, shotX, shotY, shotW, shotH, W, locale);
-    }
-  } else {
-    drawFallback(ctx, shotX, shotY, shotW, shotH, W, locale, image?.fallbackReason);
-  }
+  y = shotY + shotH + Math.round(W * 0.044);
 
-  // 内描边，压住截图边缘
-  ctx.strokeStyle = C.line;
-  ctx.lineWidth = 1.5;
-  roundRect(ctx, shotX, shotY, shotW, shotH, Math.round(W * 0.022));
-  ctx.stroke();
-
-  y = shotY + shotH + Math.round(W * 0.052);
-
-  // ---------- 适合什么场景 ----------
+  // ---------- 适合场景 ----------
   ctx.fillStyle = C.muted;
-  ctx.font = `500 ${fitLabelSize}px ${MONO}`;
-  ctx.fillText(t(locale, 'share.fitsFor'), pad, y);
-  y += Math.round(fitLabelSize * 1.7);
+  ctx.font = `600 ${fitLabelSize}px ${MONO}`;
+  ctx.fillText(t(locale, 'share.fitsFor').toUpperCase(), pad, y);
+  y += Math.round(fitLabelSize * 1.6);
 
   ctx.fillStyle = C.ink2;
   ctx.font = `400 ${fitSize}px ${SANS}`;
-  y = wrapText(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.55, 2) + Math.round(W * 0.03);
+  y = wrapText(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.45, 2) + Math.round(W * 0.032);
 
-  // ---------- 底部 Ask AI ----------
-  const askY = Math.min(y, H - pad - askH);
-  ctx.fillStyle = C.soft;
-  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.018));
+  // ---------- 底部 Ask AI 精致提示卡 ----------
+  const askY = Math.min(y, H - pad - askH - footH);
+  ctx.fillStyle = '#FFFFFF';
+  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.02));
   ctx.fill();
 
-  ctx.fillStyle = C.muted;
-  ctx.font = `500 ${Math.round(W * 0.0135)}px ${MONO}`;
-  ctx.fillText('ASK AI', pad + Math.round(W * 0.024), askY + Math.round(askH * 0.32));
+  ctx.strokeStyle = C.line;
+  ctx.lineWidth = 1;
+  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.02));
+  ctx.stroke();
 
+  // Ask AI 标识
+  const askBadgeSize = Math.round(W * 0.0135);
+  ctx.fillStyle = C.accent;
+  ctx.font = `700 ${askBadgeSize}px ${MONO}`;
+  ctx.fillText('ASK AI PROMPT', pad + Math.round(W * 0.028), askY + Math.round(askH * 0.35));
+
+  // 提示词正文
+  const askTextSize = Math.round(W * 0.028);
   ctx.fillStyle = C.ink;
-  ctx.font = `italic 400 ${askSize}px ${SERIF}`;
+  ctx.font = `italic 400 ${askTextSize}px ${SERIF}`;
   wrapText(
     ctx,
-    t(locale, 'share.useIt', { name: pattern.name }),
-    pad + Math.round(W * 0.024),
-    askY + Math.round(askH * 0.68),
-    innerW - Math.round(W * 0.048),
-    askSize * 1.35,
+    `“${t(locale, 'share.useIt', { name: pattern.name })}”`,
+    pad + Math.round(W * 0.028),
+    askY + Math.round(askH * 0.72),
+    innerW - Math.round(W * 0.056),
+    askTextSize * 1.35,
     1
   );
 
-  // 底部分隔线 + 站点
-  const footY = H - Math.round(W * 0.032);
-  hLine(ctx, pad, footY - Math.round(W * 0.022), innerW, C.line);
-  ctx.fillStyle = C.muted;
-  ctx.font = `400 ${Math.round(W * 0.0155)}px ${MONO}`;
-  ctx.fillText('ui.lutivelab.com · LutiveLab', pad, footY);
-}
+  // ---------- 底部品牌与网址 ----------
+  const footY = H - Math.round(W * 0.028);
+  hLine(ctx, pad, footY - Math.round(W * 0.02), innerW, C.line);
 
-function drawFallback(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  W: number,
-  locale: Locale,
-  reason?: string
-) {
-  ctx.save();
-  ctx.fillStyle = C.surface;
-  roundRect(ctx, x, y, w, h, Math.round(W * 0.022));
-  ctx.fill();
-
-  // 居中提示
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${Math.round(W * 0.032)}px ${SANS}`;
-  ctx.textAlign = 'center';
-  ctx.fillText(reason || t(locale, 'share.previewGenerating'), x + w / 2, y + h / 2);
-  ctx.textAlign = 'left';
-  ctx.restore();
+  ctx.font = `400 ${Math.round(W * 0.0145)}px ${MONO}`;
+  ctx.fillText('ui.lutivelab.com · LutiveLab Workflow Ecosystem', pad, footY);
 }
