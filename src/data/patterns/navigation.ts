@@ -61,9 +61,9 @@ export const navigationPatterns: UIPattern[] = [
     appearance: ['always'],
     position: ['top'],
     job: ['navigate', 'select'],
-    oneLine: '同一层级的几组内容并排放着，切换标签就切换整块内容——而且每组都有自己的 URL。',
+    oneLine: '同一层级的几组内容并排放着，切换标签切换整块面板——适合平级内容分区，可同页切换也可深链独立 URL。',
     description:
-      'Tabs 的关键是「平级 + 有 URL + 保持上下文」。用户点了「资料」，URL 会变成 /profile，而不是弹出一个新页面。它承载的是「同层的不同视角」。',
+      'Tabs 的关键是「平级分区 + 独立视窗/面板 + 保持页面上下文」。它承载的是同层不同板块的内容（如资料 / 作品 / 喜欢）。在 Web 上常映射独立 URL 或 query 参数以支持深链接与分享，在应用内也可纯本地状态切换。',
     looksLike:
       '小红书点进一个用户主页，顶部有「主页 / 视频 / 赞过 / 收藏」四个标签，点哪个下面就换成哪块内容——这就是 Tabs。',
     platforms: ['web', 'mobile', 'desktop'],
@@ -71,9 +71,9 @@ export const navigationPatterns: UIPattern[] = [
     whenToUse: [
       { situation: '2–5 个平级内容分区', recommended: true },
       { situation: '切换后仍停留在同一页面上下文', recommended: true },
-      { situation: '每个分区内容都不为空', recommended: true },
+      { situation: '需要承载结构差异较大、较重的内容面板', recommended: true },
       { situation: '内容有先后顺序（Stepper）', recommended: false },
-      { situation: '两个选项需要「二选一」而不是「都看看」', recommended: 'mostly' },
+      { situation: '选项仅为同一数据的轻量视图过滤（Segmented Control）', recommended: 'mostly' },
     ],
     whenNotToUse: [
       '超过 5 个标签就该考虑用侧边导航或下拉菜单了。',
@@ -92,11 +92,11 @@ export const navigationPatterns: UIPattern[] = [
       detailed:
         '在用户资料页加 Tabs：主页 / 作品 / 喜欢。点标签切换下方内容，选中项有下划线指示。',
       implementation:
-        '用 Tabs 组件，items 为 [{key:"posts",label:"主页"},{key:"works",label:"作品"},{key:"likes",label:"喜欢"}]，defaultActiveKey="posts"。容器 role="tablist"，每个标签 role="tab" + aria-selected，内容区 role="tabpanel" + aria-labelledby。切换时同步 URL query（?tab=works）并支持浏览器前进后退。选中指示用底部 2px 实线，颜色 #1A1917。移动端标签可横向滚动，隐藏滚动条。',
+        '用 Tabs 组件，items 为 [{key:"posts",label:"主页"},{key:"works",label:"作品"},{key:"likes",label:"喜欢"}]，defaultActiveKey="posts"。容器 role="tablist"，每个标签 role="tab" + aria-selected，内容区 role="tabpanel" + aria-labelledby。可根据需要同步 URL query（如 ?tab=works）支持浏览器前进后退与深链接分享，或仅作同页状态切换。选中指示用底部 2px 实线，颜色 #1A1917。移动端标签可横向滚动，隐藏滚动条。',
     },
     badPrompt: '上面加几个按钮可以切换下面。',
     betterPrompt:
-      '在资料页加 Tabs（标签页），标签为 主页 / 作品 / 喜欢，选中项有底部指示线，切换时 URL query 同步。',
+      '在资料页加 Tabs（标签页），标签为 主页 / 作品 / 喜欢，选中项有底部指示线，支持平级面板切换（可选同步 URL query 以便分享）。',
     fitsFor: '资料页 · 内容分区 · 设置分组',
     tags: ['平级切换', '内容分区', '上下文'],
     comparisonSlug: 'tabs-vs-segmented-control',

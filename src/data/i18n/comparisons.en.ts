@@ -107,45 +107,45 @@ export const comparisonTranslations: ComparisonTranslations = {
     question: 'I have a set of options to switch between. Tabs or Segmented Control?',
     columns: [
       { key: 'level', label: 'What it switches' },
-      { key: 'url', label: 'Own URL' },
-      { key: 'count', label: 'How many' },
-      { key: 'width', label: 'Width' },
+      { key: 'scope', label: 'Suitable scope' },
+      { key: 'url', label: 'URL / Routing connection' },
+      { key: 'width', label: 'Visual form' },
     ],
     rows: [
       {
         pattern: 'tabs',
         cells: [
-          'A whole body of content (page level)',
-          'Yes, one URL per tab',
-          '2–5',
-          'Spans the full width',
+          'Full content panels across distinct sections',
+          'Page or module-level navigation with distinct content structures',
+          'Often mapped to dedicated URLs/queries for deep linking and sharing; can also be in-page',
+          'Full-width or left-aligned, occupying prominent layout space',
         ],
-        verdict: 'Switching between different content',
+        verdict: 'Switching between distinct full content sections',
       },
       {
         pattern: 'segmented-control',
         cells: [
-          'A state inside one small control',
-          'No (same page)',
-          '2–4',
-          'Compact, hugs its content',
+          'Different presentation modes of the same content',
+          'In-place data filtering or mode switching on the same dataset',
+          'Mostly in-page state (can sync query params if needed), without navigating away',
+          'Compact pill-shaped button group hugging its content or equally divided',
         ],
-        verdict: 'Switching between views of the same content',
+        verdict: 'Switching observation perspectives on the same data',
       },
     ],
     decision: [
       {
-        if: 'each option needs its own linkable, bookmarkable URL',
+        if: 'switching between distinct major content sections (e.g., Profile / Posts / Likes) that may need independent sharing or deep linking',
         then: 'use Tabs',
       },
       {
-        if: 'you only want to flip a small view in place (like day / week / month)',
+        if: 'switching between presentation modes of the same content in place (like list / board, day / week / month)',
         then: 'use a Segmented Control',
       },
-      { if: 'you have more than 5 options', then: 'use a Select dropdown instead of forcing it' },
+      { if: 'you have more than 5 options', then: 'use a Select dropdown or sidebar nav instead of overcrowding' },
     ],
     takeaway:
-      'Quickest test: Tabs span the full top of a page; a Segmented Control is a small button group. If the switch should stay on one URL, it is a Segmented Control.',
+      'Quickest test: Tabs host distinct content panels (section navigation); a Segmented Control switches view modes on the same entity (state filtering). Both can optionally map to URLs depending on needs — do not decide purely based on URLs.',
   },
   'checkbox-vs-radio-vs-switch': {
     title: 'Checkbox vs Radio vs Switch',

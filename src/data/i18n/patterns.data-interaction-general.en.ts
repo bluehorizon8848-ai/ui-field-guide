@@ -711,21 +711,21 @@ export const dataInteractionGeneralPatterns: PatternTranslations = {
 
   'segmented-control': {
     oneLine:
-      'A row of small buttons packed shoulder to shoulder, one of them selected, so the control looks "segmented".',
+      'A compact, mutually exclusive slider button group for quickly switching view modes or data dimensions within the same context.',
     description:
-      'A segmented control is a compact button group where the selected segment gets a filled highlight. The key distinction: it looks a lot like tabs, but a segmented control switches between small views of the same content rather than between different pages.',
+      'A segmented control is a compact exclusive toggle control where the selected segment has a pill or filled highlight. It is primarily used to switch observation perspectives on the same body of content or dataset (such as Day / Week / Month, List / Card, Light / Dark). It targets different presentations of the same object, rather than large distinct pages with disparate structures.',
     looksLike:
       'The Day / Week / Month control at the bottom of the iOS Photos viewer, the segmented button on a Mac, the List / Map toggle in a maps app.',
     fitsFor: 'View switching · Time range · Mode',
     whenToUse: [
-      { situation: 'Switching between two and four views', recommended: true },
-      { situation: 'All the options are very short (one to four words)', recommended: true },
-      { situation: 'You want the control to hug its content instead of spanning full width', recommended: true },
-      { situation: 'Each option needs its own URL', recommended: false },
+      { situation: 'Rapid switching between 2–4 view modes', recommended: true },
+      { situation: 'All the options are very short (1–4 characters or concise words)', recommended: true },
+      { situation: 'You want the control to hug its content or sit compactly in a header/toolbar', recommended: true },
+      { situation: 'Each option hosts a large and structurally distinct sub-page (use Tabs instead)', recommended: false },
       { situation: 'The option labels vary a lot in length', recommended: 'mostly' },
     ],
     whenNotToUse: [
-      'If each view needs to be shareable or bookmarkable (its own URL), use Tabs.',
+      'If each option represents a structurally distinct page section, prefer Tabs; Segmented Control is for lightweight view and mode switching on the same screen.',
       'Wildly different label lengths make the segments look broken — either use icons uniformly or switch to a Select.',
     ],
     anatomy: [
@@ -737,13 +737,13 @@ export const dataInteractionGeneralPatterns: PatternTranslations = {
     aiPrompt: {
       basic: 'Add a toggle button group.',
       detailed:
-        'Add a Segmented Control with three segments — Day / Week / Month — where the selected item has a white fill and a subtle shadow. Switching only affects the same region of the page and never changes the URL.',
+        'Add a Segmented Control with three segments — Day / Week / Month — where the selected item has a white fill and a subtle shadow. Switching updates the current dataset presentation without navigating away.',
       implementation:
         'Outer div with a light gray background #F2F0EB, 8px radius and 3px padding, containing buttons with flex: 1. The selected item gets a white background plus box-shadow 0 1px 3px rgba(0,0,0,0.1) and a slight scale-up. Use role="tablist" with role="tab" and aria-selected, or radio group semantics if it is genuinely a choice. For the transition, translate the white pill with transform rather than swapping it instantly — it feels much smoother.',
     },
     badPrompt: 'Add a few buttons that toggle.',
     betterPrompt:
-      'Add a Segmented Control: two to four segments inside a light gray track, the selected one with a white fill and a shadow, the sliding pill animated with transform, expressed with role=tablist/tab plus aria-selected, and never changing the URL.',
+      'Add a Segmented Control: 2–4 segments inside a light gray track, the selected one with a white fill and shadow, the sliding pill animated with transform, expressed with role=tablist/tab + aria-selected (or radio group), for in-page view switching.',
     aliases: ['segmented control', 'segmented', 'segmented button', 'button group', 'toggle group'],
     tags: ['compact', 'views', 'same page'],
   },

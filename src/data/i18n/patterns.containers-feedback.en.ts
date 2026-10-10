@@ -47,22 +47,22 @@ export const containerFeedbackPatterns: PatternTranslations = {
 
   'accordion': {
     oneLine:
-      'Click a heading and the content below it expands; click again and it collapses back out of the way.',
+      'A vertically stacked group of collapsible panels — click a heading to expand content, supporting single-item exclusive or multi-item open strategies.',
     description:
-      'The purpose of an accordion is to compress a lot of information into a smaller space. It can allow several panels open at once, or only one at a time — the latter is strictly speaking closer to a Collapsible. The classic use is an FAQ.',
+      'An Accordion is a coordinated list of collapsible sections. It gathers vertically stacked content under header bars and allows configured strategies: single-open mode (mutually exclusive, auto-closing previous items to save vertical space) or multi-open mode (allowing multiple panels open simultaneously for cross-referencing). The classic use case is FAQ sections and settings groups.',
     looksLike:
       'The question-and-answer list on an FAQ page, the "About this Mac ›" groups in a settings screen, the collapsible entries of a help center — click a heading and another paragraph appears below it.',
     fitsFor: 'FAQ · Settings groups · Help center',
     whenToUse: [
-      { situation: 'There is a lot of content that can be compressed into a small space (FAQ)', recommended: true },
-      { situation: 'Users do not need to see everything at once', recommended: true },
-      { situation: 'Entries vary in length and cannot be aligned into a table', recommended: true },
-      { situation: 'Users need to compare the content of all entries side by side', recommended: false },
-      { situation: 'The content is only two or three lines — just show it directly', recommended: 'mostly' },
+      { situation: 'Multiple content sections vertically stacked to conserve initial space (FAQ)', recommended: true },
+      { situation: 'Users typically read one or a few sections on demand', recommended: true },
+      { situation: 'Numerous items requiring a coordinated group expansion strategy', recommended: true },
+      { situation: 'Users need to compare the full content of all entries simultaneously without clicking', recommended: false },
+      { situation: 'Only a single standalone piece of content needs collapsing (use Collapsible)', recommended: 'mostly' },
     ],
     whenNotToUse: [
-      'If users need to compare details across several entries, hiding them behind clicks only adds work.',
-      'Using an accordion when there is a single entry is pure packaging with no payoff.',
+      'If users frequently need to compare details across all entries, collapsing them behind clicks adds unnecessary effort.',
+      'Do not use an accordion list when there is only one entry; use a standalone Collapsible instead.',
     ],
     anatomy: [
       { label: 'Header', note: 'The entire row is clickable, height ≥44px' },
@@ -72,54 +72,54 @@ export const containerFeedbackPatterns: PatternTranslations = {
       { label: 'Expanded State', note: 'Chevron rotated, content visible' },
     ],
     aiPrompt: {
-      basic: 'Add something that expands and collapses.',
+      basic: 'Add an accordion list that expands and collapses.',
       detailed:
-        'Add an FAQ accordion: multiple entries can be open at the same time, the whole heading row is clickable, the chevron on the right rotates 180° when expanded, and the content uses a grid-row transition.',
+        'Add an FAQ accordion component: contains multiple vertically stacked collapsible items, configurable for single-open (exclusive) or multi-open mode, full-row clickable headers, chevron rotating 180° on expand, and smooth height transitions.',
       implementation:
-        'Each entry uses <button aria-expanded={open} aria-controls={id}> as the heading row (full-row hit area, padding 16px 20px, min-height 48px), with the content region as <div id role="region" aria-labelledby>. Animate expansion with a grid-template-rows: 0fr → 1fr transition (250ms), which is smoother than the max-height approach; the container needs overflow: hidden. Animate the chevron with transition: transform. When multiple entries may be open, openItems is a Set. Do not use the native <details> element, because its animation and default arrow styling cannot be controlled.',
+        'Implement an Accordion component supporting type="single" | "multiple". Each item uses <button aria-expanded={isOpen} aria-controls={panelId}> as the header (full-row hit area ≥48px), and content as <div id={panelId} role="region" aria-labelledby={headerId}>. Animate expansion with a grid-template-rows: 0fr → 1fr transition (200ms ease-out) plus overflow: hidden. If no custom animation is needed, semantic <details> is also valid; for custom height animation, a custom button + grid approach is smoother.',
     },
     badPrompt: 'Add something that expands when you click it.',
     betterPrompt:
-      'Add an FAQ accordion: multi-open, headings as button[aria-expanded] with a full-row hit area ≥48px, chevron rotating 180° when expanded, content animated with a grid-template-rows 0fr→1fr height transition.',
+      'Add an FAQ accordion: grouped list with single/multi-open configuration, headings as button[aria-expanded] (hit area ≥48px), chevron rotating 180° on expand, and content animated with a grid-template-rows 0fr→1fr height transition.',
     aliases: ['accordion', 'disclosure list', 'expandable list', 'faq accordion', 'collapse panel'],
     tags: ['expand', 'collapse', 'space-saving'],
   },
 
   'collapsible': {
     oneLine:
-      'Only one section stays open at a time — open a new one and the previous one closes itself.',
+      'A single standalone expandable/collapsible section — click the trigger to show or hide details below.',
     description:
-      'A collapsible and an accordion are two strategies for the same mechanism. An accordion lets several panels open at once; a collapsible is the mutually exclusive version. Which one to use comes down to the job: use an accordion when people need to compare, and a collapsible when they only need to read one thing at a time.',
+      'A Collapsible is an atomic progressive-disclosure component consisting of a single trigger and a content panel. It independently manages its own open/closed state, typically used to tuck away secondary or advanced information (e.g., "Show more parameters", "Advanced filters", "Licensing details"). When multiple collapsibles are stacked and need coordinated single or multi-open states, they are grouped into an Accordion.',
     looksLike:
-      'You open the second panel in a list and the first one folds shut automatically — that is the default behavior of many accordions.',
-    fitsFor: 'Settings · Sectioned content · Detail expansion',
+      'The "Show full specs" button on an e-commerce product page, the "Advanced search v" dropdown toggle, the "Show references" panel at the bottom of an article.',
+    fitsFor: 'Advanced filters · View more · Secondary details · Card expansion',
     whenToUse: [
-      { situation: 'The user only needs to focus on one block at a time', recommended: true },
-      { situation: 'The content is long and opening several at once would blow out the page', recommended: true },
-      { situation: 'The options are related (picking A changes what B means)', recommended: true },
-      { situation: 'Users need to compare multiple entries', recommended: false },
+      { situation: 'Secondary supplementary information collapsed by default to reduce visual clutter', recommended: true },
+      { situation: 'Long text paragraphs with "Read more / Show less"', recommended: true },
+      { situation: 'Optional form sections like "Advanced settings"', recommended: true },
+      { situation: 'Multiple parallel items in a list (use an Accordion group instead)', recommended: false },
     ],
     whenNotToUse: [
-      'If the real need is "see two things at once", mutually exclusive panels keep interrupting the user.',
-      'With only one entry, a collapsible turns a simple question into a puzzle.',
+      'Do not hide critical primary information or mandatory form inputs behind a collapse.',
+      'If the content is only two or three lines, show it directly without folding.',
     ],
     anatomy: [
-      { label: 'Trigger', note: 'The heading row plus a chevron' },
-      { label: 'Panel', note: 'Only one is visible at any moment' },
-      { label: 'Indicator', note: 'The chevron direction' },
+      { label: 'Trigger', note: 'Full-row button or text link' },
+      { label: 'Content Panel', note: 'Revealed when expanded' },
+      { label: 'Indicator', note: 'Rotating chevron or show/hide label' },
     ],
     aiPrompt: {
-      basic: 'Add an expandable section where only one can be open.',
+      basic: 'Add a collapsible detail section.',
       detailed:
-        'Add a single-open collapsible panel: clicking the currently expanded item collapses it, clicking another item switches to that one, and at most one item is expanded at any time.',
+        'Add a Collapsible section: collapsed by default, clicking "Advanced options" smoothly expands the panel below, chevron rotates 180°, and clicking again collapses it.',
       implementation:
-        'Keep state as openIndex: number | null. On click: if (openIndex === i) setOpenIndex(null) else setOpenIndex(i). When openIndex changes, run the collapse animation on the outgoing panel and the expand animation on the incoming one (height 0fr→1fr transition, 250ms). Note that overlapping the two animations causes a jump, so use 180ms for collapse and 250ms for expand.',
+        'Use a Collapsible component with controlled or local open: boolean state. Trigger button <button aria-expanded={open} aria-controls="advanced-panel">, content container <div id="advanced-panel" role="region" aria-hidden={!open}>. Animate height with grid-template-rows: 0fr → 1fr (200ms ease-out) with an inner div set to overflow: hidden. Rotate the chevron icon 180° when open. Native <details><summary> is also suitable for simple non-animated cases.',
     },
     badPrompt: 'Add a collapsible thing where opening one closes the others.',
     betterPrompt:
-      'Add a collapsible: keep openIndex in state (nullable), clicking the open item collapses it and clicking another switches to it, at most one panel open at a time, 180ms collapse / 250ms expand height transitions so the two do not overlap and jump.',
-    aliases: ['collapsible', 'single-open accordion', 'expandable section', 'exclusive accordion', 'disclosure panel'],
-    tags: ['exclusive', 'single', 'expand'],
+      'Add a standalone Collapsible section: button[aria-expanded] trigger that smoothly toggles an advanced options panel below, with a chevron rotation indicator and height transition.',
+    aliases: ['collapsible', 'expandable section', 'disclosure panel', 'collapsible block', 'show more'],
+    tags: ['atomic', 'single', 'progressive disclosure'],
   },
 
   'modal': {

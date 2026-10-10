@@ -86,29 +86,29 @@ export const comparisons: Comparison[] = [
     patterns: ['tabs', 'segmented-control'],
     columns: [
       { key: 'level', label: '切换什么' },
-      { key: 'url', label: '独立 URL' },
-      { key: 'count', label: '数量' },
-      { key: 'width', label: '宽度' },
+      { key: 'scope', label: '适用场景' },
+      { key: 'url', label: 'URL / 状态关联' },
+      { key: 'width', label: '控件形态' },
     ],
     rows: [
       {
         pattern: 'tabs',
-        cells: ['整块内容（页面级）', '是，每个 tab 一个 URL', '2–5 个', '通栏铺开'],
-        verdict: '切换「看不同内容」',
+        cells: ['不同板块的完整内容面板', '页面或模块级导航，内容结构差异大', '常映射独立 URL/query 便于深链分享，也可同页切换', '通栏或靠左排布，占据显著视觉区域'],
+        verdict: '切换「不同维度的完整内容」',
       },
       {
         pattern: 'segmented-control',
-        cells: ['一个小控件的状态', '否（同一页内）', '2–4 个', '紧凑，跟着内容宽度'],
-        verdict: '切换「同一内容的不同视图」',
+        cells: ['同一内容的不同呈现模式', '局部数据过滤/模式切换，作用于同一数据集', '多为局部状态（可视需要同步参数），无需跳转页面', '紧凑胶囊状，宽度自适应或等分包裹'],
+        verdict: '切换「同一数据的观察视角」',
       },
     ],
     decision: [
-      { if: '每个选项要分享一个独立链接（可收藏、可以被搜索到）', then: 'Tabs' },
-      { if: '只是想在同一块地方切换一个小视图（如 日/周/月）', then: 'Segmented Control' },
-      { if: '超过 5 个选项', then: '考虑用 Select 下拉，别硬塞' },
+      { if: '切换的是不同板块的完整内容（如 资料 / 作品 / 喜欢），且可能需要单独分享或锚定', then: 'Tabs' },
+      { if: '切换的是同一块内容的展现形态（如 列表 / 看板、日 / 周 / 月）', then: 'Segmented Control' },
+      { if: '超过 5 个选项', then: '考虑用 Select 下拉或侧边导航，避免挤占空间' },
     ],
     takeaway:
-      '最简判断：Tabs 是「页签」，能占满整个顶部；Segmented Control 是「按钮组」，是个小控件。如果你希望「切换后留在同一个 URL」，八成是 Segmented Control。',
+      '最简判断：Tabs 承载的是「不同板块的内容面板」（侧重分区导航）；Segmented Control 承载的是「同一对象的视图模式」（侧重状态过滤）。两者都可以根据业务决定是否映射 URL，不要仅凭 URL 绝对划分。',
     relatedComparisons: ['pagination-vs-infinite-scroll', 'checkbox-vs-radio-vs-switch'],
   },
   {

@@ -391,12 +391,12 @@ const zh = {
   'demo.accordion.faq3a':
     '系统会比较图片的内容哈希和拍摄参数。同一张图的不同分辨率、不同格式会被判定为重复，你可以选择保留画质最好的一张。',
 
-  'demo.collapsible.sec1t': '照片与视频',
-  'demo.collapsible.sec1d': '扫描相册中的图片和视频文件，识别重复项与相似项。',
-  'demo.collapsible.sec2t': '存储空间',
-  'demo.collapsible.sec2d': '查看各类文件占用的空间，定位可清理的大文件。',
-  'demo.collapsible.sec3t': '回收站',
-  'demo.collapsible.sec3d': '已删除内容保留 30 天，可随时恢复。',
+  'demo.collapsible.title': '导出参数设置',
+  'demo.collapsible.trigger': '高级选项',
+  'demo.collapsible.tip': '默认采用适合多数场景的标准设置，展开后可针对专业工作流按需调整。',
+  'demo.collapsible.opt1': '保留相机原始 Exif 元数据（光圈、快门、ISO）',
+  'demo.collapsible.opt2': '色彩空间：Display P3 广色域',
+  'demo.collapsible.opt3': '按拍摄年份自动建立归档目录',
 
   'demo.dialog.trigger': '删除照片',
   'demo.dialog.title': '删除 3 张照片？',
@@ -440,9 +440,9 @@ const zh = {
   'demo.caption.snackbar': '删除后底部出现带「撤销」的提示条。注意它和 Toast 的区别：多了一个可以点的东西。',
   'demo.caption.alert': '注意它不会自动消失，也不会自动收起 —— 因为用户必须处理这个问题。',
   'demo.caption.banner': '通栏的全局消息。Banner 是「整个应用都受影响」时用的，比如断网。',
-  'demo.caption.accordion': '点标题展开，再点收起。可以同时展开多条 —— 这是 Accordion 的特点。',
+  'demo.caption.accordion': '点标题展开，再点收起。本示例演示多开模式（手风琴亦可配置单开互斥策略），适合 FAQ 等列表内容。',
   'demo.caption.collapsible':
-    '点第二条试试 —— 第一条会自动收起。任何时刻最多只有一项展开，这就是 Collapsible。',
+    '单个独立的可折叠区块。点击触发器展开/收起下方扩展内容，常用于隐藏低频的高级选项或详细参数。',
   'demo.caption.dialog': '点「删除照片」，弹窗会拦住你。试试 Tab 键（焦点被困在弹窗内）和 Esc（关闭）。',
   'demo.caption.sheet': '从屏幕底部升起的面板，高度按内容自适应（约 55%），底层页面仍然可见 —— 这就是 Bottom Sheet。',
   'demo.caption.drawer':
@@ -579,7 +579,7 @@ const zh = {
   'demo.input.slider.max': '100 最强',
   'demo.input.slider.preview': '当前预览：滤镜强度 {n}%',
 
-  'demo.input.caption.seg': '一个紧凑的按钮组。它和 Tabs 的区别：这里切换不改变 URL。',
+  'demo.input.caption.seg': '紧凑的互斥切换控件。用于在同一上下文中快速切换视图模式、时间范围或操作状态（如 日/周/月）。',
   'demo.input.seg.aria': '时间范围',
   'demo.input.seg.day': '日',
   'demo.input.seg.week': '周',
@@ -1229,12 +1229,12 @@ const en: UI = {
   'demo.accordion.faq3a':
     'The system compares each image\'s content hash and capture settings. The same photo at different resolutions or in different formats counts as a duplicate, and you can choose which version has the best quality.',
 
-  'demo.collapsible.sec1t': 'Photos & videos',
-  'demo.collapsible.sec1d': 'Scans the photo library for images and videos, spotting duplicates and similar shots.',
-  'demo.collapsible.sec2t': 'Storage',
-  'demo.collapsible.sec2d': 'Shows how much space each kind of file takes, and where the big cleanups are.',
-  'demo.collapsible.sec3t': 'Trash',
-  'demo.collapsible.sec3d': 'Deleted items are kept for 30 days and can be restored any time.',
+  'demo.collapsible.title': 'Export Settings',
+  'demo.collapsible.trigger': 'Advanced Options',
+  'demo.collapsible.tip': 'Standard defaults suit most workflows; expand when customized production output is needed.',
+  'demo.collapsible.opt1': 'Preserve original EXIF metadata (aperture, shutter, ISO)',
+  'demo.collapsible.opt2': 'Color profile: Display P3 wide gamut',
+  'demo.collapsible.opt3': 'Auto-create archive folders by capture year',
 
   'demo.dialog.trigger': 'Delete photos',
   'demo.dialog.title': 'Delete 3 photos?',
@@ -1278,8 +1278,8 @@ const en: UI = {
   'demo.caption.snackbar': 'After deleting, a bar with "Undo" slides up from the bottom. The difference from Toast: it has one thing you can click.',
   'demo.caption.alert': 'Notice it neither disappears on its own nor collapses — because the user has to deal with it.',
   'demo.caption.banner': 'A full-width, app-wide message. A Banner is for when "the entire app is affected", like losing connection.',
-  'demo.caption.accordion': 'Click a heading to expand, click again to collapse. Several can be open at once — that\'s what makes it an Accordion.',
-  'demo.caption.collapsible': 'Try clicking the second one — the first collapses by itself. Only one item is ever open: that\'s a Collapsible.',
+  'demo.caption.accordion': 'Click a heading to expand, click again to collapse. This demo shows multi-open mode (an accordion can also be configured as single-open), ideal for FAQs and grouped lists.',
+  'demo.caption.collapsible': 'A standalone collapsible section. Click the trigger to expand or collapse details below — ideal for tucking away secondary options or in-depth info.',
   'demo.caption.dialog': 'Hit "Delete photos" and the dialog stops you. Try Tab (focus is trapped inside) and Esc (to close).',
   'demo.caption.sheet':
     'A panel that rises from the bottom edge, sizing itself to its content (around 55%), with the page still visible behind it — that\'s a Bottom Sheet.',
@@ -1418,7 +1418,7 @@ const en: UI = {
   'demo.input.slider.max': '100 max',
   'demo.input.slider.preview': 'Preview: filter strength {n}%',
 
-  'demo.input.caption.seg': 'A compact button group. How it differs from Tabs: switching here doesn\'t change the URL.',
+  'demo.input.caption.seg': 'A compact exclusive toggle control for quickly switching view modes, time ranges, or states (e.g. Day / Week / Month) within the same context.',
   'demo.input.seg.aria': 'Time range',
   'demo.input.seg.day': 'Day',
   'demo.input.seg.week': 'Week',

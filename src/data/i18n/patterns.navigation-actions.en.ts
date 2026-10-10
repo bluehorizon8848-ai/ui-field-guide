@@ -44,18 +44,18 @@ export const navigationActionPatterns: PatternTranslations = {
 
   'tabs': {
     oneLine:
-      'Several peer content sections sit side by side; switching tabs swaps the whole panel — and each one gets its own URL.',
+      'Several peer content sections sit side by side; switching tabs swaps the whole panel — ideal for peer sections, in-page or with deep-linkable URLs.',
     description:
-      'The key to tabs is "peer level + has a URL + preserves context". Tapping "Profile" changes the URL to /profile instead of pushing a new screen. Tabs carry different views of the same level.',
+      'The key to tabs is "peer sections + dedicated viewport/panel + preserved page context". Tabs host distinct sub-sections at the same hierarchical level (e.g., Profile / Posts / Likes). On the web they often sync with URL paths or query params for deep-linking, while in native apps they can also switch purely local view state.',
     looksLike:
       'Open a user profile on Xiaohongshu (RED) and the top has four tabs — Profile / Videos / Liked / Saved. Tapping one swaps the content below it. That is tabs.',
     fitsFor: 'Profile pages · content sections · settings groups',
     whenToUse: [
       { situation: '2–5 peer content sections', recommended: true },
       { situation: 'Switching keeps the user in the same page context', recommended: true },
-      { situation: 'Every section has real content', recommended: true },
-      { situation: 'The content has a required order (use a Stepper)', recommended: false },
-      { situation: 'Two options are mutually exclusive rather than "both worth a look"', recommended: 'mostly' },
+      { situation: 'Sections carry substantial, structurally distinct content panels', recommended: true },
+      { situation: 'The content has a required sequential order (use a Stepper)', recommended: false },
+      { situation: 'Options are lightweight view toggles for the same data (use Segmented Control)', recommended: 'mostly' },
     ],
     whenNotToUse: [
       'Past five tabs, switch to side navigation or a dropdown.',
@@ -72,11 +72,11 @@ export const navigationActionPatterns: PatternTranslations = {
       detailed:
         'Add tabs to the user profile page: Profile / Posts / Likes. Tapping a tab swaps the content below, and the active tab gets an underline indicator.',
       implementation:
-        'Use a Tabs component with items [{key:"posts",label:"Profile"},{key:"works",label:"Posts"},{key:"likes",label:"Likes"}] and defaultActiveKey="posts". The container gets role="tablist", each tab role="tab" + aria-selected, and the content area role="tabpanel" + aria-labelledby. On switch, sync the URL query (?tab=works) and support browser back/forward. The active indicator is a 2px solid bottom border in #1A1917. On mobile the tab list scrolls horizontally with the scrollbar hidden.',
+        'Use a Tabs component with items [{key:"posts",label:"Profile"},{key:"works",label:"Posts"},{key:"likes",label:"Likes"}] and defaultActiveKey="posts". The container gets role="tablist", each tab role="tab" + aria-selected, and the content area role="tabpanel" + aria-labelledby. Optionally sync the URL query (?tab=works) to support browser back/forward and deep linking, or keep it in local state. The active indicator is a 2px solid bottom border in #1A1917. On mobile the tab list scrolls horizontally with the scrollbar hidden.',
     },
     badPrompt: 'Add a few buttons at the top to switch the stuff below.',
     betterPrompt:
-      'Add tabs to the profile page — Profile / Posts / Likes — with a bottom indicator on the active tab and the URL query synced on switch.',
+      'Add tabs to the profile page — Profile / Posts / Likes — with a bottom indicator on the active tab and peer panel switching (optional URL query sync for sharing).',
     aliases: ['tabbed interface', 'tab bar', 'tab strip', 'segmented tabs', 'tabbed nav'],
     tags: ['peer switching', 'sections', 'context'],
   },

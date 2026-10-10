@@ -109,22 +109,22 @@ export const generalPatterns: UIPattern[] = [
     appearance: ['always'],
     position: ['inline'],
     job: ['select'],
-    oneLine: '一排挤在一起的小按钮，选中其中一个，像被「分段」了一样。',
+    oneLine: '一组紧凑互斥的滑块式按钮组，用于在同一上下文下快速切换视图模式或数据维度。',
     description:
-      'Segmented Control 是一个紧凑的按钮组，选中项有填充色高亮。它的关键是：它和 Tabs 长得很像，但 Segmented 切换的是「同一块内容的小视图」，而不是「不同的页面」。',
+      'Segmented Control 是一个紧凑的互斥切换控件，选中项有滑块或填充高亮。它主要用于在同一块内容或数据集中切换观察视角（如 日/周/月、列表/卡片、浅色/深色）。它针对的是同一对象的展现形态，而不是结构迥异的大块独立页面。',
     looksLike:
       'iOS 照片查看器底部的「日 / 周 / 月」、Mac 的合成分段按钮、地图App 的「列表 / 地图」切换。',
     platforms: ['web', 'mobile', 'desktop'],
     difficulty: 'medium',
     whenToUse: [
-      { situation: '2–4 个视图之间的切换', recommended: true },
+      { situation: '2–4 个视图模式之间的快速切换', recommended: true },
       { situation: '所有选项都很短（1–4 个字）', recommended: true },
-      { situation: '希望控件宽度跟着内容而不是通栏', recommended: true },
-      { situation: '每个选项需要一个独立 URL', recommended: false },
+      { situation: '希望控件宽度跟着内容或紧凑排布', recommended: true },
+      { situation: '每个选项承载的是庞大且结构差异极大的独立子页面（应选用 Tabs）', recommended: false },
       { situation: '选项文字长短差异很大', recommended: 'mostly' },
     ],
     whenNotToUse: [
-      '如果每个视图要能单独分享/收藏（要有各自 URL），用 Tabs。',
+      '如果各选项承载的是内容结构截然不同的独立页面板块，优先使用 Tabs；Segmented Control 适合轻量紧凑的同屏视图与模式切换。',
       '文字长短不一会让分段宽度很怪——要么统一用图标，要么改用 Select。',
     ],
     anatomy: [
@@ -138,13 +138,13 @@ export const generalPatterns: UIPattern[] = [
     aiPrompt: {
       basic: '加一个可以切换的分段按钮。',
       detailed:
-        '加一个 Segmented Control：日 / 周 / 月 三段，选中项白色填充并带轻微阴影，切换只影响同一块区域，不改 URL。',
+        '加一个 Segmented Control：日 / 周 / 月 三段，选中项白色填充并带轻微阴影，切换影响当前数据集展示，无需跳转新页面。',
       implementation:
         '外层 div 浅灰底 #F2F0EB 圆角 8px padding 3px，内含若干 button flex: 1。选中项白底 + box-shadow 0 1px 3px rgba(0,0,0,0.1) + 轻微放大。用 role="tablist" + role="tab" + aria-selected，或用 radio group 语义（若本质是选项）。切换动画：白色滑块用 transform 平移而非直接切换会更顺滑。',
     },
     badPrompt: '加几个按钮可以切换。',
     betterPrompt:
-      '加 Segmented Control：浅灰外框内含 2–4 段，选中项白底加阴影，滑块用 transform 平移动画，用 role=tablist/tab + aria-selected 表达，不改变 URL。',
+      '加 Segmented Control：浅灰外框内含 2–4 段，选中项白底加阴影，滑块用 transform 平移动画，用 role=tablist/tab + aria-selected 表达（或 radio group），用于局部视图切换。',
     fitsFor: '视图切换 · 时间范围 · 模式',
     tags: ['紧凑', '视图', '同页'],
     comparisonSlug: 'tabs-vs-segmented-control',
