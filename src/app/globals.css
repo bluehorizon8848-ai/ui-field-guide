@@ -41,6 +41,16 @@ summary {
   border-radius: 4px;
 }
 
+/* 隐藏原生 search 输入框自带的清除按钮，避免与组件的自定义清除按钮重复 */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 @layer components {
   .container-page {
     @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;

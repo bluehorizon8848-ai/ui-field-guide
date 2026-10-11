@@ -1102,5 +1102,141 @@ const PREVIEWS: Record<string, ReactElement> = {
       <text x="108" y="94" fontSize="6" fontWeight="600" fill={GREEN} textAnchor="middle">AQI 24 · Good</text>
     </g>
   ),
+
+  container: (
+    <g>
+      <rect x="22" y="34" width="196" height="78" rx="4" fill={SOFT} />
+      <rect x="55" y="34" width="130" height="78" fill={WHITE} stroke="#584B8A" strokeWidth="1" strokeDasharray="3 2" />
+      <rect x="65" y="42" width="60" height="6" rx="2" fill="#584B8A" />
+      <rect x="65" y="52" width="110" height="3" rx="1.5" fill={MUTED} opacity="0.4" />
+      <rect x="65" y="58" width="90" height="3" rx="1.5" fill={MUTED} opacity="0.4" />
+      <rect x="65" y="68" width="50" height="34" rx="4" fill={SOFT} stroke={LINE} />
+      <rect x="125" y="68" width="50" height="34" rx="4" fill={SOFT} stroke={LINE} />
+      <text x="38" y="74" fontSize="6" fill="#584B8A" textAnchor="middle">margin</text>
+      <text x="202" y="74" fontSize="6" fill="#584B8A" textAnchor="middle">margin</text>
+    </g>
+  ),
+
+  hero: (
+    <g>
+      <rect x="100" y="35" width="40" height="6" rx="3" fill="#F2F0F7" />
+      <text x="120" y="40" fontSize="4.5" fill="#584B8A" fontWeight="600" textAnchor="middle">NEW LAUNCH</text>
+      <rect x="60" y="46" width="120" height="9" rx="2" fill={INK} />
+      <rect x="75" y="59" width="90" height="4" rx="1.5" fill={MUTED} opacity="0.5" />
+      <rect x="94" y="68" width="24" height="10" rx="3" fill="#584B8A" />
+      <rect x="122" y="68" width="24" height="10" rx="3" fill={WHITE} stroke={LINE} />
+      <rect x="52" y="84" width="136" height="28" rx="6" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <circle cx="62" cy="92" r="2" fill={LINE} />
+      <circle cx="68" cy="92" r="2" fill={LINE} />
+      <line x1="52" y1="96" x2="188" y2="96" stroke={SOFT} strokeWidth="1" />
+    </g>
+  ),
+
+  'bento-grid': (
+    <g>
+      <rect x="28" y="34" width="112" height="78" rx="8" fill="#F2F0F7" stroke="#584B8A" strokeWidth="1" />
+      <rect x="36" y="42" width="28" height="6" rx="2" fill="#584B8A" />
+      <rect x="36" y="52" width="80" height="4" rx="1" fill={INK} />
+      <rect x="36" y="59" width="60" height="3" rx="1" fill={MUTED} opacity="0.5" />
+      <rect x="36" y="70" width="96" height="34" rx="4" fill={WHITE} stroke={LINE} />
+
+      <rect x="146" y="34" width="66" height="36" rx="6" fill={WHITE} stroke={LINE} />
+      <circle cx="158" cy="46" r="4" fill={GREEN_BG} />
+      <rect x="166" y="44" width="38" height="4" rx="1" fill={INK2} />
+      <rect x="156" y="56" width="48" height="3" rx="1" fill={MUTED} opacity="0.4" />
+
+      <rect x="146" y="76" width="66" height="36" rx="6" fill={WHITE} stroke={LINE} />
+      <circle cx="158" cy="88" r="4" fill={BLUE_BG} />
+      <rect x="166" y="86" width="38" height="4" rx="1" fill={INK2} />
+      <rect x="156" y="98" width="48" height="3" rx="1" fill={MUTED} opacity="0.4" />
+    </g>
+  ),
+
+  masonry: (
+    <g>
+      <rect x="28" y="34" width="56" height="48" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="32" y="38" width="48" height="30" rx="3" fill="#EEF2F6" />
+      <rect x="32" y="72" width="36" height="4" rx="1" fill={INK2} />
+
+      <rect x="28" y="86" width="56" height="26" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="32" y="90" width="48" height="12" rx="3" fill="#FAF5EF" />
+      <rect x="32" y="105" width="28" height="3" rx="1" fill={MUTED} opacity="0.5" />
+
+      <rect x="92" y="34" width="56" height="32" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="96" y="38" width="48" height="18" rx="3" fill="#F4F3FA" />
+      <rect x="96" y="60" width="32" height="3" rx="1" fill={INK2} />
+
+      <rect x="92" y="70" width="56" height="42" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="96" y="74" width="48" height="26" rx="3" fill="#F0F7F4" />
+      <rect x="96" y="104" width="38" height="3" rx="1" fill={MUTED} opacity="0.5" />
+
+      <rect x="156" y="34" width="56" height="52" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="160" y="38" width="48" height="36" rx="3" fill="#FDF3F3" />
+      <rect x="160" y="78" width="34" height="4" rx="1" fill={INK2} />
+
+      <rect x="156" y="90" width="56" height="22" rx="6" fill={WHITE} stroke={LINE} />
+      <rect x="160" y="94" width="48" height="12" rx="3" fill={SOFT} />
+    </g>
+  ),
+
+  'split-screen': (
+    <g>
+      <rect x="24" y="32" width="96" height="80" rx="4" fill={INK} />
+      <rect x="34" y="44" width="40" height="4" rx="1" fill="#584B8A" />
+      <text x="34" y="60" fontSize="8" fontWeight="700" fill={WHITE}>Split Story</text>
+      <rect x="34" y="66" width="68" height="3" rx="1" fill="#8C887E" />
+      <rect x="34" y="72" width="50" height="3" rx="1" fill="#8C887E" />
+
+      <rect x="120" y="32" width="96" height="80" rx="4" fill={WHITE} stroke={LINE} />
+      <text x="134" y="48" fontSize="8" fontWeight="600" fill={INK}>Log in</text>
+      <rect x="134" y="55" width="68" height="10" rx="2" fill={SOFT} stroke={LINE} />
+      <rect x="134" y="69" width="68" height="10" rx="2" fill={SOFT} stroke={LINE} />
+      <rect x="134" y="85" width="68" height="12" rx="3" fill="#584B8A" />
+      <text x="168" y="93" fontSize="5.5" fontWeight="600" fill={WHITE} textAnchor="middle">Submit</text>
+    </g>
+  ),
+
+  'sidebar-layout': (
+    <g>
+      <rect x="24" y="32" width="46" height="80" rx="4" fill={SOFT} stroke={LINE} />
+      <rect x="30" y="38" width="12" height="4" rx="1" fill="#584B8A" />
+      <rect x="30" y="48" width="34" height="6" rx="2" fill={WHITE} stroke={LINE} />
+      <rect x="30" y="58" width="34" height="5" rx="1.5" fill={MUTED} opacity="0.3" />
+      <rect x="30" y="66" width="34" height="5" rx="1.5" fill={MUTED} opacity="0.3" />
+      <rect x="30" y="74" width="34" height="5" rx="1.5" fill={MUTED} opacity="0.3" />
+
+      <rect x="74" y="32" width="142" height="80" rx="4" fill={WHITE} stroke={LINE} />
+      <line x1="74" y1="44" x2="216" y2="44" stroke={LINE} strokeWidth="1" />
+      <rect x="80" y="36" width="40" height="4" rx="1" fill={MUTED} opacity="0.4" />
+      <rect x="80" y="50" width="130" height="26" rx="4" fill={SOFT} stroke={LINE} />
+      <rect x="80" y="82" width="130" height="26" rx="4" fill={SOFT} stroke={LINE} />
+    </g>
+  ),
+
+  'sticky-bar': (
+    <g>
+      <rect x="30" y="34" width="180" height="78" rx="4" fill={SOFT} />
+      <rect x="42" y="60" width="156" height="12" rx="3" fill={WHITE} stroke={LINE} />
+      <rect x="42" y="76" width="156" height="12" rx="3" fill={WHITE} stroke={LINE} />
+      <rect x="42" y="92" width="156" height="12" rx="3" fill={WHITE} stroke={LINE} />
+
+      <rect x="30" y="34" width="180" height="18" fill={WHITE} opacity="0.92" stroke={LINE} filter="url(#mini-shadow)" />
+      <circle cx="42" cy="43" r="3" fill="#584B8A" />
+      <rect x="48" y="41" width="36" height="4" rx="1" fill={INK2} />
+      <rect x="174" y="38" width="28" height="10" rx="2" fill="#584B8A" />
+      <text x="188" y="45" fontSize="5" fontWeight="600" fill={WHITE} textAnchor="middle">Action</text>
+    </g>
+  ),
+
+  'full-bleed': (
+    <g>
+      <rect x="60" y="34" width="120" height="18" rx="3" fill={WHITE} stroke={LINE} />
+      <rect x="22" y="58" width="196" height="30" fill={INK} />
+      <rect x="60" y="62" width="120" height="22" fill="none" stroke="#8C887E" strokeWidth="0.8" strokeDasharray="2 2" />
+      <text x="120" y="73" fontSize="6.5" fontWeight="700" fill={WHITE} textAnchor="middle">Full-Bleed 100vw</text>
+      <text x="120" y="80" fontSize="5" fill="#A6A29A" textAnchor="middle">Inner max-w-7xl centered</text>
+      <rect x="60" y="94" width="120" height="18" rx="3" fill={WHITE} stroke={LINE} />
+    </g>
+  ),
 };
 

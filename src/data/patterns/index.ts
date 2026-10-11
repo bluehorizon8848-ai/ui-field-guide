@@ -7,6 +7,7 @@ import { feedbackPatterns } from './feedback';
 import { dataPatterns } from './data';
 import { interactionPatterns } from './interaction';
 import { generalPatterns } from './general';
+import { layoutPatterns } from './layout';
 
 export const patterns: UIPattern[] = [
   ...navigationPatterns,
@@ -17,6 +18,7 @@ export const patterns: UIPattern[] = [
   ...dataPatterns,
   ...interactionPatterns,
   ...generalPatterns,
+  ...layoutPatterns,
 ];
 
 export const patternMap: Record<string, UIPattern> = Object.fromEntries(

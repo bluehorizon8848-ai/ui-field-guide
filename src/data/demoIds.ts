@@ -73,6 +73,14 @@ export const demoIds: readonly string[] = [
   'command-palette',
   'extended-fab',
   'service-card',
+  'container',
+  'hero',
+  'bento-grid',
+  'masonry',
+  'split-screen',
+  'sidebar-layout',
+  'sticky-bar',
+  'full-bleed',
 ] as const;
 
 const demoIdSet = new Set<string>(demoIds);

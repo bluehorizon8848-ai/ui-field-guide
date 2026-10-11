@@ -9,7 +9,8 @@ export type CategoryId =
   | 'feedback'
   | 'data'
   | 'interaction'
-  | 'general';
+  | 'general'
+  | 'layout';
 
 export type Appearance = 'always' | 'on-click' | 'on-scroll' | 'on-hover' | 'auto';
 

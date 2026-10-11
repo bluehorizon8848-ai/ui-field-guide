@@ -29,4 +29,7 @@ export const categoryTranslations: CategoryTranslations = {
   general: {
     blurb: 'Belongs to no single category, yet these are the everyday basics you will see on nearly every screen.',
   },
+  layout: {
+    blurb: 'Governs spatial framing and visual flow — how content is placed, max-width bounds, and screen division.',
+  },
 };

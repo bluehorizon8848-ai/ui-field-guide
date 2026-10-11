@@ -65,6 +65,14 @@ export const categories: Category[] = [
     tint: 'tint-general',
     accent: 'text-accent-general',
   },
+  {
+    id: 'layout',
+    name: 'Layout & Structure',
+    chineseName: '版式与布局',
+    blurb: '决定页面的空间骨架与视线流向——内容怎么放、多宽合适、怎么切分屏幕。',
+    tint: 'tint-layout',
+    accent: 'text-accent-layout',
+  },
 ];
 
 export const categoryMap: Record<string, Category> = Object.fromEntries(

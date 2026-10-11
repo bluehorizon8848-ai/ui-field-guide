@@ -24,6 +24,7 @@ const config: Config = {
           data: '#2F6E75',
           interaction: '#5F6B33',
           general: '#3A3833',
+          layout: '#584B8A',
         },
         tint: {
           navigation: '#EEF3F8',
@@ -34,6 +35,7 @@ const config: Config = {
           data: '#ECF3F4',
           interaction: '#F0F3E7',
           general: '#F2F0EB',
+          layout: '#F2F0F7',
         },
       },
       fontFamily: {

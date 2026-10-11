@@ -80,7 +80,16 @@ import {
   ExtendedFabDemo,
   ServiceCardDemo,
 } from './PlatformDemos';
-
+import {
+  ContainerDemo,
+  HeroDemo,
+  BentoGridDemo,
+  MasonryDemo,
+  SplitScreenDemo,
+  SidebarLayoutDemo,
+  StickyBarDemo,
+  FullBleedDemo,
+} from './LayoutDemos';
 
 export const demoRegistry: Record<string, ComponentType> = {
   // Navigation
@@ -163,6 +172,16 @@ export const demoRegistry: Record<string, ComponentType> = {
   'progressive-disclosure': ProgressiveDisclosureDemo,
   'optimistic-ui': OptimisticDemo,
   'inline-validation': InlineValidationDemo,
+
+  // Layout
+  container: ContainerDemo,
+  hero: HeroDemo,
+  'bento-grid': BentoGridDemo,
+  masonry: MasonryDemo,
+  'split-screen': SplitScreenDemo,
+  'sidebar-layout': SidebarLayoutDemo,
+  'sticky-bar': StickyBarDemo,
+  'full-bleed': FullBleedDemo,
 };
 
 export function hasDemo(id: string): boolean {
