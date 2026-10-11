@@ -33,7 +33,7 @@ export function PatternCard({
       className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface card-hover hover:-translate-y-0.5"
     >
       {showPreview && (
-        <div className="relative h-[132px] shrink-0 overflow-hidden border-b border-line bg-[#FCFBF8]">
+        <div className="relative h-[148px] shrink-0 overflow-hidden border-b border-line bg-[#F8F7F3]">
           <MiniPreview id={pattern.id} />
           {pattern.specialBadge && (
             <span className="absolute left-2.5 top-2.5 z-10 rounded-md border border-[#1D734C]/30 bg-surface/95 px-1.5 py-0.5 text-[10px] font-semibold text-[#1D734C] shadow-2xs backdrop-blur-sm">
@@ -82,7 +82,7 @@ export function PatternCard({
 export function PatternCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-card border border-line bg-surface">
-      <div className="h-[132px] animate-pulse bg-[#F0EDE6]" />
+      <div className="h-[148px] animate-pulse bg-[#F0EDE6]" />
       <div className="space-y-2 p-3.5">
         <div className="h-2.5 w-1/3 animate-pulse rounded bg-[#F0EDE6]" />
         <div className="h-3.5 w-2/3 animate-pulse rounded bg-[#F0EDE6]" />

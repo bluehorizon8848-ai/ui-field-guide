@@ -227,7 +227,7 @@ export function IdentifyClient() {
                       href={h(`/patterns/${hit.pattern.id}`)}
                       className="group flex gap-3.5 rounded-card border border-line bg-surface p-3.5 card-hover"
                     >
-                      <span className="h-[76px] w-[104px] shrink-0 overflow-hidden rounded-lg border border-line bg-[#FCFBF8]">
+                      <span className="h-[88px] w-[128px] shrink-0 overflow-hidden rounded-lg border border-line bg-[#F8F7F3]">
                         <MiniPreview id={hit.pattern.id} />
                       </span>
 

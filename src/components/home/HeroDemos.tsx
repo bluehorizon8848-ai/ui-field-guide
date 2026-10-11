@@ -35,7 +35,7 @@ export function HeroDemos() {
           href={h(`/patterns/${d.id}`)}
           className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface card-hover hover:-translate-y-0.5"
         >
-          <div className="h-[92px] overflow-hidden border-b border-line bg-[#FCFBF8]">
+          <div className="h-[108px] overflow-hidden border-b border-line bg-[#F8F7F3]">
             <MiniPreview id={d.id} />
           </div>
           <div className="flex items-baseline gap-1.5 px-3 py-2.5">
