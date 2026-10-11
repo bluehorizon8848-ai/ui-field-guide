@@ -6,6 +6,7 @@ import { toPng } from 'html-to-image';
 import type { UIPattern } from '@/data/types';
 import { useLocale } from '@/components/layout/LocaleProvider';
 import { t } from '@/lib/ui-strings';
+import { MiniPreview } from '@/components/patterns/MiniPreview';
 import { drawShareCard, type ShareCardImage } from './renderCard';
 
 /**
@@ -33,7 +34,7 @@ export function ShareCardModal({
   const [canShare, setCanShare] = useState(false);
   const [shotState, setShotState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  /** 隐藏的离屏容器：把真实 Demo 渲染一份用于截图 */
+  /** 隐藏的离屏容器：把列表卡片微缩组件渲染一份用于截图 */
   const shotRef = useRef<HTMLDivElement>(null);
   const shotImgRef = useRef<HTMLImageElement | null>(null);
   const spec = RATIOS.find((r) => r.id === ratio)!;
@@ -56,36 +57,39 @@ export function ShareCardModal({
     };
   }, [onClose]);
 
-  /* ---------- 抓取真实 Demo 截图 ---------- */
+  /* ---------- 抓取微缩卡片截图 ---------- */
   const capture = useCallback(async () => {
     const node = shotRef.current;
     if (!node) return;
 
     setShotState('loading');
     try {
-      // 获取规范化的快照舞台容器
       const stage = node.querySelector<HTMLElement>('[data-shot-stage]');
       if (!stage) return;
 
-      const rect = stage.getBoundingClientRect();
-      const stageW = Math.ceil(rect.width);
-      const stageH = Math.ceil(rect.height);
+      const svgEl = stage.querySelector('svg');
+      let dataUrl: string;
 
-      const dataUrl = await toPng(stage, {
-        width: stageW,
-        height: stageH,
-        pixelRatio: 2,
-        backgroundColor: '#FFFFFF',
-        cacheBust: true,
-        style: {
-          position: 'static',
-          left: '0',
-          top: '0',
-          right: 'auto',
-          bottom: 'auto',
-          margin: '0',
-        },
-      });
+      if (svgEl) {
+        // SVG 直接序列化为高保真矢量 Blob，零延迟并完美保持矢量锐度与阴影
+        const clone = svgEl.cloneNode(true) as SVGSVGElement;
+        clone.setAttribute('width', '720');
+        clone.setAttribute('height', '396');
+        const xml = new XMLSerializer().serializeToString(clone);
+        const svgBlob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+        dataUrl = URL.createObjectURL(svgBlob);
+      } else {
+        const rect = stage.getBoundingClientRect();
+        const stageW = Math.ceil(rect.width) || 720;
+        const stageH = Math.ceil(rect.height) || 396;
+        dataUrl = await toPng(stage, {
+          width: stageW,
+          height: stageH,
+          pixelRatio: 2,
+          backgroundColor: 'transparent',
+          cacheBust: true,
+        });
+      }
 
       const img = new Image();
       await new Promise<void>((resolve, reject) => {
@@ -97,8 +101,7 @@ export function ShareCardModal({
       shotImgRef.current = img;
       setShotState('ready');
     } catch (err) {
-      // 保留到 console 便于排查，但不影响用户界面
-      console.warn('[share-card] Demo 截图失败，回退到占位图：', err);
+      console.warn('[share-card] 列表卡片截图失败，回退到占位图：', err);
       shotImgRef.current = null;
       setShotState('failed');
     }
@@ -316,7 +319,7 @@ export function ShareCardModal({
         </footer>
       </div>
 
-      {/* ---------- 离屏截图容器：渲染真实 Demo ---------- */}
+      {/* ---------- 离屏截图容器：渲染列表卡片微缩组件 ---------- */}
       <div
         ref={shotRef}
         aria-hidden="true"
@@ -324,63 +327,46 @@ export function ShareCardModal({
           position: 'fixed',
           left: '-12000px',
           top: '0',
-          width: '540px',
+          width: '720px',
+          height: '396px',
           pointerEvents: 'none',
         }}
       >
-        <ShareCardDemoSnapshot pattern={pattern} onReady={() => void capture()} />
+        <ShareCardPreviewSnapshot pattern={pattern} onReady={() => void capture()} />
       </div>
     </div>
   );
 }
 
 /**
- * 离屏渲染用的 Demo 快照。
- * 规范化舞台尺寸，隐藏内部重复视窗标题栏与底部小字，呈现端庄自然的组件体量。
+ * 离屏渲染用的列表卡片微缩快照。
+ * 对应列表卡片 MiniPreview，75 个 Pattern 纯 SVG 矢量高保真呈现，
+ * 比例标准（240:132 黄金比例），饱满充实，色彩鲜明。
  */
-function ShareCardDemoSnapshot({
+function ShareCardPreviewSnapshot({
   pattern,
   onReady,
 }: {
   pattern: UIPattern;
   onReady: () => void;
 }) {
-  const [Demo, setDemo] = useState<React.ComponentType | null>(null);
-
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const { demoRegistry } = await import('@/components/demo/registry');
-      if (!cancelled) {
-        setDemo(() => demoRegistry[pattern.id] ?? null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [pattern.id]);
-
-  useEffect(() => {
-    if (Demo) {
-      const timer = setTimeout(() => {
-        onReady();
-      }, 60);
-      return () => clearTimeout(timer);
-    }
-  }, [Demo, onReady]);
+    // MiniPreview 是纯 SVG 矢量组件，DOM 渲染是同步的。
+    // 等待一帧让 DOM 完成布局和绘制后，立即触发截图。
+    const raf = requestAnimationFrame(() => {
+      onReady();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pattern.id, onReady]);
 
   return (
     <div
       data-shot-stage=""
-      className="w-[500px] rounded-2xl bg-white p-6 shadow-sm flex flex-col items-center justify-center border border-[#E2E8F0]"
+      className="w-[720px] h-[396px] flex items-center justify-center"
       style={{ boxSizing: 'border-box' }}
     >
-      {/*
-        去掉 Demo 内部自带的 Live Demo Playground 假工具条与 figcaption，
-        让核心组件在规范的 500px 视口中以自然的纵横比居中呈现，杜绝扁平压缩与套娃。
-      */}
-      <div className="w-full flex flex-col items-center justify-center [&_.demo-stage]:!min-h-0 [&_.demo-stage]:!border-0 [&_.demo-stage]:!bg-transparent [&_.demo-stage]:!shadow-none [&_.demo-stage]:!p-0 [&_.demo-stage]:!rounded-none [&_.demo-stage>div:first-child]:!hidden [&_figcaption]:!hidden">
-        {Demo ? <Demo /> : null}
+      <div className="w-full h-full">
+        <MiniPreview id={pattern.id} />
       </div>
     </div>
   );

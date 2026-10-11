@@ -15,7 +15,7 @@ import { t } from '@/lib/ui-strings';
 const C = {
   canvas: '#FAF9F6',
   surface: '#FFFFFF',
-  stageBg: '#FFFFFF',
+  stageBg: '#F8F7F3',
   ink: '#0F172A',
   ink2: '#334155',
   muted: '#64748B',
@@ -109,8 +109,9 @@ function hLine(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, c
 }
 
 /**
- * 精纯组件居中展台。
- * 规范：极简单层视窗，去除冗余标签，严格 Contain 等比居中呈现，保留舒适呼吸感。
+ * 列表卡片微缩组件居中展台。
+ * 规范：采用列表卡片专属温润浅底 #F8F7F3 与微边框，
+ * 居中等比饱满铺展（MiniPreview 自身自带视窗外框与微圆点，彻底根除双层套娃与扁平压缩）。
  */
 function drawShowcaseDemo(
   ctx: CanvasRenderingContext2D,
@@ -126,86 +127,49 @@ function drawShowcaseDemo(
   const radius = Math.round(W * 0.024);
 
   ctx.save();
-  // 1. 展台外框与底色
+  // 1. 展台外框与底色（列表卡片同款温润浅底 #F8F7F3）
   ctx.fillStyle = C.stageBg;
   roundRect(ctx, x, y, w, h, radius);
   ctx.fill();
 
-  // 展台微边框与柔和投影
+  // 展台微边框与柔和阴影
   ctx.strokeStyle = C.line;
   ctx.lineWidth = 1.2;
   roundRect(ctx, x, y, w, h, radius);
   ctx.stroke();
 
-  // 2. 视窗顶部装饰栏（Apple 极简风格微圆点）
-  const headerH = Math.round(W * 0.042);
-  ctx.fillStyle = '#FAFAFA';
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + w - radius, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-  ctx.lineTo(x + w, y + headerH);
-  ctx.lineTo(x, y + headerH);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-  ctx.fill();
+  // 展台内柔和环境高光（中心微提亮，烘托卡片立体感）
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.round(w * 0.46));
+  glow.addColorStop(0, 'rgba(255, 255, 255, 0.75)');
+  glow.addColorStop(0.6, 'rgba(255, 255, 255, 0.25)');
+  glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(x, y, w, h);
 
-  // 视窗底分割线
-  hLine(ctx, x, y + headerH, w, C.line);
-
-  // 窗口三色微圆点
-  const dotR = Math.max(3.5, Math.round(W * 0.0055));
-  const dotY = y + headerH / 2;
-  const dotColors = ['#FF5F56', '#FFBD2E', '#27C93F'];
-  dotColors.forEach((color, i) => {
-    ctx.beginPath();
-    ctx.arc(x + Math.round(W * 0.026) + i * Math.round(W * 0.018), dotY, dotR, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-  });
-
-  // 3. 居中渲染真实组件截图（严格 1:1 纵横比，绝不拉伸压扁）
-  const stageX = x;
-  const stageY = y + headerH;
-  const stageW = w;
-  const stageH = h - headerH;
-
+  // 2. 居中渲染列表卡片微缩组件
   ctx.save();
-  roundRect(ctx, stageX, stageY, stageW, stageH, radius);
+  roundRect(ctx, x, y, w, h, radius);
   ctx.clip();
 
   if (img && img.width > 0 && img.height > 0) {
     const ir = img.naturalWidth || img.width;
     const ih = img.naturalHeight || img.height;
 
-    // 可用内容区域留出舒适内边距
-    const innerPadX = Math.round(stageW * 0.08);
-    const innerPadY = Math.round(stageH * 0.1);
-    const maxDrawW = stageW - innerPadX * 2;
-    const maxDrawH = stageH - innerPadY * 2;
+    // 展台留出自然舒适的内边距（两侧 4%，上下 5%）
+    const innerPadX = Math.round(w * 0.04);
+    const innerPadY = Math.round(h * 0.05);
+    const maxDrawW = w - innerPadX * 2;
+    const maxDrawH = h - innerPadY * 2;
 
-    // Contain 严格等比例
-    const scale = Math.min(1.0, maxDrawW / ir, maxDrawH / ih);
+    // 严格等比例放大铺展，解除 1.0 上限限制，让组件充盈整幅舞台
+    const scale = Math.min(maxDrawW / ir, maxDrawH / ih);
     const drawW = Math.round(ir * scale);
     const drawH = Math.round(ih * scale);
 
-    const drawX = stageX + Math.round((stageW - drawW) / 2);
-    const drawY = stageY + Math.round((stageH - drawH) / 2);
-
-    // 展台中心微弥散环境光，烘托组件色彩焦点
-    const cx = stageX + stageW / 2;
-    const cy = stageY + stageH / 2;
-    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.round(stageW * 0.45));
-    glow.addColorStop(0, 'rgba(37, 99, 235, 0.045)');
-    glow.addColorStop(1, 'rgba(37, 99, 235, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(stageX, stageY, stageW, stageH);
-
-    // 柔和微外投影，使微缩组件立体浮起
-    ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
-    ctx.shadowBlur = Math.round(W * 0.025);
-    ctx.shadowOffsetY = Math.round(W * 0.008);
+    const drawX = x + Math.round((w - drawW) / 2);
+    const drawY = y + Math.round((h - drawH) / 2);
 
     ctx.drawImage(img, 0, 0, ir, ih, drawX, drawY, drawW, drawH);
   } else {
@@ -214,7 +178,11 @@ function drawShowcaseDemo(
     ctx.font = `400 ${Math.round(W * 0.024)}px ${SANS}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(fallbackReason || t(locale, 'share.previewGenerating'), stageX + stageW / 2, stageY + stageH / 2);
+    ctx.fillText(
+      fallbackReason || t(locale, 'share.previewGenerating'),
+      x + w / 2,
+      y + h / 2
+    );
     ctx.textAlign = 'left';
   }
 
@@ -323,14 +291,10 @@ export function drawShareCard(
   y = wrapTextTop(ctx, introText, pad, y, innerW, introSize * 1.45, 2);
   y += Math.round(W * 0.04);
 
-  // ---------- 4. 展台主体（Showcase Window） ----------
-  // 底部精简后仅保留一句话提示词与页脚，释放出极大纵向高度给组件展示
-  const promptH = Math.round(W * 0.075);
-  const footH = Math.round(W * 0.042);
-  const bottomSpace = promptH + Math.round(W * 0.035) + footH + Math.round(W * 0.02);
-
-  const availStageH = H - y - bottomSpace;
-  const shotH = Math.max(Math.round(innerW * 0.42), availStageH);
+  // ---------- 4. 展台主体（列表卡片 MiniPreview 黄金比例舞台） ----------
+  const isSquare = H / W <= 1.05;
+  // 3:4 比例下设定严谨黄金比例高度，杜绝扁平压缩与上下巨大空白；1:1 比例下自适应充满
+  const shotH = isSquare ? Math.round(innerW * 0.54) : Math.round(innerW * 0.63);
   const shotX = pad;
   const shotY = y;
   const shotW = innerW;
@@ -347,11 +311,16 @@ export function drawShareCard(
     image?.fallbackReason
   );
 
-  y = shotY + shotH + Math.round(W * 0.032);
+  y = shotY + shotH + Math.round(W * 0.034);
 
   // ---------- 5. 一句话提示词卡片（极简优雅） ----------
+  const footY = H - Math.round(W * 0.034);
+  const availPromptH = footY - y - Math.round(W * 0.038);
+  const promptCardH = isSquare
+    ? Math.round(W * 0.088)
+    : Math.min(Math.round(W * 0.125), Math.max(Math.round(W * 0.09), availPromptH));
   const promptY = y;
-  const promptCardH = promptH;
+
   ctx.fillStyle = C.surface;
   roundRect(ctx, pad, promptY, innerW, promptCardH, Math.round(W * 0.018));
   ctx.fill();
@@ -361,44 +330,92 @@ export function drawShareCard(
   roundRect(ctx, pad, promptY, innerW, promptCardH, Math.round(W * 0.018));
   ctx.stroke();
 
-  // PROMPT 微胶囊标识
-  const badgeW = Math.round(W * 0.125);
-  const badgeH = Math.round(promptCardH * 0.46);
-  const badgeX = pad + Math.round(W * 0.024);
-  const badgeY = promptY + Math.round((promptCardH - badgeH) / 2);
-
-  ctx.fillStyle = C.accentBg;
-  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
-  ctx.fill();
-
-  ctx.strokeStyle = C.accentBorder;
-  ctx.lineWidth = 1;
-  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
-  ctx.stroke();
-
-  ctx.fillStyle = C.accent;
-  ctx.font = `700 ${Math.round(W * 0.0145)}px ${MONO}`;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.fillText('PROMPT', badgeX + badgeW / 2, badgeY + badgeH / 2);
-  ctx.textAlign = 'left';
-
-  // 一句话提示词正文
+  // 提示词排版：根据卡片高度自适应（3:4 优雅两层排版，1:1 精炼单行排版）
   const promptText = `“${t(locale, 'share.useIt', { name: pattern.name })}”`;
-  const textX = badgeX + badgeW + Math.round(W * 0.02);
-  const textY = promptY + promptCardH / 2;
-  const promptTextSize = Math.round(W * 0.026);
-  ctx.fillStyle = C.ink;
-  ctx.font = `italic 500 ${promptTextSize}px ${SERIF}`;
-  ctx.textBaseline = 'middle';
-  ctx.fillText(promptText, textX, textY);
+
+  if (!isSquare && promptCardH >= Math.round(W * 0.11)) {
+    // 3:4 豪华双层排版
+    const badgeW = Math.round(W * 0.13);
+    const badgeH = Math.round(promptCardH * 0.28);
+    const badgeX = pad + Math.round(W * 0.024);
+    const badgeY = promptY + Math.round(promptCardH * 0.18);
+
+    ctx.fillStyle = C.accentBg;
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+    ctx.fill();
+
+    ctx.strokeStyle = C.accentBorder;
+    ctx.lineWidth = 1;
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+    ctx.stroke();
+
+    ctx.fillStyle = C.accent;
+    ctx.font = `700 ${Math.round(W * 0.0145)}px ${MONO}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.fillText('PROMPT', badgeX + badgeW / 2, badgeY + badgeH / 2);
+    ctx.textAlign = 'left';
+
+    ctx.fillStyle = C.muted;
+    ctx.font = `500 ${Math.round(W * 0.015)}px ${SANS}`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      isEn ? 'FOR INDIE DEVELOPERS' : 'AI 独立开发者提示词',
+      badgeX + badgeW + 10,
+      badgeY + badgeH / 2
+    );
+
+    // 提示词正文
+    const textX = pad + Math.round(W * 0.024);
+    const textY = promptY + Math.round(promptCardH * 0.68);
+    const promptTextSize = Math.round(W * 0.027);
+    ctx.fillStyle = C.ink;
+    ctx.font = `italic 500 ${promptTextSize}px ${SERIF}`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(promptText, textX, textY);
+  } else {
+    // 1:1 精炼单行排版
+    const badgeW = Math.round(W * 0.125);
+    const badgeH = Math.round(promptCardH * 0.44);
+    const badgeX = pad + Math.round(W * 0.022);
+    const badgeY = promptY + Math.round((promptCardH - badgeH) / 2);
+
+    ctx.fillStyle = C.accentBg;
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+    ctx.fill();
+
+    ctx.strokeStyle = C.accentBorder;
+    ctx.lineWidth = 1;
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+    ctx.stroke();
+
+    ctx.fillStyle = C.accent;
+    ctx.font = `700 ${Math.round(W * 0.014)}px ${MONO}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.fillText('PROMPT', badgeX + badgeW / 2, badgeY + badgeH / 2);
+    ctx.textAlign = 'left';
+
+    const textX = badgeX + badgeW + Math.round(W * 0.02);
+    const textY = promptY + promptCardH / 2;
+    const promptTextSize = Math.round(W * 0.025);
+    ctx.fillStyle = C.ink;
+    ctx.font = `italic 500 ${promptTextSize}px ${SERIF}`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(promptText, textX, textY);
+  }
 
   // ---------- 6. 底部品牌与网址 ----------
-  const footY = H - Math.round(W * 0.028);
   hLine(ctx, pad, footY - Math.round(W * 0.014), innerW, C.line);
 
   ctx.fillStyle = C.muted;
   ctx.font = `400 ${Math.round(W * 0.014)}px ${MONO}`;
   ctx.textBaseline = 'top';
   ctx.fillText('ui.lutivelab.com · LutiveLab', pad, footY);
+
+  // 右侧标注
+  const guideLabel = 'UI Field Guide';
+  ctx.textAlign = 'right';
+  ctx.fillText(guideLabel, W - pad, footY);
+  ctx.textAlign = 'left';
 }

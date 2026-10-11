@@ -24,7 +24,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 // 采样几个复杂度差异大的 Pattern
-for (const slug of ['icon-button', 'bottom-sheet', 'skeleton', 'modal']) {
+for (const slug of ['button', 'icon-button', 'bottom-sheet', 'skeleton', 'modal']) {
   await page.goto(`${BASE}/patterns/${slug}/`, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: '生成分享卡片' }).first().click();
   const dialog = page.getByRole('dialog');
@@ -87,10 +87,11 @@ for (const slug of ['icon-button', 'bottom-sheet', 'skeleton', 'modal']) {
     };
   });
 
-  // 真实 Demo 截图：颜色分层明显（>=20 种），且有可观的非背景像素（>=3%）
+  // 真实 Demo 截图：颜色分层明显（>=20 种，骨架屏等单色组件 >=8 种），且有可观的非背景像素（>=3%）
+  const minColors = slug === 'skeleton' ? 8 : 20;
   if (!stats) {
     bad(`${slug}: canvas 未渲染`);
-  } else if (stats.colorBuckets < 20 || stats.nonBgRatio < 0.03) {
+  } else if (stats.colorBuckets < minColors || stats.nonBgRatio < 0.03) {
     bad(
       `${slug}: 截图区内容不足（${stats.colorBuckets} 种颜色，非背景 ${(stats.nonBgRatio * 100).toFixed(1)}%）`
     );
