@@ -238,10 +238,14 @@ export function ShareCardModal({
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
-          <div className="flex justify-center">
+          <div className="flex items-center justify-center">
             <canvas
               ref={canvasRef}
-              className="h-auto max-h-[58vh] sm:max-h-[64vh] w-auto max-w-full rounded-lg border border-line shadow-card"
+              style={{
+                aspectRatio: ratio === '1:1' ? '1 / 1' : '3 / 4',
+                maxHeight: 'min(58vh, 620px)',
+              }}
+              className="h-auto w-auto max-w-full rounded-lg border border-line shadow-card shrink-0 object-contain"
               aria-label={t(locale, 'share.canvasLabel', { name: pattern.name })}
             />
           </div>

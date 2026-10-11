@@ -405,16 +405,16 @@ const PREVIEWS: Record<string, ReactElement> = {
     <g>
       {/* 半透明遮罩：超界覆盖，由外层 clipPath 精确裁剪 */}
       <rect x="-20" y="-20" width="280" height="220" fill="#0F172A" fillOpacity="0.4" />
-      {/* 悬浮弹窗卡片：加高加宽，摆脱扁平感 */}
-      <rect x="36" y="28" width="168" height="86" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
-      <text x="50" y="48" fontSize="10" fontWeight="700" fill={INK}>Confirm Publishing</text>
-      <path d="M188 40 l6 6 M194 40 l-6 6" stroke={MUTED} strokeWidth="1.6" strokeLinecap="round" />
-      <rect x="50" y="56" width="140" height="16" rx="3" fill={SOFT} />
+      {/* 悬浮弹窗卡片：154x92 优雅挺拔黄金比例，自然留白 */}
+      <rect x="43" y="25" width="154" height="92" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <text x="56" y="45" fontSize="10" fontWeight="700" fill={INK}>Confirm Publishing</text>
+      <path d="M182 37 l6 6 M188 37 l-6 6" stroke={MUTED} strokeWidth="1.6" strokeLinecap="round" />
+      <rect x="56" y="53" width="128" height="18" rx="4" fill={SOFT} />
       {/* 操作按钮 */}
-      <rect x="106" y="82" width="42" height="22" rx="4" fill={SOFT} stroke={LINE} />
-      <text x="127" y="96" fontSize="8.5" fill={INK2} textAnchor="middle">Cancel</text>
-      <rect x="154" y="82" width="42" height="22" rx="4" fill={BLUE} />
-      <text x="175" y="96" fontSize="8.5" fontWeight="700" fill={WHITE} textAnchor="middle">Publish</text>
+      <rect x="96" y="82" width="44" height="23" rx="4" fill={SOFT} stroke={LINE} />
+      <text x="118" y="97" fontSize="8.5" fill={INK2} textAnchor="middle">Cancel</text>
+      <rect x="146" y="82" width="44" height="23" rx="4" fill={BLUE} />
+      <text x="168" y="97" fontSize="8.5" fontWeight="700" fill={WHITE} textAnchor="middle">Publish</text>
     </g>
   ),
 
@@ -733,16 +733,16 @@ const PREVIEWS: Record<string, ReactElement> = {
   'modal-stateful': (
     <g>
       <rect x="-20" y="-20" width="280" height="220" fill="#0F172A" fillOpacity="0.35" />
-      <rect x="36" y="30" width="168" height="84" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <rect x="43" y="25" width="154" height="92" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
       {/* 多步骤表单对话框 */}
-      <text x="48" y="48" fontSize="9" fontWeight="700" fill={INK}>Step 2 of 3: Permissions</text>
-      <rect x="48" y="54" width="144" height="5" rx="2.5" fill={LINE} />
-      <rect x="48" y="54" width="96" height="5" rx="2.5" fill={BLUE} />
-      <rect x="48" y="66" width="144" height="20" rx="4" fill={SOFT} stroke={LINE} />
-      <circle cx="60" cy="76" r="4.5" fill={GREEN} />
-      <text x="70" y="79" fontSize="8" fontWeight="600" fill={INK2}>Full Read/Write Access</text>
-      <rect x="144" y="92" width="48" height="18" rx="4" fill={BLUE} />
-      <text x="168" y="104" fontSize="8" fontWeight="700" fill={WHITE} textAnchor="middle">Next →</text>
+      <text x="55" y="44" fontSize="9" fontWeight="700" fill={INK}>Step 2 of 3: Permissions</text>
+      <rect x="55" y="50" width="130" height="5" rx="2.5" fill={LINE} />
+      <rect x="55" y="50" width="86" height="5" rx="2.5" fill={BLUE} />
+      <rect x="55" y="62" width="130" height="20" rx="4" fill={SOFT} stroke={LINE} />
+      <circle cx="67" cy="72" r="4" fill={GREEN} />
+      <text x="76" y="75" fontSize="7.5" fontWeight="600" fill={INK2}>Full Read/Write Access</text>
+      <rect x="141" y="88" width="44" height="20" rx="4" fill={BLUE} />
+      <text x="163" y="101" fontSize="8" fontWeight="700" fill={WHITE} textAnchor="middle">Next →</text>
     </g>
   ),
 
