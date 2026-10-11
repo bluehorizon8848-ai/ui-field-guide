@@ -4,24 +4,27 @@ import { t } from '@/lib/ui-strings';
 
 /**
  * 分享卡片渲染（纯 Canvas 2D，无外部依赖）。
- * 设计取向：商业级设计知识卡片，严格自顶向下盒模型排版（Box Model）。
+ * 设计取向：商业级设计知识卡片，精简克制、突出组件、优雅一句话提示词。
  *
- * 关键修正：
- * 全局统一使用 `textBaseline = 'top'` 进行流式排版，彻底杜绝 alphabetic 基线导致的
- * 大字号向上重叠、文字压盖、以及展台底边遮挡「适合场景」的排版缺陷。
+ * 核心优化：
+ * 1. 彻底解决组件压扁问题：剥离内部假窗口套娃与杂乱 caption，采用纯净自适应舞台，居中等比呈现。
+ * 2. 国际化精准适配：英文模式下（locale === 'en'）严格隐藏中文名称，呈现地道纯英文设计卡片。
+ * 3. 布局极大精简：移除冗余的 BEST FOR 场景块，将 AI 提示词浓缩为极简优雅的一行胶囊，视觉重心彻底还给组件。
  */
 
 const C = {
   canvas: '#FAF9F6',
   surface: '#FFFFFF',
-  stageBg: '#F8F7F3',
-  ink: '#1A1917',
-  ink2: '#4A4740',
-  muted: '#767269',
-  line: '#E6E3DB',
-  line2: '#F0EDE6',
-  soft: '#F2F0EB',
-  accent: '#1D734C',
+  stageBg: '#FFFFFF',
+  ink: '#0F172A',
+  ink2: '#334155',
+  muted: '#64748B',
+  line: '#E2E8F0',
+  line2: '#F1F5F9',
+  soft: '#F8FAFC',
+  accent: '#2563EB',
+  accentBg: '#EFF6FF',
+  accentBorder: '#BFDBFE',
 };
 
 const SANS =
@@ -106,9 +109,8 @@ function hLine(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, c
 }
 
 /**
- * 展台化组件居中展示。
- * 规范：采用 Contain 模式居中放置在微视窗内，限制最大放大比例不超过 1.05x，
- * 绝不过度放大截断，保留完整组件设计细节与周围舒适呼吸感。
+ * 精纯组件居中展台。
+ * 规范：极简单层视窗，去除冗余标签，严格 Contain 等比居中呈现，保留舒适呼吸感。
  */
 function drawShowcaseDemo(
   ctx: CanvasRenderingContext2D,
@@ -129,15 +131,15 @@ function drawShowcaseDemo(
   roundRect(ctx, x, y, w, h, radius);
   ctx.fill();
 
-  // 展台微边框
+  // 展台微边框与柔和投影
   ctx.strokeStyle = C.line;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.2;
   roundRect(ctx, x, y, w, h, radius);
   ctx.stroke();
 
-  // 2. 视窗标题栏（Window Chrome）
-  const headerH = Math.round(W * 0.046);
-  ctx.fillStyle = '#FFFFFF';
+  // 2. 视窗顶部装饰栏（Apple 极简风格微圆点）
+  const headerH = Math.round(W * 0.042);
+  ctx.fillStyle = '#FAFAFA';
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + w - radius, y);
@@ -152,26 +154,18 @@ function drawShowcaseDemo(
   // 视窗底分割线
   hLine(ctx, x, y + headerH, w, C.line);
 
-  // 窗口三色微圆点（Apple 极简风格）
+  // 窗口三色微圆点
   const dotR = Math.max(3.5, Math.round(W * 0.0055));
   const dotY = y + headerH / 2;
   const dotColors = ['#FF5F56', '#FFBD2E', '#27C93F'];
   dotColors.forEach((color, i) => {
     ctx.beginPath();
-    ctx.arc(x + Math.round(W * 0.028) + i * Math.round(W * 0.018), dotY, dotR, 0, Math.PI * 2);
+    ctx.arc(x + Math.round(W * 0.026) + i * Math.round(W * 0.018), dotY, dotR, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
   });
 
-  // 视窗居中小标签
-  ctx.fillStyle = C.muted;
-  ctx.font = `600 ${Math.round(W * 0.0135)}px ${MONO}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('SHOWCASE VIEW', x + w / 2, dotY);
-  ctx.textAlign = 'left';
-
-  // 3. 视窗内部舞台点阵底纹（微网格质感）
+  // 3. 居中渲染真实组件截图（严格 1:1 纵横比，绝不拉伸压扁）
   const stageX = x;
   const stageY = y + headerH;
   const stageW = w;
@@ -181,30 +175,18 @@ function drawShowcaseDemo(
   roundRect(ctx, stageX, stageY, stageW, stageH, radius);
   ctx.clip();
 
-  // 浅淡点阵
-  const dotGap = Math.round(W * 0.038);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.035)';
-  for (let px = stageX + dotGap / 2; px < stageX + stageW; px += dotGap) {
-    for (let py = stageY + dotGap / 2; py < stageY + stageH; py += dotGap) {
-      ctx.beginPath();
-      ctx.arc(px, py, 1.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  // 4. 居中渲染真实组件截图
   if (img && img.width > 0 && img.height > 0) {
     const ir = img.naturalWidth || img.width;
     const ih = img.naturalHeight || img.height;
 
-    // 可用内容区域留出呼吸内边距
-    const innerPadX = Math.round(stageW * 0.06);
-    const innerPadY = Math.round(stageH * 0.08);
+    // 可用内容区域留出舒适内边距
+    const innerPadX = Math.round(stageW * 0.08);
+    const innerPadY = Math.round(stageH * 0.1);
     const maxDrawW = stageW - innerPadX * 2;
     const maxDrawH = stageH - innerPadY * 2;
 
-    // 关键算法：Contain 且限制最大缩放倍率不超过 1.05x，保证锐利且绝不裁切截断
-    const scale = Math.min(1.05, maxDrawW / ir, maxDrawH / ih);
+    // Contain 严格等比例
+    const scale = Math.min(1.0, maxDrawW / ir, maxDrawH / ih);
     const drawW = Math.round(ir * scale);
     const drawH = Math.round(ih * scale);
 
@@ -212,9 +194,9 @@ function drawShowcaseDemo(
     const drawY = stageY + Math.round((stageH - drawH) / 2);
 
     // 柔和微外投影
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.04)';
     ctx.shadowBlur = Math.round(W * 0.02);
-    ctx.shadowOffsetY = Math.round(W * 0.008);
+    ctx.shadowOffsetY = Math.round(W * 0.006);
 
     ctx.drawImage(img, 0, 0, ir, ih, drawX, drawY, drawW, drawH);
   } else {
@@ -311,44 +293,35 @@ export function drawShareCard(
   ctx.fillText(levelText, tagX + 10, tagY + tagH / 2);
   ctx.textBaseline = 'top';
 
-  // Header 区域结束，留出充足间距（彻底解决标题向上重叠）
   y += badgeSize + Math.round(W * 0.045);
 
-  // ---------- 2. 英文组件名（向下自然流动） ----------
-  const nameSize = Math.round(W * 0.068);
+  // ---------- 2. 组件名 ----------
+  const nameSize = Math.round(W * 0.072);
   ctx.fillStyle = C.ink;
   ctx.font = `700 ${nameSize}px ${SANS}`;
   y = wrapTextTop(ctx, pattern.name, pad, y, innerW, nameSize * 1.15, 2);
   y += Math.round(W * 0.016);
 
-  // ---------- 3. 中文名与一句话简介 ----------
-  const zhSize = Math.round(W * 0.033);
+  // ---------- 3. 核心介绍（英文不展示中文名，突出纯粹组件介绍） ----------
+  const isEn = locale === 'en';
+  const introText = isEn
+    ? pattern.oneLine
+    : `${pattern.chineseName} · ${pattern.oneLine}`;
+
+  const introSize = Math.round(W * 0.034);
   ctx.fillStyle = C.muted;
-  ctx.font = `400 ${zhSize}px ${SANS}`;
-  const zhLabel = `${pattern.chineseName} · ${pattern.oneLine}`;
-  y = wrapTextTop(ctx, zhLabel, pad, y, innerW, zhSize * 1.4, 2);
-  y += Math.round(W * 0.036);
+  ctx.font = `400 ${introSize}px ${SANS}`;
+  y = wrapTextTop(ctx, introText, pad, y, innerW, introSize * 1.45, 2);
+  y += Math.round(W * 0.04);
 
   // ---------- 4. 展台主体（Showcase Window） ----------
-  const fitLabelSize = Math.round(W * 0.015);
-  const fitSize = Math.round(W * 0.032);
-  const askH = Math.round(W * 0.105);
-  const footH = Math.round(W * 0.045);
-
-  // 底部保留高度计算（留有充足的安全内衬，绝不相互挤压）
-  const bottomSpace =
-    Math.round(W * 0.035) + // 展台与“适合”的间距
-    fitLabelSize + // 适合标签
-    Math.round(W * 0.012) + // 标签与正文间距
-    fitSize * 1.45 * 2 + // 正文两行
-    Math.round(W * 0.028) + // 正文与 Ask AI 间距
-    askH + // Ask AI 框
-    Math.round(W * 0.025) + // Ask AI 与底部分割线间距
-    footH; // 页脚
+  // 底部精简后仅保留一句话提示词与页脚，释放出极大纵向高度给组件展示
+  const promptH = Math.round(W * 0.075);
+  const footH = Math.round(W * 0.042);
+  const bottomSpace = promptH + Math.round(W * 0.035) + footH + Math.round(W * 0.02);
 
   const availStageH = H - y - bottomSpace;
-  // 保持展台高宽比在 4:3 ~ 16:9 之间自适应
-  const shotH = Math.max(Math.round(innerW * 0.38), Math.min(availStageH, Math.round(innerW * 0.58)));
+  const shotH = Math.max(Math.round(innerW * 0.42), availStageH);
   const shotX = pad;
   const shotY = y;
   const shotW = innerW;
@@ -365,59 +338,58 @@ export function drawShareCard(
     image?.fallbackReason
   );
 
-  // 展台结束，推进 y 坐标并留出清晰间距
-  y = shotY + shotH + Math.round(W * 0.038);
+  y = shotY + shotH + Math.round(W * 0.032);
 
-  // ---------- 5. 适合场景（顶部对齐，绝不被展台压挡） ----------
-  ctx.fillStyle = C.muted;
-  ctx.font = `600 ${fitLabelSize}px ${MONO}`;
-  ctx.textBaseline = 'top';
-  ctx.fillText(t(locale, 'share.fitsFor').toUpperCase(), pad, y);
-  y += fitLabelSize + Math.round(W * 0.012);
-
-  ctx.fillStyle = C.ink2;
-  ctx.font = `400 ${fitSize}px ${SANS}`;
-  y = wrapTextTop(ctx, pattern.fitsFor, pad, y, innerW, fitSize * 1.45, 2);
-  y += Math.round(W * 0.025);
-
-  // ---------- 6. 底部 Ask AI 精致提示卡 ----------
-  const askY = Math.min(y, H - pad - askH - footH + Math.round(W * 0.01));
-  ctx.fillStyle = '#FFFFFF';
-  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.02));
+  // ---------- 5. 一句话提示词卡片（极简优雅） ----------
+  const promptY = y;
+  const promptCardH = promptH;
+  ctx.fillStyle = C.surface;
+  roundRect(ctx, pad, promptY, innerW, promptCardH, Math.round(W * 0.018));
   ctx.fill();
 
   ctx.strokeStyle = C.line;
   ctx.lineWidth = 1;
-  roundRect(ctx, pad, askY, innerW, askH, Math.round(W * 0.02));
+  roundRect(ctx, pad, promptY, innerW, promptCardH, Math.round(W * 0.018));
   ctx.stroke();
 
-  // Ask AI 标识
-  const askBadgeSize = Math.round(W * 0.013);
+  // PROMPT 微胶囊标识
+  const badgeW = Math.round(W * 0.125);
+  const badgeH = Math.round(promptCardH * 0.46);
+  const badgeX = pad + Math.round(W * 0.024);
+  const badgeY = promptY + Math.round((promptCardH - badgeH) / 2);
+
+  ctx.fillStyle = C.accentBg;
+  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+  ctx.fill();
+
+  ctx.strokeStyle = C.accentBorder;
+  ctx.lineWidth = 1;
+  roundRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
+  ctx.stroke();
+
   ctx.fillStyle = C.accent;
-  ctx.font = `700 ${askBadgeSize}px ${MONO}`;
-  ctx.textBaseline = 'top';
-  ctx.fillText('ASK AI PROMPT', pad + Math.round(W * 0.028), askY + Math.round(askH * 0.22));
+  ctx.font = `700 ${Math.round(W * 0.0145)}px ${MONO}`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.fillText('PROMPT', badgeX + badgeW / 2, badgeY + badgeH / 2);
+  ctx.textAlign = 'left';
 
-  // 提示词正文
-  const askTextSize = Math.round(W * 0.028);
+  // 一句话提示词正文
+  const promptText = `“${t(locale, 'share.useIt', { name: pattern.name })}”`;
+  const textX = badgeX + badgeW + Math.round(W * 0.02);
+  const textY = promptY + promptCardH / 2;
+  const promptTextSize = Math.round(W * 0.026);
   ctx.fillStyle = C.ink;
-  ctx.font = `italic 400 ${askTextSize}px ${SERIF}`;
-  wrapTextTop(
-    ctx,
-    `“${t(locale, 'share.useIt', { name: pattern.name })}”`,
-    pad + Math.round(W * 0.028),
-    askY + Math.round(askH * 0.54),
-    innerW - Math.round(W * 0.056),
-    askTextSize * 1.35,
-    1
-  );
+  ctx.font = `italic 500 ${promptTextSize}px ${SERIF}`;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(promptText, textX, textY);
 
-  // ---------- 7. 底部品牌与网址 ----------
+  // ---------- 6. 底部品牌与网址 ----------
   const footY = H - Math.round(W * 0.028);
-  hLine(ctx, pad, footY - Math.round(W * 0.016), innerW, C.line);
+  hLine(ctx, pad, footY - Math.round(W * 0.014), innerW, C.line);
 
   ctx.fillStyle = C.muted;
   ctx.font = `400 ${Math.round(W * 0.014)}px ${MONO}`;
   ctx.textBaseline = 'top';
-  ctx.fillText('ui.lutivelab.com · LutiveLab Workflow Ecosystem', pad, footY);
+  ctx.fillText('ui.lutivelab.com · LutiveLab', pad, footY);
 }

@@ -180,16 +180,20 @@ export function ShareCardModal({
         const file = new File([blob], `${pattern.id}-${ratio.replace(':', 'x')}.png`, {
           type: 'image/png',
         });
+        const isEn = locale === 'en';
+        const shareText = isEn
+          ? `${pattern.name} · UI Field Guide by LutiveLab`
+          : `${pattern.name} (${pattern.chineseName}) · UI Field Guide by LutiveLab`;
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: `${pattern.name} — UI Field Guide`,
-            text: `${pattern.name} (${pattern.chineseName}) · UI Field Guide by LutiveLab`,
+            text: shareText,
             files: [file],
           });
         } else {
           await navigator.share({
             title: `${pattern.name} — UI Field Guide`,
-            text: `${pattern.name} (${pattern.chineseName}) · UI Field Guide by LutiveLab`,
+            text: shareText,
             url: window.location.href,
           });
         }
@@ -320,11 +324,11 @@ export function ShareCardModal({
           position: 'fixed',
           left: '-12000px',
           top: '0',
-          width: 'max-content',
+          width: '540px',
           pointerEvents: 'none',
         }}
       >
-        <ShareCardDemoSnapshot pattern={pattern} />
+        <ShareCardDemoSnapshot pattern={pattern} onReady={() => void capture()} />
       </div>
     </div>
   );
@@ -332,9 +336,15 @@ export function ShareCardModal({
 
 /**
  * 离屏渲染用的 Demo 快照。
- * 独立于页面上的 Demo 实例，自带高质感微舞台包装与自然内容流式展开。
+ * 规范化舞台尺寸，隐藏内部重复视窗标题栏与底部小字，呈现端庄自然的组件体量。
  */
-function ShareCardDemoSnapshot({ pattern }: { pattern: UIPattern }) {
+function ShareCardDemoSnapshot({
+  pattern,
+  onReady,
+}: {
+  pattern: UIPattern;
+  onReady: () => void;
+}) {
   const [Demo, setDemo] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
@@ -350,17 +360,26 @@ function ShareCardDemoSnapshot({ pattern }: { pattern: UIPattern }) {
     };
   }, [pattern.id]);
 
+  useEffect(() => {
+    if (Demo) {
+      const timer = setTimeout(() => {
+        onReady();
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [Demo, onReady]);
+
   return (
     <div
       data-shot-stage=""
-      className="w-fit max-w-[700px] min-w-[280px] rounded-2xl border border-line bg-surface p-5 shadow-sm"
+      className="w-[500px] rounded-2xl bg-white p-6 shadow-sm flex flex-col items-center justify-center border border-[#E2E8F0]"
+      style={{ boxSizing: 'border-box' }}
     >
       {/*
-        Demo 组件内部自带 .demo-stage（固定边框 + padding + 最小高度）。
-        截图时把它压平：去掉边框/背景/内边距和最小高度，
-        让组件按内容自然尺寸排版，由外部舞台提供统一的呼吸感与质感。
+        去掉 Demo 内部自带的 Live Demo Playground 假工具条与 figcaption，
+        让核心组件在规范的 500px 视口中以自然的纵横比居中呈现，杜绝扁平压缩与套娃。
       */}
-      <div className="w-fit [&_.demo-stage]:!min-h-0 [&_.demo-stage]:!border-0 [&_.demo-stage]:!bg-transparent [&_.demo-stage]:!p-0 [&_.demo-stage]:!rounded-none">
+      <div className="w-full flex flex-col items-center justify-center [&_.demo-stage]:!min-h-0 [&_.demo-stage]:!border-0 [&_.demo-stage]:!bg-transparent [&_.demo-stage]:!shadow-none [&_.demo-stage]:!p-0 [&_.demo-stage]:!rounded-none [&_.demo-stage>div:first-child]:!hidden [&_figcaption]:!hidden">
         {Demo ? <Demo /> : null}
       </div>
     </div>
