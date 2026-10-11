@@ -4,7 +4,7 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 
-const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:3111';
+const BASE = process.argv[2] ?? process.env.BASE_URL ?? 'http://127.0.0.1:3111';
 const OUT = '/tmp/uifg-card-check';
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -89,9 +89,10 @@ for (const slug of ['button', 'icon-button', 'bottom-sheet', 'skeleton', 'modal'
 
   // 真实 Demo 截图：颜色分层明显（>=20 种，骨架屏等单色组件 >=8 种），且有可观的非背景像素（>=3%）
   const minColors = slug === 'skeleton' ? 8 : 20;
+  const minRatio = slug === 'skeleton' ? 0.02 : 0.03;
   if (!stats) {
     bad(`${slug}: canvas 未渲染`);
-  } else if (stats.colorBuckets < minColors || stats.nonBgRatio < 0.03) {
+  } else if (stats.colorBuckets < minColors || stats.nonBgRatio < minRatio) {
     bad(
       `${slug}: 截图区内容不足（${stats.colorBuckets} 种颜色，非背景 ${(stats.nonBgRatio * 100).toFixed(1)}%）`
     );

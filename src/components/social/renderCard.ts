@@ -293,8 +293,8 @@ export function drawShareCard(
 
   // ---------- 4. 展台主体（列表卡片 MiniPreview 黄金比例舞台） ----------
   const isSquare = H / W <= 1.05;
-  // 3:4 比例下设定严谨黄金比例高度，杜绝扁平压缩与上下巨大空白；1:1 比例下自适应充满
-  const shotH = isSquare ? Math.round(innerW * 0.54) : Math.round(innerW * 0.63);
+  // 3:4 比例下设定高度 innerW * 0.78（约 596px），充盈整幅海报视觉重心，杜绝扁平压缩与下部空白；1:1 比例下设定 innerW * 0.58
+  const shotH = isSquare ? Math.round(innerW * 0.58) : Math.round(innerW * 0.78);
   const shotX = pad;
   const shotY = y;
   const shotW = innerW;

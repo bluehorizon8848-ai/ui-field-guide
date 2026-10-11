@@ -74,14 +74,14 @@ export function ShareCardModal({
         // SVG 直接序列化为高保真矢量 Blob，零延迟并完美保持矢量锐度与阴影
         const clone = svgEl.cloneNode(true) as SVGSVGElement;
         clone.setAttribute('width', '720');
-        clone.setAttribute('height', '396');
+        clone.setAttribute('height', '528');
         const xml = new XMLSerializer().serializeToString(clone);
         const svgBlob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
         dataUrl = URL.createObjectURL(svgBlob);
       } else {
         const rect = stage.getBoundingClientRect();
         const stageW = Math.ceil(rect.width) || 720;
-        const stageH = Math.ceil(rect.height) || 396;
+        const stageH = Math.ceil(rect.height) || 528;
         dataUrl = await toPng(stage, {
           width: stageW,
           height: stageH,
@@ -241,7 +241,7 @@ export function ShareCardModal({
           <div className="flex justify-center">
             <canvas
               ref={canvasRef}
-              className="h-auto max-h-[54vh] w-auto max-w-full rounded-lg border border-line shadow-card"
+              className="h-auto max-h-[58vh] sm:max-h-[64vh] w-auto max-w-full rounded-lg border border-line shadow-card"
               aria-label={t(locale, 'share.canvasLabel', { name: pattern.name })}
             />
           </div>
@@ -362,11 +362,11 @@ function ShareCardPreviewSnapshot({
   return (
     <div
       data-shot-stage=""
-      className="w-[720px] h-[396px] flex items-center justify-center"
+      className="w-[720px] h-[528px] flex items-center justify-center"
       style={{ boxSizing: 'border-box' }}
     >
       <div className="w-full h-full">
-        <MiniPreview id={pattern.id} />
+        <MiniPreview id={pattern.id} mode="share" />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import type { ReactElement } from 'react';
  * 3. 严格覆盖全站 75 个 Pattern ID。
  */
 
-export function MiniPreview({ id }: { id: string }) {
+export function MiniPreview({ id, mode = 'card' }: { id: string; mode?: 'card' | 'share' }) {
   const draw = PREVIEWS[id];
   if (!draw) {
     return (
@@ -21,9 +21,16 @@ export function MiniPreview({ id }: { id: string }) {
       </div>
     );
   }
+
+  const isShare = mode === 'share';
+  const viewBox = isShare ? '0 0 240 176' : '0 0 240 132';
+  const winH = isShare ? 164 : 120;
+  const targetCenterY = isShare ? 96 : 71;
+  const targetScale = isShare ? 1.28 : 1.15;
+
   return (
     <svg
-      viewBox="0 0 240 132"
+      viewBox={viewBox}
       className="h-full w-full"
       role="img"
       aria-label={`${id} 示意图`}
@@ -33,17 +40,22 @@ export function MiniPreview({ id }: { id: string }) {
         <filter id="mini-shadow" x="-8%" y="-8%" width="116%" height="116%">
           <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0F172A" floodOpacity="0.06" />
         </filter>
+        <clipPath id="mini-win-clip">
+          <rect x="8" y="6" width="224" height={winH} rx="8" />
+        </clipPath>
       </defs>
-      {/* 统一外舞台底框：外扩至 8, 6, 224, 120，释放可用画幅 */}
-      <rect x="8" y="6" width="224" height="120" rx="8" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" filter="url(#mini-shadow)" />
+      {/* 统一外舞台底框：释放可用画幅 */}
+      <rect x="8" y="6" width="224" height={winH} rx="8" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" filter="url(#mini-shadow)" />
       {/* 视窗顶部精致微圆点 */}
       <circle cx="20" cy="15" r="2.2" fill="#CBD5E1" />
       <circle cx="27" cy="15" r="2.2" fill="#E2E8F0" />
       <circle cx="34" cy="15" r="2.2" fill="#E2E8F0" />
       <line x1="8" y1="22" x2="232" y2="22" stroke="#F1F5F9" strokeWidth="1" />
-      {/* 组件主体呈现：居中 1.15 倍等比放大，饱满充满视窗 */}
-      <g transform="translate(120, 71) scale(1.15) translate(-120, -71)">
-        {draw}
+      {/* 组件主体呈现：居中等比放大，饱满充满视窗 */}
+      <g clipPath="url(#mini-win-clip)">
+        <g transform={`translate(120, ${targetCenterY}) scale(${targetScale}) translate(-120, -71)`}>
+          {draw}
+        </g>
       </g>
     </svg>
   );
@@ -391,18 +403,18 @@ const PREVIEWS: Record<string, ReactElement> = {
 
   modal: (
     <g>
-      {/* 半透明遮罩 */}
-      <rect x="8" y="6" width="224" height="120" fill="#0F172A" fillOpacity="0.4" rx="8" />
-      {/* 悬浮弹窗卡片 */}
-      <rect x="40" y="34" width="160" height="76" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
-      <text x="54" y="52" fontSize="9.5" fontWeight="700" fill={INK}>Confirm Publishing</text>
-      <path d="M184 44 l6 6 M190 44 l-6 6" stroke={MUTED} strokeWidth="1.6" strokeLinecap="round" />
-      <rect x="54" y="60" width="132" height="14" rx="3" fill={SOFT} />
+      {/* 半透明遮罩：超界覆盖，由外层 clipPath 精确裁剪 */}
+      <rect x="-20" y="-20" width="280" height="220" fill="#0F172A" fillOpacity="0.4" />
+      {/* 悬浮弹窗卡片：加高加宽，摆脱扁平感 */}
+      <rect x="36" y="28" width="168" height="86" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <text x="50" y="48" fontSize="10" fontWeight="700" fill={INK}>Confirm Publishing</text>
+      <path d="M188 40 l6 6 M194 40 l-6 6" stroke={MUTED} strokeWidth="1.6" strokeLinecap="round" />
+      <rect x="50" y="56" width="140" height="16" rx="3" fill={SOFT} />
       {/* 操作按钮 */}
-      <rect x="108" y="82" width="40" height="20" rx="4" fill={SOFT} stroke={LINE} />
-      <text x="128" y="95" fontSize="8" fill={INK2} textAnchor="middle">Cancel</text>
-      <rect x="154" y="82" width="40" height="20" rx="4" fill={BLUE} />
-      <text x="174" y="95" fontSize="8" fontWeight="700" fill={WHITE} textAnchor="middle">Publish</text>
+      <rect x="106" y="82" width="42" height="22" rx="4" fill={SOFT} stroke={LINE} />
+      <text x="127" y="96" fontSize="8.5" fill={INK2} textAnchor="middle">Cancel</text>
+      <rect x="154" y="82" width="42" height="22" rx="4" fill={BLUE} />
+      <text x="175" y="96" fontSize="8.5" fontWeight="700" fill={WHITE} textAnchor="middle">Publish</text>
     </g>
   ),
 
@@ -720,8 +732,8 @@ const PREVIEWS: Record<string, ReactElement> = {
 
   'modal-stateful': (
     <g>
-      <rect x="8" y="6" width="224" height="120" fill="#0F172A" fillOpacity="0.35" rx="8" />
-      <rect x="36" y="32" width="168" height="80" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
+      <rect x="-20" y="-20" width="280" height="220" fill="#0F172A" fillOpacity="0.35" />
+      <rect x="36" y="30" width="168" height="84" rx="8" fill={WHITE} stroke={LINE} filter="url(#mini-shadow)" />
       {/* 多步骤表单对话框 */}
       <text x="48" y="48" fontSize="9" fontWeight="700" fill={INK}>Step 2 of 3: Permissions</text>
       <rect x="48" y="54" width="144" height="5" rx="2.5" fill={LINE} />
