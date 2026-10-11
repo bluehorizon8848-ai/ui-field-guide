@@ -161,11 +161,14 @@ export const DemoButton = forwardRef<
   const base =
     'inline-flex items-center justify-center gap-1.5 rounded-lg px-4 min-h-[44px] text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40';
   const variants: Record<string, string> = {
-    primary: 'bg-ink text-white hover:bg-[#35322C] active:bg-[#0D0C0B]',
+    primary:
+      'bg-[#2563EB] text-white hover:bg-[#1D4ED8] active:bg-[#1E40AF] shadow-sm font-semibold',
     secondary:
-      'border border-line bg-surface text-ink hover:bg-[#F5F3EE] active:bg-[#EDEae3]',
-    ghost: 'text-ink2 hover:bg-[#F2F0EB] active:bg-[#E9E6DF]',
-    danger: 'bg-[#A8342C] text-white hover:bg-[#8F2B25] active:bg-[#7A241F]',
+      'border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F8FAFC] active:bg-[#F1F5F9] font-medium shadow-xs',
+    ghost:
+      'text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] hover:bg-[#DBEAFE] font-semibold',
+    danger:
+      'bg-[#DC2626] text-white hover:bg-[#B91C1C] active:bg-[#991B1B] shadow-sm font-semibold',
   };
   return (
     <button
@@ -199,10 +202,10 @@ export function DemoChip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`min-h-[44px] rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors active:opacity-80 ${
+      className={`min-h-[44px] rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors active:opacity-80 ${
         active
-          ? 'bg-ink text-white'
-          : 'bg-[#F2F0EB] text-ink2 hover:bg-[#E9E6DF]'
+          ? 'bg-[#2563EB] text-white shadow-sm'
+          : 'bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] hover:bg-[#E2E8F0]'
       }`}
     >
       {children}

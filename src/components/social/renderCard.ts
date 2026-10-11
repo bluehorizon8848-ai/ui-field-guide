@@ -193,10 +193,19 @@ function drawShowcaseDemo(
     const drawX = stageX + Math.round((stageW - drawW) / 2);
     const drawY = stageY + Math.round((stageH - drawH) / 2);
 
-    // 柔和微外投影
-    ctx.shadowColor = 'rgba(15, 23, 42, 0.04)';
-    ctx.shadowBlur = Math.round(W * 0.02);
-    ctx.shadowOffsetY = Math.round(W * 0.006);
+    // 展台中心微弥散环境光，烘托组件色彩焦点
+    const cx = stageX + stageW / 2;
+    const cy = stageY + stageH / 2;
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.round(stageW * 0.45));
+    glow.addColorStop(0, 'rgba(37, 99, 235, 0.045)');
+    glow.addColorStop(1, 'rgba(37, 99, 235, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(stageX, stageY, stageW, stageH);
+
+    // 柔和微外投影，使微缩组件立体浮起
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
+    ctx.shadowBlur = Math.round(W * 0.025);
+    ctx.shadowOffsetY = Math.round(W * 0.008);
 
     ctx.drawImage(img, 0, 0, ir, ih, drawX, drawY, drawW, drawH);
   } else {

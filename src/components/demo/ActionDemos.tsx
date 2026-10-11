@@ -37,20 +37,40 @@ export function ButtonDemo() {
     }, 1100);
   };
 
+  const isEn = locale === 'en';
+
   return (
     <DemoStage caption={t(locale, 'demo.caption.button')}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center gap-2.5">
-          <DemoButton variant="secondary" disabled={saving}>
-            {t(locale, 'demo.btn.cancel')}
-          </DemoButton>
-          <DemoButton onClick={save} disabled={saving} aria-busy={saving} className="min-w-[104px]">
+      <div className="flex flex-col items-center gap-4 py-1">
+        {/* 上排：科技蓝 Primary 按钮 + 明确 Secondary 按钮，与外部卡片 100% 对齐 */}
+        <div className="flex items-center gap-3">
+          <DemoButton
+            onClick={save}
+            disabled={saving}
+            aria-busy={saving}
+            className="min-w-[130px]"
+          >
             {saving && (
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             )}
-            {saving ? t(locale, 'demo.btn.saving') : t(locale, 'demo.btn.save')}
+            {saving
+              ? (isEn ? 'Saving...' : '保存中...')
+              : saved
+                ? (isEn ? 'Saved ✓' : '已保存 ✓')
+                : (isEn ? 'Save Changes' : '保存更改')}
+          </DemoButton>
+          <DemoButton variant="secondary" disabled={saving}>
+            {isEn ? 'Cancel' : '取消'}
           </DemoButton>
         </div>
+
+        {/* 下排：第三阶轻量 Ghost 胶囊，与外部卡片 '+ New Project' 完全呼应 */}
+        <div className="flex items-center gap-2">
+          <DemoButton variant="ghost" className="rounded-full !px-5 text-xs shadow-2xs">
+            {isEn ? '+ New Project' : '+ 新建项目'}
+          </DemoButton>
+        </div>
+
         <p className="text-xs text-muted" role="status" aria-live="polite">
           {saving
             ? t(locale, 'demo.btn.writing')
@@ -87,13 +107,13 @@ export function CtaDemo() {
         <button
           type="button"
           onClick={() => setClicked(true)}
-          className="mt-5 h-[52px] w-full rounded-lg bg-ink text-[0.9375rem] font-medium text-white transition-colors hover:bg-[#35322C] active:bg-[#0D0C0B]"
+          className="mt-5 h-[52px] w-full rounded-full bg-[#059669] text-[0.9375rem] font-bold text-white shadow-sm transition-all hover:bg-[#047857] active:bg-[#065F46]"
         >
           {t(locale, 'demo.cta.action')}
         </button>
         <p className="mt-2 text-xs text-muted">{t(locale, 'demo.cta.note')}</p>
         {clicked && (
-          <p className="mt-2 text-xs text-[#2C7355]" role="status">
+          <p className="mt-2 text-xs font-semibold text-[#059669]" role="status">
             {t(locale, 'demo.cta.onlyOne')}
           </p>
         )}
@@ -202,7 +222,7 @@ export function FabDemo() {
           onClick={() => setOpen((o) => !o)}
           aria-label={t(locale, 'demo.fab.newAlbum')}
           aria-expanded={open}
-          className="absolute bottom-4 right-4 z-10 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white shadow-[0_4px_12px_rgba(26,25,23,0.22)] transition-transform hover:scale-105 active:scale-95"
+          className="absolute bottom-4 right-4 z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#2563EB] text-white shadow-[0_4px_16px_rgba(37,99,235,0.35)] transition-transform hover:scale-105 active:scale-95"
         >
           <Plus size={24} aria-hidden="true" className={open ? 'rotate-45 transition-transform' : 'transition-transform'} />
         </button>
