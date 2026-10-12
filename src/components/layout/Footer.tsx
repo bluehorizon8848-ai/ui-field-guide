@@ -32,6 +32,18 @@ export function Footer() {
               {t(locale, 'footer.taglineSuffix')}
             </p>
             <div className="mt-4 flex flex-col space-y-1.5 text-[0.8125rem]">
+              <Link
+                href={h('/faq')}
+                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+              >
+                {t(locale, 'nav.faq')}
+              </Link>
+              <Link
+                href={h('/glossary')}
+                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+              >
+                {t(locale, 'nav.glossary')}
+              </Link>
               <a
                 href={site.parentUrl}
                 target="_blank"

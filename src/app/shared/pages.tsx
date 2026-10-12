@@ -11,6 +11,8 @@ import { ExploreClient } from '@/components/explore/ExploreClient';
 import { IdentifyClient } from '@/components/identify/IdentifyClient';
 import { SearchClient } from '@/components/search/SearchClient';
 import { LearnClient } from '@/components/learning/LearnClient';
+import { FaqClient } from '@/components/faq/FaqClient';
+import { GlossaryClient } from '@/components/glossary/GlossaryClient';
 import { DemoById } from '@/components/demo/DemoById';
 import { patterns } from '@/data/patterns';
 import { allComparisonSlugs } from '@/data/comparisons';
@@ -108,6 +110,33 @@ export function createHomePage(locale: Locale) {
                 <Sparkles size={16} aria-hidden="true" />
                 {t(locale, 'home.learnL1')}
               </Link>
+              <Link
+                href={href('/faq', locale)}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 text-sm font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+              >
+                <ArrowRight size={16} aria-hidden="true" />
+                {t(locale, 'nav.faq')}
+              </Link>
+            </div>
+
+            {/* 新手 AI 交流实战指引卡片 */}
+            <div className="mt-6 rounded-card border border-[#E6E3DB] bg-[#FAF8F5] p-3.5 sm:p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-ink sm:text-[0.8125rem]">
+                    {t(locale, 'faq.homeBannerTitle')}
+                  </p>
+                  <p className="mt-0.5 text-2xs text-muted sm:text-xs">
+                    {t(locale, 'faq.homeBannerSub')}
+                  </p>
+                </div>
+                <Link
+                  href={href('/faq', locale)}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+                >
+                  <span>{t(locale, 'faq.homeBannerAction')}</span>
+                </Link>
+              </div>
             </div>
 
             {/* 首屏下方就是组件本身，不是营销插画 */}
@@ -741,6 +770,50 @@ export function createNotFound(locale: Locale) {
   };
 }
 
+/* ============================ FAQ 页面 ============================ */
+
+export function createFaqPage(locale: Locale) {
+  return function FaqPage() {
+    return (
+      <div className="container-page py-10 sm:py-12">
+        <header className="mb-8 max-w-[680px]">
+          <p className="meta mb-2.5">{t(locale, 'faq.meta')}</p>
+          <h1 className="text-[1.5rem] font-semibold leading-tight tracking-tight text-ink sm:text-[1.875rem]">
+            {t(locale, 'faq.title')}
+          </h1>
+          <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-ink2">
+            {t(locale, 'faq.sub')}
+          </p>
+        </header>
+
+        <FaqClient />
+      </div>
+    );
+  };
+}
+
+/* ============================ 专有名词百科页面 ============================ */
+
+export function createGlossaryPage(locale: Locale) {
+  return function GlossaryPage() {
+    return (
+      <div className="container-page py-10 sm:py-12">
+        <header className="mb-8 max-w-[680px]">
+          <p className="meta mb-2.5">{t(locale, 'glossary.meta')}</p>
+          <h1 className="text-[1.5rem] font-semibold leading-tight tracking-tight text-ink sm:text-[1.875rem]">
+            {t(locale, 'glossary.title')}
+          </h1>
+          <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-ink2">
+            {t(locale, 'glossary.sub')}
+          </p>
+        </header>
+
+        <GlossaryClient />
+      </div>
+    );
+  };
+}
+
 /* ============================ Metadata ============================ */
 
 const META: Record<string, { zh: [string, string]; en: [string, string] }> = {
@@ -789,6 +862,26 @@ const META: Record<string, { zh: [string, string]; en: [string, string] }> = {
     en: [
       'Search UI Terms',
       'Search UI patterns by English name, Chinese name, alias, or a vague description of what you remember seeing.',
+    ],
+  },
+  '/faq': {
+    zh: [
+      '新手 AI 交流 FAQ & 实战指南',
+      '从「不知道它叫什么」到在 Cursor 里敲出生产级前端组件。包含 4 步沟通公式、反向确认心法、以及结合 Modal、Bottom Sheet、Toast、Card 等实战提问演练。',
+    ],
+    en: [
+      'Beginner AI FAQs & UI Guide',
+      'From "I don\'t know what it\'s called" to shipping production UI components in Cursor. Golden 4-step prompt formula, reverse confirmation workflows, and real pattern breakdowns.',
+    ],
+  },
+  '/glossary': {
+    zh: [
+      '专有名词与 UX 术语工具词典',
+      '用通俗大白话讲清楚 Snap Points、Focus Trap、ARIA、骨架扫光、CLS 等高频前端专有名词，扫清新手 AI 独立开发者的阅读障碍。',
+    ],
+    en: [
+      'UI/UX Canonical Glossary & Terms',
+      'Plain-English explanations and AI prompt guidance for Snap Points, Focus Trap, ARIA, Layout Shift, and modern UX patterns.',
     ],
   },
   '/privacy': {

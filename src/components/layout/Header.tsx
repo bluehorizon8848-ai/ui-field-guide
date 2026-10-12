@@ -22,6 +22,8 @@ export function Header() {
     { base: '/learn', label: t(locale, 'nav.learn') },
     { base: '/compare', label: t(locale, 'nav.compare') },
     { base: '/identify', label: t(locale, 'nav.identify') },
+    { base: '/faq', label: t(locale, 'nav.faq') },
+    { base: '/glossary', label: t(locale, 'nav.glossary') },
   ];
 
   useEffect(() => {

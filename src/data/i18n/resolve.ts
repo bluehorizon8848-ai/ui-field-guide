@@ -112,3 +112,40 @@ export function getLearningLevels(locale: Locale = DEFAULT_LOCALE) {
 export function getContrastCards(locale: Locale = DEFAULT_LOCALE) {
   return locale === DEFAULT_LOCALE ? contrastCards : contrastCardsEn;
 }
+
+import { FAQ_CATEGORIES, FAQ_ITEMS } from '../faq';
+import { FAQ_CATEGORIES_EN, FAQ_ITEMS_EN } from './faq.en';
+
+export function getFaqData(locale: Locale = DEFAULT_LOCALE) {
+  if (locale === 'en') {
+    return {
+      categories: FAQ_CATEGORIES_EN,
+      items: FAQ_ITEMS_EN,
+    };
+  }
+  return {
+    categories: FAQ_CATEGORIES,
+    items: FAQ_ITEMS,
+  };
+}
+
+import { TERMS_DATA, TERM_CATEGORIES } from '../terms';
+import { TERMS_DATA_EN, TERM_CATEGORIES_EN } from './terms.en';
+
+export function getTermsData(locale: Locale = DEFAULT_LOCALE) {
+  if (locale === 'en') {
+    return {
+      categories: TERM_CATEGORIES_EN,
+      items: TERMS_DATA_EN,
+    };
+  }
+  return {
+    categories: TERM_CATEGORIES,
+    items: TERMS_DATA,
+  };
+}
+
+export function getTerm(id: string, locale: Locale = DEFAULT_LOCALE) {
+  const { items } = getTermsData(locale);
+  return items.find((t) => t.id === id);
+}
