@@ -188,23 +188,24 @@ export function SearchClient() {
             {results.length} {t(locale, 'search.results')}
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {results.map(({ pattern, matchedBy, scenarioReason }) => {
+            {results.map(({ pattern, matchedBy, scenarioReason, scenarioReasonEn }) => {
               const localizedPattern = getPattern(pattern.id, locale) ?? pattern;
+              const reason = locale === 'en' ? (scenarioReasonEn || scenarioReason) : scenarioReason;
               return (
                 <div key={pattern.id} className="flex flex-col">
                   <div className="relative flex-1">
                     <PatternCard pattern={localizedPattern} headingLevel={2} />
-                  <span className="absolute right-3 top-3 rounded bg-white/95 px-1.5 py-0.5 text-2xs text-muted shadow-2xs">
-                    {t(locale, 'search.hit')}: {matchedByLabel(locale, matchedBy)}
-                  </span>
-                </div>
-                {scenarioReason && (
-                  <div className="mt-1.5 flex items-start gap-1.5 rounded-lg border border-[#1D734C]/20 bg-[#E8F3ED]/40 p-2.5 text-xs text-[#1D734C]">
-                    <Lightbulb size={13} className="shrink-0 text-[#D97706] mt-0.5" />
-                    <span className="font-medium text-ink2">{scenarioReason}</span>
+                    <span className="absolute right-3 top-3 rounded bg-white/95 px-1.5 py-0.5 text-2xs text-muted shadow-2xs">
+                      {t(locale, 'search.hit')}: {matchedByLabel(locale, matchedBy)}
+                    </span>
                   </div>
-                )}
-              </div>
+                  {reason && (
+                    <div className="mt-1.5 flex items-start gap-1.5 rounded-lg border border-[#1D734C]/20 bg-[#E8F3ED]/40 p-2.5 text-xs text-[#1D734C]">
+                      <Lightbulb size={13} className="shrink-0 text-[#D97706] mt-0.5" />
+                      <span className="font-medium text-ink2">{reason}</span>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

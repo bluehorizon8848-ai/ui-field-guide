@@ -213,6 +213,16 @@ console.log('\n──── 英文搜索 ────');
   await page.waitForTimeout(400);
   const t3 = await page.locator('main').innerText();
   check(/Bottom Sheet/i.test(t3), '英文口语描述 "slides up from the bottom" 命中 Bottom Sheet');
+
+  // 针对性回归：确保英文搜索结果卡片下方推荐理由完全本地化，绝无中文泄漏
+  await page.goto(`${BASE}/en/search?q=bottom+sheet`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
+  const scenarioTexts = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
+  check(scenarioTexts.length > 0, `英文搜 "bottom sheet" 包含推荐理由（${scenarioTexts.length} 条）`);
+  for (const st of scenarioTexts) {
+    check(!/推荐理由|适合场景|[\u4e00-\u9fa5]/.test(st), `英文推荐理由无中文残留: "${st}"`);
+    check(/^(Why this:|Best for:)/i.test(st), `英文推荐理由格式正确: "${st}"`);
+  }
 }
 
 /* ============ 8. 英文 404 不是死胡同 ============ */

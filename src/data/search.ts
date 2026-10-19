@@ -1,4 +1,5 @@
 import type { UIPattern } from './types';
+import { patternTranslations } from './i18n/patterns.en';
 
 /** 中文口语 → 词条的映射。这是「我不知道它叫什么」的关键部分。 */
 const colloquialMap: Record<string, string[]> = {
@@ -405,6 +406,7 @@ export interface SearchHit {
   score: number;
   matchedBy: string;
   scenarioReason?: string;
+  scenarioReasonEn?: string;
 }
 
 export interface FunctionalScenario {
@@ -520,6 +522,25 @@ const SCENARIO_REASONS: Record<string, string> = {
   'swipe-action': '推荐理由：适合列表条目快捷滑动标记或删除，节省行内屏幕空间',
 };
 
+const SCENARIO_REASONS_EN: Record<string, string> = {
+  'command-palette': 'Why this: Ideal for ⌘K keyboard flows and high-efficiency full-site search & actions',
+  'action-sheet': 'Why this: Ideal for iOS single-thumb high-tolerance actions and destructive confirmations',
+  'extended-fab': 'Why this: Ideal for Android MD3 primary action, collapsing gracefully on scroll',
+  'service-card': 'Why this: Ideal for HarmonyOS ArkUI desktop presence, live metrics, and atomic services',
+  'snackbar': 'Why this: Ideal for lightweight feedback with a 5-second Undo escape hatch',
+  'destructive-action': 'Why this: Ideal for irreversible dangerous actions, using warnings and confirmation to prevent mis-taps',
+  'stat-card': 'Why this: Ideal for business dashboards, core KPI metrics, deltas, and trend sparklines',
+  'stepper': 'Why this: Ideal for guiding multi-step complex forms to reduce cognitive load',
+  'skeleton': 'Why this: Ideal for weak-network loading placeholders to prevent jarring layout shifts',
+  'bottom-sheet': 'Why this: Ideal for mobile thumb-reachable bottom panels and modal interactions',
+  'modal': 'Why this: Ideal for critical interruptions and blocking confirmations with a backdrop',
+  'tabs': 'Why this: Ideal for parallel view switching while preserving user context',
+  'switch': 'Why this: Ideal for instant binary preference toggles without needing a save button',
+  'segmented-control': 'Why this: Ideal for 2–4 mutually exclusive lightweight view or mode switches',
+  'pull-to-refresh': 'Why this: Ideal for mobile lists to pull down from the top and refresh live data',
+  'swipe-action': 'Why this: Ideal for quick swipe actions to flag or delete list items, saving screen space',
+};
+
 export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
@@ -580,7 +601,11 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
 
     if (score > 0) {
       const scenarioReason = SCENARIO_REASONS[p.id] ?? (p.fitsFor ? `适合场景：${p.fitsFor}` : undefined);
-      hits.push({ pattern: p, score, matchedBy, scenarioReason });
+      const enFits = patternTranslations[p.id]?.fitsFor;
+      const scenarioReasonEn =
+        SCENARIO_REASONS_EN[p.id] ??
+        (enFits ? `Best for: ${enFits}` : p.fitsFor ? `Best for: ${p.fitsFor}` : undefined);
+      hits.push({ pattern: p, score, matchedBy, scenarioReason, scenarioReasonEn });
     }
   }
 

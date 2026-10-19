@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search as SearchIcon, X, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import { patterns } from '@/data/patterns';
+import { getPattern } from '@/data/i18n/resolve';
 import { searchPatterns, FUNCTIONAL_SCENARIOS } from '@/data/search';
 import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
@@ -144,41 +145,45 @@ export function SearchBar({ autoFocus = false }: { autoFocus?: boolean }) {
           role="listbox"
           className="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-pop animate-rise-in"
         >
-          {results.map(({ pattern, matchedBy, scenarioReason }) => (
-            <li key={pattern.id} role="option" aria-selected={false}>
-              <Link
-                href={h(`/patterns/${pattern.id}`)}
-                onClick={() => setOpen(false)}
-                className="flex items-start gap-2.5 px-3.5 py-2.5 transition-colors hover:bg-[#F5F3EE]"
-              >
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1.5">
-                    <span className="truncate text-sm font-semibold text-ink">
-                      {pattern.name}
+          {results.map(({ pattern, matchedBy, scenarioReason, scenarioReasonEn }) => {
+            const localizedPattern = getPattern(pattern.id, locale) ?? pattern;
+            const reason = locale === 'en' ? (scenarioReasonEn || scenarioReason) : scenarioReason;
+            return (
+              <li key={pattern.id} role="option" aria-selected={false}>
+                <Link
+                  href={h(`/patterns/${pattern.id}`)}
+                  onClick={() => setOpen(false)}
+                  className="flex items-start gap-2.5 px-3.5 py-2.5 transition-colors hover:bg-[#F5F3EE]"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-semibold text-ink">
+                        {pattern.name}
+                      </span>
+                      <span className="text-xs text-muted">{pattern.chineseName}</span>
+                      {pattern.specialBadge && (
+                        <span className="rounded bg-[#1D734C]/10 px-1.5 py-0.2 text-[10px] font-semibold text-[#1D734C]">
+                          {pattern.specialBadge}
+                        </span>
+                      )}
                     </span>
-                    <span className="text-xs text-muted">{pattern.chineseName}</span>
-                    {pattern.specialBadge && (
-                      <span className="rounded bg-[#1D734C]/10 px-1.5 py-0.2 text-[10px] font-semibold text-[#1D734C]">
-                        {pattern.specialBadge}
+                    <span className="mt-0.5 block truncate text-xs text-muted">
+                      {localizedPattern.oneLine}
+                    </span>
+                    {reason && (
+                      <span className="mt-1 flex items-center gap-1 truncate text-[11px] font-medium text-[#1D734C]">
+                        <Lightbulb size={12} className="shrink-0 text-[#D97706]" />
+                        <span className="truncate">{reason}</span>
                       </span>
                     )}
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-muted">
-                    {pattern.oneLine}
+                  <span className="shrink-0 rounded bg-[#F2F0EB] px-1.5 py-0.5 text-2xs text-muted">
+                    {matchedByLabel(locale, matchedBy)}
                   </span>
-                  {scenarioReason && (
-                    <span className="mt-1 flex items-center gap-1 truncate text-[11px] font-medium text-[#1D734C]">
-                      <Lightbulb size={12} className="shrink-0 text-[#D97706]" />
-                      <span className="truncate">{scenarioReason}</span>
-                    </span>
-                  )}
-                </span>
-                <span className="shrink-0 rounded bg-[#F2F0EB] px-1.5 py-0.5 text-2xs text-muted">
-                  {matchedByLabel(locale, matchedBy)}
-                </span>
-              </Link>
-            </li>
-          ))}
+                </Link>
+              </li>
+            );
+          })}
           <li>
             <button
               type="button"
