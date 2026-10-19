@@ -147,7 +147,7 @@ export function SearchBar({ autoFocus = false }: { autoFocus?: boolean }) {
         >
           {results.map(({ pattern, matchedBy, scenarioReason, scenarioReasonEn }) => {
             const localizedPattern = getPattern(pattern.id, locale) ?? pattern;
-            const reason = locale === 'en' ? (scenarioReasonEn || scenarioReason) : scenarioReason;
+            const reason = locale === 'en' ? scenarioReasonEn : scenarioReason;
             return (
               <li key={pattern.id} role="option" aria-selected={false}>
                 <Link

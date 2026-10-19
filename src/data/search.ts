@@ -601,10 +601,10 @@ export function searchPatterns(query: string, list: UIPattern[] = []): SearchHit
 
     if (score > 0) {
       const scenarioReason = SCENARIO_REASONS[p.id] ?? (p.fitsFor ? `适合场景：${p.fitsFor}` : undefined);
-      const enFits = patternTranslations[p.id]?.fitsFor;
+      const enFits = patternTranslations[p.id]?.fitsFor?.trim();
       const scenarioReasonEn =
         SCENARIO_REASONS_EN[p.id] ??
-        (enFits ? `Best for: ${enFits}` : p.fitsFor ? `Best for: ${p.fitsFor}` : undefined);
+        (enFits ? `Best for: ${enFits}` : undefined);
       hits.push({ pattern: p, score, matchedBy, scenarioReason, scenarioReasonEn });
     }
   }

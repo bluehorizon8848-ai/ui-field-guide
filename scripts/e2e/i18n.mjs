@@ -214,15 +214,59 @@ console.log('\n──── 英文搜索 ────');
   const t3 = await page.locator('main').innerText();
   check(/Bottom Sheet/i.test(t3), '英文口语描述 "slides up from the bottom" 命中 Bottom Sheet');
 
-  // 针对性回归：确保英文搜索结果卡片下方推荐理由完全本地化，绝无中文泄漏
+  // 针对性回归：中英搜索结果页推荐理由（字典命中 + 普通回退 + 搜索浮层建议）
+  // 1. 字典命中：中文结果页必须含「推荐理由：」
+  await page.goto(`${BASE}/search?q=bottom+sheet`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
+  const zhDictReasons = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
+  check(zhDictReasons.length > 0 && zhDictReasons[0].startsWith('推荐理由：'), `中文结果页字典命中 = "${zhDictReasons[0]}"`);
+
+  // 2. 字典命中：英文结果页必须含「Why this:」，严格零中文
   await page.goto(`${BASE}/en/search?q=bottom+sheet`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(400);
-  const scenarioTexts = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
-  check(scenarioTexts.length > 0, `英文搜 "bottom sheet" 包含推荐理由（${scenarioTexts.length} 条）`);
-  for (const st of scenarioTexts) {
-    check(!/推荐理由|适合场景|[\u4e00-\u9fa5]/.test(st), `英文推荐理由无中文残留: "${st}"`);
-    check(/^(Why this:|Best for:)/i.test(st), `英文推荐理由格式正确: "${st}"`);
+  const enDictReasons = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
+  check(enDictReasons.length > 0 && enDictReasons[0].startsWith('Why this:'), `英文结果页字典命中 = "${enDictReasons[0]}"`);
+  for (const st of enDictReasons) {
+    check(!/推荐理由|适合场景|[\u4e00-\u9fa5]/.test(st), `英文字典推荐理由无中文残留: "${st}"`);
   }
+
+  // 3. 普通回退（非字典 Pattern 联动 fitsFor 回退）：中文结果页展示「适合场景：」
+  await page.goto(`${BASE}/search?q=timeline`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
+  const zhFallbackReasons = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
+  check(zhFallbackReasons.length > 0 && zhFallbackReasons[0].startsWith('适合场景：'), `中文结果页普通回退 = "${zhFallbackReasons[0]}"`);
+
+  // 4. 普通回退：英文结果页展示「Best for:」，严格零中文
+  await page.goto(`${BASE}/en/search?q=timeline`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(400);
+  const enFallbackReasons = await page.locator('main div:has(> svg.lucide-lightbulb) span').allInnerTexts();
+  check(enFallbackReasons.length > 0 && enFallbackReasons[0].startsWith('Best for:'), `英文结果页普通回退 = "${enFallbackReasons[0]}"`);
+  for (const st of enFallbackReasons) {
+    check(!/推荐理由|适合场景|[\u4e00-\u9fa5]/.test(st), `英文普通回退无中文残留: "${st}"`);
+  }
+
+  // 5. 搜索框浮层建议（SearchBar dropdown）中英断言
+  // 英文首页浮层输入并验证
+  await page.goto(`${BASE}/en`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(300);
+  const enInput = page.locator('input[type="search"]').first();
+  await enInput.fill('bottom sheet');
+  await page.waitForTimeout(400);
+  const enSuggests = await page.locator('#search-suggest li a span:has(> svg.lucide-lightbulb) span.truncate').allInnerTexts();
+  check(enSuggests.length > 0, `英文搜索浮层展示推荐理由（${enSuggests.length} 条）`);
+  for (const es of enSuggests) {
+    check(!/推荐理由|适合场景|[\u4e00-\u9fa5]/.test(es), `英文搜索浮层无中文残留: "${es}"`);
+    check(/^(Why this:|Best for:)/.test(es), `英文搜索浮层前缀正确: "${es}"`);
+  }
+
+  // 中文首页浮层输入并验证
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(300);
+  const zhInput = page.locator('input[type="search"]').first();
+  await zhInput.fill('bottom sheet');
+  await page.waitForTimeout(400);
+  const zhSuggests = await page.locator('#search-suggest li a span:has(> svg.lucide-lightbulb) span.truncate').allInnerTexts();
+  check(zhSuggests.length > 0 && zhSuggests[0].startsWith('推荐理由：'), `中文搜索浮层展示中文推荐理由: "${zhSuggests[0]}"`);
 }
 
 /* ============ 8. 英文 404 不是死胡同 ============ */

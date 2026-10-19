@@ -190,7 +190,7 @@ export function SearchClient() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {results.map(({ pattern, matchedBy, scenarioReason, scenarioReasonEn }) => {
               const localizedPattern = getPattern(pattern.id, locale) ?? pattern;
-              const reason = locale === 'en' ? (scenarioReasonEn || scenarioReason) : scenarioReason;
+              const reason = locale === 'en' ? scenarioReasonEn : scenarioReason;
               return (
                 <div key={pattern.id} className="flex flex-col">
                   <div className="relative flex-1">

@@ -110,7 +110,7 @@ for (const name of ['Bottom Sheet', 'Toast', 'Skeleton', 'Switch', 'Stepper']) {
   else bad(`搜 "${name}" 首位是 ${r[0]?.pattern.name || '(无)'}`);
 }
 
-// 空查询和无结果查询不能崩
+// 边界
 console.log('\n──── 边界 ────');
 try {
   const a = searchPatterns('', patterns);
@@ -125,6 +125,57 @@ try {
   else bad('纯符号查询返回了结果');
 } catch (e) {
   bad(`边界查询抛异常：${e.message}`);
+}
+
+// 场景推荐理由双语与防御性回退校验
+console.log('\n──── 场景推荐理由双语与回退 ────');
+{
+  // 1. 字典命中
+  const bsHits = searchPatterns('bottom sheet', patterns);
+  const bs = bsHits.find((h) => h.pattern.id === 'bottom-sheet');
+  if (bs?.scenarioReason?.startsWith('推荐理由：') && bs?.scenarioReasonEn?.startsWith('Why this:')) {
+    ok('字典命中：中英文均生成正确推荐理由');
+  } else {
+    bad(`字典命中异常：zh="${bs?.scenarioReason}" en="${bs?.scenarioReasonEn}"`);
+  }
+
+  // 2. 普通回退（非预置字典 Pattern 联动 fitsFor）
+  const tlHits = searchPatterns('timeline', patterns);
+  const tl = tlHits.find((h) => h.pattern.id === 'timeline');
+  if (tl?.scenarioReason?.startsWith('适合场景：') && tl?.scenarioReasonEn?.startsWith('Best for:')) {
+    ok('普通回退：未在字典的 Pattern 联动 fitsFor 生成规范回退理由');
+  } else {
+    bad(`普通回退异常：zh="${tl?.scenarioReason}" en="${tl?.scenarioReasonEn}"`);
+  }
+
+  // 3. 缺翻译防御：无英文 fitsFor 时，scenarioReasonEn 严格为 undefined，绝不能回退中文
+  const dummyPattern = {
+    id: 'dummy-no-trans',
+    name: 'Dummy Component',
+    chineseName: '测试组件',
+    aliases: [],
+    category: 'feedback',
+    level: 1,
+    fitsFor: '中文场景描述',
+    tags: ['test'],
+    oneLine: '测试',
+    description: '测试',
+    looksLike: '测试',
+    difficulty: 'easy',
+    whenToUse: [],
+    whenNotToUse: [],
+    similarPatterns: [],
+    anatomy: [],
+    aiPrompt: { basic: '', detailed: '', implementation: '' },
+    badPrompt: '',
+  };
+  const dummyHits = searchPatterns('dummy', [dummyPattern]);
+  const dummy = dummyHits[0];
+  if (dummy?.scenarioReason === '适合场景：中文场景描述' && dummy?.scenarioReasonEn === undefined) {
+    ok('缺翻译防御：无英文翻译时 scenarioReasonEn 严格为 undefined，零中文泄漏');
+  } else {
+    bad(`缺翻译防御失败：zh="${dummy?.scenarioReason}" en="${dummy?.scenarioReasonEn}"`);
+  }
 }
 
 console.log('\n' + '='.repeat(60));
