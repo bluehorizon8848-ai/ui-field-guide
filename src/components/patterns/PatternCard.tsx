@@ -52,7 +52,7 @@ export function PatternCard({
         <div className="flex items-center justify-between gap-1.5">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${cat?.tint ?? 'bg-[#F2F0EB]'}`} />
-            <span className="meta !text-[0.6875rem] truncate">{cat?.chineseName}</span>
+            <span className="meta !text-[0.6875rem] truncate">{locale === 'en' ? cat?.name : cat?.chineseName}</span>
             {!showPreview && pattern.specialBadge && (
               <span className="ml-1 rounded bg-[#1D734C]/10 px-1 py-0.2 text-[9px] font-semibold text-[#1D734C]">
                 {pattern.specialBadge}

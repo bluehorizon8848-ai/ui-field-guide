@@ -16,7 +16,9 @@ export function ExploreClient() {
   const params = useSearchParams();
   const initialCat = params.get('c') ?? 'all';
   const [cat, setCat] = useState(
-    categories.some((c) => c.id === initialCat) ? initialCat : 'all'
+    categories.some((c) => c.id === initialCat && patterns.some((p) => p.category === c.id))
+      ? initialCat
+      : 'all'
   );
   const [level, setLevel] = useState('all');
   const [eco, setEco] = useState<'all' | 'web' | 'ios' | 'android' | 'harmonyos'>(

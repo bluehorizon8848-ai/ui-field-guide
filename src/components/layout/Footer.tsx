@@ -12,7 +12,7 @@ export function Footer() {
   const locale = useLocale();
   const h = useHref();
   const featured = patterns.filter((p) => p.level === 1).slice(0, 6);
-  const cats = getCategories(locale);
+  const cats = getCategories(locale).filter((c) => patterns.some((p) => p.category === c.id));
   const compares = allComparisonSlugs.slice(0, 6).map((s) => getComparison(s, locale)!);
 
   return (
@@ -31,36 +31,44 @@ export function Footer() {
               {t(locale, 'meta.tagline')}
               {t(locale, 'footer.taglineSuffix')}
             </p>
-            <div className="mt-4 flex flex-col space-y-1.5 text-[0.8125rem]">
-              <Link
-                href={h('/faq')}
-                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-              >
-                {t(locale, 'nav.faq')}
-              </Link>
-              <Link
-                href={h('/glossary')}
-                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-              >
-                {t(locale, 'nav.glossary')}
-              </Link>
-              <a
-                href={site.parentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-              >
-                {t(locale, 'footer.visitLutiveLab')} ↗
-              </a>
-              <a
-                href={site.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center py-1 text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-              >
-                GitHub · MIT License ↗
-              </a>
-            </div>
+            <ul className="mt-4 space-y-1 text-[0.8125rem]">
+              <li>
+                <Link
+                  href={h('/faq')}
+                  className="inline-flex min-h-[44px] items-center text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                >
+                  {t(locale, 'nav.faq')}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={h('/glossary')}
+                  className="inline-flex min-h-[44px] items-center text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                >
+                  {t(locale, 'nav.glossary')}
+                </Link>
+              </li>
+              <li>
+                <a
+                  href={site.parentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] items-center text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                >
+                  {t(locale, 'footer.visitLutiveLab')} ↗
+                </a>
+              </li>
+              <li>
+                <a
+                  href={site.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] items-center text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                >
+                  GitHub · MIT License ↗
+                </a>
+              </li>
+            </ul>
           </div>
 
           {/* 列 2：从 Level 1 开始 */}
@@ -101,13 +109,13 @@ export function Footer() {
           <div className="flex flex-col">
             <p className="meta mb-3">{t(locale, 'footer.cats')}</p>
             <ul className="space-y-1.5">
-              {cats.slice(0, 7).map((c) => (
+              {cats.map((c) => (
                 <li key={c.id}>
                   <Link
                     href={h(`/explore?c=${c.id}`)}
                     className="inline-flex items-center py-1 text-[0.8125rem] text-ink2 underline-offset-4 transition-colors hover:text-ink hover:underline"
                   >
-                    {locale === 'zh' ? `${c.name} · ${c.chineseName}` : `${c.chineseName} · ${c.name}`}
+                    {locale === 'zh' ? `${c.name} · ${c.chineseName}` : `${c.name} · ${c.chineseName}`}
                   </Link>
                 </li>
               ))}

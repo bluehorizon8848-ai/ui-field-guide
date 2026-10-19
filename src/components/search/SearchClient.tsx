@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Search as SearchIcon, X, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import { patterns } from '@/data/patterns';
 import { searchPatterns, FUNCTIONAL_SCENARIOS } from '@/data/search';
+import { getPattern } from '@/data/i18n/resolve';
 import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { PatternCard } from '@/components/patterns/PatternCard';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
@@ -187,10 +188,12 @@ export function SearchClient() {
             {results.length} {t(locale, 'search.results')}
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {results.map(({ pattern, matchedBy, scenarioReason }) => (
-              <div key={pattern.id} className="flex flex-col">
-                <div className="relative flex-1">
-                  <PatternCard pattern={pattern} headingLevel={2} />
+            {results.map(({ pattern, matchedBy, scenarioReason }) => {
+              const localizedPattern = getPattern(pattern.id, locale) ?? pattern;
+              return (
+                <div key={pattern.id} className="flex flex-col">
+                  <div className="relative flex-1">
+                    <PatternCard pattern={localizedPattern} headingLevel={2} />
                   <span className="absolute right-3 top-3 rounded bg-white/95 px-1.5 py-0.5 text-2xs text-muted shadow-2xs">
                     {t(locale, 'search.hit')}: {matchedByLabel(locale, matchedBy)}
                   </span>
@@ -202,7 +205,8 @@ export function SearchClient() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

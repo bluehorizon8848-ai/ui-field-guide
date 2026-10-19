@@ -4,7 +4,7 @@
 
 你知道自己想要什么，只是不知道它叫什么。
 
-这个站点把 63 个 UI Pattern 拆成「先看 → 再理解 → 知道名字 → 知道什么时候用 → 会怎么告诉 AI」五步。每一个词条都有可交互 Demo、三层 Prompt、和一张能存下来的分享卡片。
+这个站点把 75 个 UI Pattern 拆成「先看 → 再理解 → 知道名字 → 知道什么时候用 → 会怎么告诉 AI」五步。每一个词条都有可交互 Demo、三层 Prompt、和一张能存下来的分享卡片。
 
 **纯静态。没有账号，没有数据库，没有 AI API，没有后端。**
 
@@ -92,7 +92,7 @@ npm run serve     # 本地预览 out/，行为对齐 Cloudflare Pages
 | --- | --- |
 | `/` | 学习入口。首屏即真实组件，不是营销页 |
 | `/explore` | 图鉴。8 分类 × 3 难度 + 搜索 |
-| `/patterns/[slug]` | 词条详情。63 个，每个都有独立 URL 和 metadata |
+| `/patterns/[slug]` | 词条详情。75 个，每个都有独立 URL 和 metadata |
 | `/compare` | 8 组最常被搞混的 Pattern |
 | `/compare/[slug]` | 对比详情。对比表 + 真实 Demo + 选型规则 |
 | `/learn` | 三级学习路径，进度存 LocalStorage |
@@ -114,8 +114,8 @@ npm run serve     # 本地预览 out/，行为对齐 Cloudflare Pages
 
 ## 内容规模
 
-- 63 个 Pattern，覆盖 8 个分类
-- 63 个可交互 Demo（每个词条都有）
+- 75 个 Pattern，覆盖 8 个核心分类
+- 75 个可交互 Demo（每个词条都有）
 - 8 组完整 Comparison
 - 100+ 条中文口语关键词映射
 - 83 个静态页面（含 sitemap / robots / 404）
@@ -125,7 +125,7 @@ npm run serve     # 本地预览 out/，行为对齐 Cloudflare Pages
 | 项目 | 结果 |
 | --- | --- |
 | `npm run build` | 83 页导出到 `out/`，7.6 MB / 187 文件 |
-| `npm run check` | 类型 + 内容完整性全绿（63 Pattern / 8 对比 / 63 Demo） |
+| `npm run check` | 类型 + 内容完整性全绿（75 Pattern / 8 对比 / 75 Demo） |
 | 全站浏览器冒烟（78 页） | 78 / 78 通过，无 console error |
 | 交互测试（40 项） | 40 / 40 通过 |
 | 视觉与可访问性（6 项） | 6 / 6 通过 |
@@ -140,13 +140,13 @@ npm run serve     # 本地预览 out/，行为对齐 Cloudflare Pages
 | 颜色对比度 | 19 种文字样式全部 AA，最低 5.12:1 |
 | 触控热区 | 全部视口下按钮与块级链接 ≥ 44px |
 | LocalStorage | 勾选写入、刷新保留、跨页同步 |
-| Demo 展示区域 | 63 个 Demo 高度 260~620px（中位 302px），自适应无挤压 |
+| Demo 展示区域 | 75 个 Demo 高度 260~620px（中位 302px），自适应无挤压 |
 
 以上全部在**静态导出产物**（`out/`）上跑通，不是 `next start`。浏览器测试用 Playwright 覆盖真实点击、键盘、剪贴板和文件下载；分享卡片下载会真实落盘到 `/tmp/uifg-downloads`，校验 PNG magic 与 IHDR 实际像素。
 
 ### Demo 展示高度为什么是自适应的
 
-不用固定高度，也不手工分「简单/复杂」两级——两者都会失准：固定值对 badge 太高、对 skeleton 太矮，手工分级要维护 63 份标注。
+不用固定高度，也不手工分「简单/复杂」两级——两者都会失准：固定值对 badge 太高、对 skeleton 太矮，手工分级要维护 75 份标注。
 
 `DemoStage` 先以 auto 渲染一遍，量出内容自然高度，再取
 `clamp(内容高 × 放大系数, 下限, 上限)`，用 `useLayoutEffect` 在浏览器绘制前同步调整，用户看不到跳动。上限在手机上收紧到 460px，避免 Demo 占满整屏把正文挤出屏幕。

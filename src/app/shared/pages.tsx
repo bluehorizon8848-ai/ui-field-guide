@@ -52,7 +52,7 @@ const HOT = [
 
 export function createHomePage(locale: Locale) {
   const hotPatterns = HOT.map((id) => getPattern(id, locale)!).filter(Boolean);
-  const cats = getCategories(locale);
+  const cats = getCategories(locale).filter((c) => patterns.some((p) => p.category === c.id));
   const cards = getContrastCards(locale);
 
   return function HomePage() {
@@ -132,7 +132,7 @@ export function createHomePage(locale: Locale) {
                 </div>
                 <Link
                   href={href('/faq', locale)}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
                 >
                   <span>{t(locale, 'faq.homeBannerAction')}</span>
                 </Link>

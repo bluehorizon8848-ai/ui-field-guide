@@ -331,14 +331,19 @@ const browser = await chromium.launch();
 
   const levels = page.locator('button[role="tab"]');
   const levelCount = await levels.count();
-  record('Ask AI: 三层 Tab 存在', levelCount === 3, `实际 ${levelCount}`);
+  record('Ask AI: 四个正式 Tab 存在', levelCount === 4, `实际 ${levelCount}`);
 
-  if (levelCount === 3) {
-    for (let i = 0; i < 3; i++) {
+  if (levelCount === 4) {
+    for (let i = 0; i < 4; i++) {
       await levels.nth(i).click();
       await page.waitForTimeout(200);
     }
-    record('Ask AI: 三层可切换', true);
+    // 切回默认推荐的 Conversational Tab 验证 Prompt 复制
+    await levels.first().click();
+    await page.waitForTimeout(200);
+    record('Ask AI: 四个 Tab 均可切换', true);
+  } else {
+    record('Ask AI: 四个 Tab 均可切换', false, `实际 ${levelCount}`);
   }
 
   const copyBtn = page.locator('button', { hasText: /复制/ }).first();

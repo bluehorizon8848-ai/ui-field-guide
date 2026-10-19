@@ -137,7 +137,7 @@ export function Header() {
           <Link
             href={h('/search')}
             aria-label={`${t(locale, 'nav.search')} (⌘K)`}
-            className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2.5 text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg border border-transparent px-2.5 text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink"
           >
             <Search size={16} aria-hidden="true" />
             <kbd className="hidden rounded border border-line bg-[#FAF9F6] px-1.5 py-0.5 font-mono text-[10px] text-muted lg:inline-block">
@@ -150,7 +150,7 @@ export function Header() {
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? t(locale, 'nav.closeMenu') : t(locale, 'nav.openMenu')}
             aria-expanded={menuOpen}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink md:hidden"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ink2 transition-colors hover:border-line hover:bg-surface hover:text-ink md:hidden"
           >
             {menuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
           </button>

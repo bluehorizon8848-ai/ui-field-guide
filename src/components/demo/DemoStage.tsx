@@ -7,7 +7,7 @@ import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
  * Demo 舞台的高度策略。
  *
  * 不用固定 min-height，也不用「简单/复杂」手工分级——两者都会失准：
- * 固定值对 badge 太高对 skeleton 太矮，手工分级要维护 63 份标注。
+ * 固定值对 badge 太高对 skeleton 太矮，手工分级要维护 75 份标注。
  *
  * 做法是**测内容，再按内容分配**：
  * 1. 先以 auto 渲染一遍，量出内容的自然高度

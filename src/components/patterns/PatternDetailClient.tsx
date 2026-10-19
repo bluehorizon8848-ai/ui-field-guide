@@ -72,7 +72,7 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
               href={h(`/explore?c=${pattern.category}`)}
               className="inline-flex min-h-[44px] items-center underline-offset-4 hover:text-ink hover:underline"
             >
-              {cat?.chineseName}
+              {locale === 'en' ? cat?.name : cat?.chineseName}
             </Link>
           </li>
           <li aria-hidden="true">›</li>
