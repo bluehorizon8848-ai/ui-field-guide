@@ -181,6 +181,22 @@ export function SearchClient() {
               {t(locale, 'identify.title')}
             </a>
           </p>
+
+          <div className="mt-6 border-t border-line/60 pt-5 max-w-[480px] mx-auto text-center">
+            <p className="text-xs text-ink2">{t(locale, 'search.feedbackPrompt')}</p>
+            <a
+              href="https://github.com/bluehorizon8848-ai/ui-field-guide/issues/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:border-[#C9C5BB] hover:bg-[#F5F3EE]"
+            >
+              <span>{t(locale, 'search.feedbackLink')}</span>
+              <ArrowRight size={12} aria-hidden="true" />
+            </a>
+            <p className="mt-1.5 text-[11px] text-muted leading-relaxed">
+              {t(locale, 'search.feedbackNote')}
+            </p>
+          </div>
         </div>
       ) : (
         <>

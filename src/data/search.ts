@@ -138,6 +138,11 @@ const colloquialMap: Record<string, string[]> = {
   分步表单: ['stepper'],
   骨架占位: ['skeleton'],
   弱网加载: ['skeleton', 'spinner'],
+  灰块: ['skeleton'],
+  先显示灰块: ['skeleton'],
+  数据未到先显示灰块: ['skeleton'],
+  页面太多分步操作: ['stepper'],
+  分步操作: ['stepper'],
 
   // 布局类口语
   中间不要太宽: ['container'],
@@ -152,6 +157,9 @@ const colloquialMap: Record<string, string[]> = {
   苹果风格格子: ['bento-grid'],
   拼图网格: ['bento-grid'],
   高低格子: ['bento-grid'],
+  像拼贴一样的相册网格: ['masonry', 'bento-grid'],
+  拼贴: ['masonry', 'bento-grid'],
+  相册网格: ['masonry', 'bento-grid'],
   小红书排列: ['masonry'],
   瀑布流: ['masonry'],
   不等高卡片: ['masonry'],
@@ -208,6 +216,7 @@ const colloquialEn: Record<string, string[]> = {
   'grey blocks': ['skeleton'],
   'gray blocks': ['skeleton'],
   'placeholder while loading': ['skeleton'],
+  'loading placeholder': ['skeleton'],
   'spinning circle': ['spinner'],
   'loading circle': ['spinner'],
   'how far along': ['progress-bar'],
@@ -252,6 +261,7 @@ const colloquialEn: Record<string, string[]> = {
   'show more': ['progressive-disclosure', 'load-more'],
 
   // 反馈类
+  'empty list': ['empty-state'],
   'nothing here yet': ['empty-state'],
   'no data': ['empty-state', 'error-state'],
   'first time user': ['empty-state'],
@@ -369,10 +379,17 @@ function colloquialScore(query: string, patternId: string): number {
     const idx = ids.indexOf(patternId);
     if (idx < 0) continue;
 
-    const phraseTerms = phrase.split(' ');
+    // 剔除短语中的停用词与单字符，防止 a / i / on / and 等小词引起泛滥假阳性
+    const phraseTerms = phrase
+      .split(' ')
+      .filter((w) => w.length > 1 && !STOPWORDS.has(w));
+    if (phraseTerms.length === 0) continue;
+
     let hit = 0;
     for (const term of terms) {
-      if (phraseTerms.some((pt) => pt.includes(term) || term.includes(pt))) hit++;
+      if (phraseTerms.some((pt) => pt === term || (pt.length >= 4 && term.startsWith(pt)) || (term.length >= 4 && pt.startsWith(term)))) {
+        hit++;
+      }
     }
     if (hit === 0) continue;
 
@@ -386,12 +403,11 @@ function colloquialScore(query: string, patternId: string): number {
     // 关键在「同序 + 同长度」，不能只看个数相等：
     // 否则单词短语（toggle）和任意多词查询（expand and collapse）
     // 都会拿到同一档加权，排序退化、正确答案被挤掉。
-    const phraseKeys = phraseTerms.filter((w) => !STOPWORDS.has(w));
     const sameOrder =
-      terms.length === phraseKeys.length &&
+      terms.length === phraseTerms.length &&
       terms.every((w, i) => {
-        const pt = phraseKeys[i];
-        return pt.includes(w) || w.includes(pt);
+        const pt = phraseTerms[i];
+        return pt === w || pt.startsWith(w) || w.startsWith(pt);
       });
     if (sameOrder) s += 3;
 

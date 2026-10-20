@@ -46,12 +46,12 @@ const zh = {
   'home.identify': '我不知道它叫什么',
   'home.learnL1': '从 Level 1 开始学',
   'home.playMeta': '先玩，再学名字',
-  'home.playTitle': '这三个是独立开发者最常问的',
+  'home.playTitle': '这三个是独立开发者的精选入门示例',
   'home.contrastMeta': '它们到底有什么区别？',
   'home.contrastTitle': '人不是不认识 Button，是不认识「区别」',
   'home.contrastAll': '全部 {n} 组对比',
-  'home.hotMeta': '最常被搜到的',
-  'home.hotTitle': '先认识这 {n} 个',
+  'home.hotMeta': '精选模式',
+  'home.hotTitle': '推荐先看的 {n} 个基础模式',
   'home.allPatterns': '全部 {n} 个',
   'home.catMeta': '按分类逛',
   'home.catTitle': '{n} 个分类',
@@ -249,7 +249,7 @@ const zh = {
   'identify.fallbackSearch': '用口语描述搜',
   'identify.fallbackSearchSub': '「底下弹出来」「一步步填写」这类描述也能搜到',
   'identify.fallbackCompare': '看它和别的有什么区别',
-  'identify.fallbackCompareSub': '8 组最常被搞混的 Pattern，附选型规则',
+  'identify.fallbackCompareSub': '8 组典型对比与选型参考',
 
   // Identify 两问的选项文案。值来自 data/types.ts 的 Position / Job 枚举，
   // 枚举本身不能改（它同时是词条字段），所以标签与提示放在词典里，按枚举值取。
@@ -298,9 +298,12 @@ const zh = {
   'search.barPlaceholder': '搜索中文、英文或你的口头描述…',
   'search.colloquialMeta': '你的口语描述也能搜',
   'search.examplesNote':
-    '这些是独立开发者最常说的几句话。它们对应的专业术语分别是 Bottom Sheet、Stepper、Spinner、Snackbar、Badge、Accordion、Progressive Disclosure。',
+    '以下是独立开发者常用的口语描述示例。它们对应的专业术语分别是 Bottom Sheet、Stepper、Spinner、Snackbar、Badge、Accordion、Progressive Disclosure。',
   'search.noResultFor': '没找到「{q}」',
   'search.noResultTry': '换个说法试试，或者去',
+  'search.feedbackPrompt': '没有找到想要的 UI 组件？',
+  'search.feedbackLink': '前往 GitHub 提交 Issue 建议',
+  'search.feedbackNote': '将跳转公开 GitHub 页面，提交内容全网可见，可能需要登录 GitHub。',
   'search.viewAllResults': '查看「{q}」的全部结果',
   'search.tryColloquial': '试试用你的口语描述，比如「{q}」',
 
@@ -413,6 +416,7 @@ const zh = {
   'demo.banner.showAgain': '重新显示 Banner',
   'demo.banner.pageContent': '页面内容在这里',
 
+  'demo.accordion.scenarioNotice': '业务场景模拟示例 · 规则依具体应用而定',
   'demo.accordion.faq1q': '照片会占用手机多少空间？',
   'demo.accordion.faq1a':
     '原图约 3–5MB，缩略图约 200KB。清理时可以选择「删除原图，保留缩略图」，这样浏览不受影响但能省下大部分空间。',
@@ -923,12 +927,12 @@ const en: UI = {
   'home.identify': 'I don\'t know what it\'s called',
   'home.learnL1': 'Start with Level 1',
   'home.playMeta': 'Play first, learn the name later',
-  'home.playTitle': 'The three indie developers ask about most',
+  'home.playTitle': 'Three curated patterns to get started with',
   'home.contrastMeta': 'What\'s actually different?',
   'home.contrastTitle': 'You know Button. You don\'t know when NOT to use it.',
   'home.contrastAll': 'All {n} comparisons',
-  'home.hotMeta': 'Most searched',
-  'home.hotTitle': 'Start with these {n}',
+  'home.hotMeta': 'FEATURED PICKS',
+  'home.hotTitle': '{n} essential patterns to explore first',
   'home.allPatterns': 'All {n}',
   'home.catMeta': 'Browse by category',
   'home.catTitle': '{n} categories',
@@ -1126,7 +1130,7 @@ const en: UI = {
   'identify.fallbackSearch': 'Search in plain language',
   'identify.fallbackSearchSub': 'Phrases like "sheet from the bottom" or "fill in step by step" work too',
   'identify.fallbackCompare': 'See how it differs',
-  'identify.fallbackCompareSub': '8 comparisons of the most-confused patterns, with decision rules',
+  'identify.fallbackCompareSub': '8 curated comparisons with clear decision rules',
 
   'identify.pos.top.label': 'Top of the page',
   'identify.pos.top.hint': 'Header bar, tab bar area',
@@ -1173,9 +1177,12 @@ const en: UI = {
   'search.barPlaceholder': 'Search in Chinese, English, or plain language…',
   'search.colloquialMeta': 'Plain language works too',
   'search.examplesNote':
-    'These are the phrases indie developers say most. The professional terms are Bottom Sheet, Stepper, Spinner, Snackbar, Badge, Accordion, and Progressive Disclosure.',
+    'Common colloquial phrases and their corresponding terms: Bottom Sheet, Stepper, Spinner, Snackbar, Badge, Accordion, and Progressive Disclosure.',
   'search.noResultFor': 'Nothing found for "{q}"',
   'search.noResultTry': 'Try different words, or let',
+  'search.feedbackPrompt': 'Can\'t find the UI pattern you need?',
+  'search.feedbackLink': 'Request it on GitHub Issues',
+  'search.feedbackNote': 'Opens a public GitHub page. Submissions are publicly visible and may require login.',
   'search.viewAllResults': 'See all results for "{q}"',
   'search.tryColloquial': 'Try describing it in your own words, like "{q}"',
 
@@ -1283,6 +1290,7 @@ const en: UI = {
   'demo.banner.showAgain': 'Show the banner again',
   'demo.banner.pageContent': 'Page content goes here',
 
+  'demo.accordion.scenarioNotice': 'Example scenario mockup · Rules vary by app',
   'demo.accordion.faq1q': 'How much space do photos take up?',
   'demo.accordion.faq1a':
     'Originals run about 3–5MB, thumbnails around 200KB. When you clean up you can choose "delete the original, keep the thumbnail" — browsing stays unaffected while you reclaim most of the space.',

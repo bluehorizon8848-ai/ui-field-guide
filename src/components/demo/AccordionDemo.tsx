@@ -22,7 +22,14 @@ export function AccordionDemo() {
 
   return (
     <DemoStage caption={t(locale, 'demo.caption.accordion')}>
-      <div className="mx-auto w-full max-w-[440px] divide-y divide-line overflow-hidden rounded-xl border border-line">
+      <div className="mx-auto w-full max-w-[440px] overflow-hidden rounded-xl border border-line">
+        <div className="flex items-center justify-between border-b border-line bg-[#F8F7F3] px-3.5 py-1.5 text-2xs text-muted">
+          <span>{t(locale, 'demo.accordion.scenarioNotice')}</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-muted/80">
+            {locale === 'zh' ? '场景模拟' : 'MOCKUP'}
+          </span>
+        </div>
+        <div className="divide-y divide-line">
         {FAQ.map((item, i) => {
           const isOpen = open.includes(i);
           return (
@@ -63,6 +70,7 @@ export function AccordionDemo() {
             </div>
           );
         })}
+        </div>
       </div>
     </DemoStage>
   );

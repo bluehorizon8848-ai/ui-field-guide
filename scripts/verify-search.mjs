@@ -70,6 +70,8 @@ const EN_CASES = [
   ['profile picture', 'Avatar'],
   ['vertical timeline', 'Timeline'],
   ['small tag', 'Chip'],
+  ['loading placeholder', 'Skeleton'],
+  ['empty list', 'Empty State'],
 ];
 
 const ZH_CASES = [
@@ -77,6 +79,7 @@ const ZH_CASES = [
   ['弹窗', 'Modal'],
   ['转圈圈', 'Spinner'],
   ['骨架屏', 'Skeleton'],
+  ['数据未到先显示灰块', 'Skeleton'],
   ['开和关', 'Switch'],
   ['滑动条', 'Slider'],
   ['长按', 'Long Press'],
@@ -84,6 +87,8 @@ const ZH_CASES = [
   ['分步完成', 'Stepper'],
   ['分层展开', 'Accordion'],
   ['一步一步填写', 'Stepper'],
+  ['页面太多分步操作', 'Stepper'],
+  ['像拼贴一样的相册网格', 'Grid'],
   ['底部菜单', 'Bottom Navigation'],
   ['红点', 'Badge'],
 ];
@@ -125,6 +130,21 @@ try {
   else bad('纯符号查询返回了结果');
 } catch (e) {
   bad(`边界查询抛异常：${e.message}`);
+}
+
+// 无关查询负控（Negative Controls）：确保不出现泛滥假阳性
+console.log('\n──── 无关查询负控（Negative Controls） ────');
+const NEGATIVE_CASES = [
+  'random nonsense text',
+  '量子波动速读',
+  'apple pie recipe',
+  'kubernetes deployment yaml',
+  '明天天气预报下雨吗',
+];
+for (const q of NEGATIVE_CASES) {
+  const r = searchPatterns(q, patterns);
+  if (r.length === 0) ok(`负控 "${q}" → 0 命中（无假阳性）`);
+  else bad(`负控 "${q}" 出现假阳性命中：${r.map((h) => h.pattern.id).join(', ')}`);
 }
 
 // 场景推荐理由双语与防御性回退校验
