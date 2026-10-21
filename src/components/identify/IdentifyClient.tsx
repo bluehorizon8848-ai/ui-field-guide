@@ -237,7 +237,7 @@ export function IdentifyClient() {
                             className={`h-1.5 w-1.5 shrink-0 rounded-full ${cat?.tint ?? 'bg-[#F2F0EB]'}`}
                           />
                           <span className="meta !text-[0.625rem]">
-                            {cat?.chineseName}
+                            {locale === 'en' ? cat?.name : cat?.chineseName}
                           </span>
                           <span className="meta !text-[0.625rem]">
                             {t(locale, 'card.level')} {hit.pattern.level}

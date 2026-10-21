@@ -47,7 +47,7 @@ function generateConversationalPrompt(pattern: UIPattern, locale: 'zh' | 'en'): 
   const partsEn = pattern.anatomy?.slice(0, 3).map((a) => a.label) || [];
   const partsEnDesc = partsEn.length > 0 ? ` (key parts: ${partsEn.join(', ')})` : '';
 
-  return `I want to implement a standard ${pattern.name} (${pattern.chineseName}) component in my application.
+  return `I want to implement a standard ${pattern.name} component in my application.
 The design intent is: ${pattern.oneLine} ${partsEnDesc}
 
 Please act as a senior frontend architect. Before writing the final code, please first clarify and confirm with me:
