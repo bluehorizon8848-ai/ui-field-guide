@@ -282,35 +282,79 @@ export function LearnWorkbench() {
         </div>
       )}
 
-      {/* 顶部轻量全局进度条与断点续学 */}
-      <div className="border-b border-line bg-surface/60 backdrop-blur-xs">
-        <div className="container-page flex h-11 items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+      {/* 移动端紧凑全局学习进度 (桌面端隐藏，整合至左侧大纲标题区) */}
+      <div className="border-b border-line bg-surface/80 px-4 py-2.5 backdrop-blur-xs md:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-muted">
               {isZh ? '学习进度' : 'Progress'}
             </span>
-            <div className="flex items-center gap-2">
+            <div
+              role="progressbar"
+              aria-valuenow={totalLearnedCount}
+              aria-valuemin={0}
+              aria-valuemax={TOTAL_LESSONS}
+              className="h-1.5 w-24 overflow-hidden rounded-full bg-line"
+            >
               <div
-                role="progressbar"
-                aria-valuenow={totalLearnedCount}
-                aria-valuemin={0}
-                aria-valuemax={TOTAL_LESSONS}
-                className="h-1.5 w-24 sm:w-36 overflow-hidden rounded-full bg-line"
-              >
-                <div
-                  className="h-full rounded-full bg-accent transition-[width] duration-300"
-                  style={{ width: `${overallPct}%` }}
-                />
-              </div>
-              <span className="font-mono text-xs font-semibold tabular-nums text-ink">
-                {totalLearnedCount} / {TOTAL_LESSONS}
-              </span>
-              <span className="hidden text-2xs text-muted sm:inline">({overallPct}%)</span>
+                className="h-full rounded-full bg-accent transition-[width] duration-300"
+                style={{ width: `${overallPct}%` }}
+              />
             </div>
+            <span className="font-mono text-xs font-semibold tabular-nums text-ink">
+              {totalLearnedCount} / {TOTAL_LESSONS}
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* 续学入口胶囊 */}
+          {/* 续学入口胶囊 (移动端) */}
+          {totalLearnedCount > 0 && totalLearnedCount < TOTAL_LESSONS && (
+            <button
+              type="button"
+              onClick={() => {
+                const unlearned = allLessonItems.find((it) => !learned36Set.has(it.id));
+                if (unlearned) handleSelectLesson(unlearned.id);
+              }}
+              className="inline-flex min-h-[32px] items-center gap-1 rounded-full border border-accent/30 bg-[#EBF4F0] px-2.5 py-0.5 text-2xs font-medium text-accent hover:bg-accent hover:text-white transition"
+            >
+              <Sparkles size={11} aria-hidden="true" />
+              <span>{isZh ? '继续' : 'Resume'}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 工作台主体双栏架构 (Minimal Documentation Workspace) */}
+      <div className="container-page flex min-h-[calc(100vh-3.5rem)]">
+        {/* ================= 左侧课程目录 (Desktop) ================= */}
+        <aside
+          aria-label={isZh ? '课程大纲' : 'Curriculum'}
+          className="hidden w-72 shrink-0 border-r border-line pt-6 pb-12 pr-5 md:block lg:w-80"
+        >
+          {/* 目录标题区：课程体系标题与 0/36 进度处于同一基线，下方 2-3px 进度条 */}
+          <div className="mb-4 px-2">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-muted">
+                {isZh ? '课程体系' : 'Curriculum'}
+              </h2>
+              <div className="flex items-baseline gap-1 font-mono text-xs font-semibold tabular-nums text-ink">
+                <span>{totalLearnedCount} / {TOTAL_LESSONS}</span>
+                <span className="text-2xs text-muted font-normal ml-0.5">({overallPct}%)</span>
+              </div>
+            </div>
+            {/* 2-3px 细线进度条 */}
+            <div
+              role="progressbar"
+              aria-valuenow={totalLearnedCount}
+              aria-valuemin={0}
+              aria-valuemax={TOTAL_LESSONS}
+              className="mt-2 h-1 w-full overflow-hidden rounded-full bg-line"
+            >
+              <div
+                className="h-full rounded-full bg-accent transition-[width] duration-300"
+                style={{ width: `${overallPct}%` }}
+              />
+            </div>
+            {/* 续学入口胶囊 (桌面端) */}
             {totalLearnedCount > 0 && totalLearnedCount < TOTAL_LESSONS && (
               <button
                 type="button"
@@ -318,45 +362,16 @@ export function LearnWorkbench() {
                   const unlearned = allLessonItems.find((it) => !learned36Set.has(it.id));
                   if (unlearned) handleSelectLesson(unlearned.id);
                 }}
-                className="hidden min-h-[36px] items-center gap-1.5 rounded-full border border-accent/30 bg-[#EBF4F0] px-3 py-1 text-xs font-medium text-accent transition hover:bg-accent hover:text-white sm:inline-flex"
+                className="mt-2.5 flex w-full min-h-[32px] items-center justify-center gap-1.5 rounded-lg border border-accent/30 bg-[#EBF4F0] px-2.5 py-1 text-xs font-medium text-accent transition hover:bg-accent hover:text-white"
               >
-                <Sparkles size={13} aria-hidden="true" />
-                <span>{isZh ? '继续学习' : 'Resume'}</span>
+                <Sparkles size={12} aria-hidden="true" />
+                <span>{isZh ? '继续上次学习' : 'Resume Learning'}</span>
               </button>
             )}
-
-            {/* 移动端打开目录按钮 */}
-            <button
-              type="button"
-              onClick={() => setMobileDrawerOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1 text-xs font-medium text-ink md:hidden"
-            >
-              <BookOpen size={14} aria-hidden="true" />
-              <span>{isZh ? '学习大纲' : 'Outline'}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 工作台主体双栏架构 (Minimal Documentation Workspace) */}
-      <div className="container-page flex min-h-[calc(100vh-6.25rem)]">
-        {/* ================= 左侧课程目录 (Desktop) ================= */}
-        <aside
-          aria-label={isZh ? '课程大纲' : 'Curriculum'}
-          className="hidden w-64 shrink-0 border-r border-line py-5 pr-4 md:block lg:w-72"
-        >
-          {/* 目录标题区：纯净文字，无浅色填充背景 */}
-          <div className="mb-3 flex items-center justify-between px-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-muted">
-              {isZh ? '课程体系' : 'Curriculum'}
-            </h2>
-            <span className="text-2xs text-muted font-mono">
-              3 Levels · 36 Items
-            </span>
           </div>
 
           {/* 三级手风琴列表 */}
-          <nav className="space-y-3">
+          <nav className="space-y-2">
             {learnWorkbenchData.levels.map((lvl) => {
               const isExpanded = expandedLevels.has(lvl.level);
               const lvlDone = lvl.items.filter((it) => learned36Set.has(it.id)).length;
@@ -366,9 +381,9 @@ export function LearnWorkbench() {
 
               return (
                 <div key={lvl.level} className="overflow-hidden">
-                  {/* Level 标题行：点击标题进总览，独立箭头控折叠 */}
+                  {/* Level 标题行：点击标题进总览，独立箭头控折叠，垂直中轴对齐 */}
                   <div
-                    className={`flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors ${
+                    className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 transition-colors ${
                       isLvlActive
                         ? 'bg-line/50 font-semibold text-ink'
                         : 'hover:bg-line/30 text-ink2'
@@ -398,7 +413,7 @@ export function LearnWorkbench() {
                       </div>
                     </button>
 
-                    <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                    <div className="flex items-center gap-1.5 shrink-0 pl-1 self-center">
                       <span className="font-mono text-2xs tabular-nums text-muted">
                         {lvlDone}/{lvlTotal}
                       </span>
@@ -419,7 +434,7 @@ export function LearnWorkbench() {
                     </div>
                   </div>
 
-                  {/* 展开的课程条目 */}
+                  {/* 展开的课程条目：统一行高(min-h-44)、固定列宽序号、单行文字基线对齐 */}
                   {isExpanded && (
                     <ul className="mt-1 space-y-0.5 border-l border-line/80 ml-3.5 pl-2">
                       {lvl.items.map((it) => {
@@ -431,7 +446,7 @@ export function LearnWorkbench() {
                             <button
                               type="button"
                               onClick={() => handleSelectLesson(it.id)}
-                              className={`group flex min-h-[44px] w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors ${
+                              className={`group flex min-h-[44px] w-full items-center justify-between rounded-md px-2 py-1 text-left text-xs transition-colors ${
                                 isSelected
                                   ? 'border-l-2 border-accent bg-accent/5 font-semibold text-accent'
                                   : isDone
@@ -441,24 +456,30 @@ export function LearnWorkbench() {
                               aria-current={isSelected ? 'true' : undefined}
                             >
                               <div className="flex min-w-0 items-center gap-2 truncate">
-                                {isDone ? (
-                                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">
-                                    ✓
+                                {/* 固定 20px 宽度列，确保文字起始像素绝对对齐 */}
+                                <span
+                                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] ${
+                                    isDone
+                                      ? 'bg-accent font-bold text-white'
+                                      : 'border border-line font-mono text-muted'
+                                  }`}
+                                >
+                                  {isDone ? '✓' : it.globalIndex + 1}
+                                </span>
+                                {/* 英文名与中文名在同一基线 */}
+                                <span className="truncate flex items-baseline gap-1.5">
+                                  <span className="font-medium text-ink group-hover:text-ink">
+                                    {it.name}
                                   </span>
-                                ) : (
-                                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-line text-[9px] text-muted">
-                                    {it.globalIndex + 1}
-                                  </span>
-                                )}
-                                <span className="truncate">
-                                  {it.name}{' '}
-                                  <span className="text-muted font-normal">
-                                    {isZh ? it.chineseName : ''}
-                                  </span>
+                                  {isZh && (
+                                    <span className="text-2xs text-muted font-normal truncate">
+                                      {it.chineseName}
+                                    </span>
+                                  )}
                                 </span>
                               </div>
                               {isSelected && (
-                                <span className="shrink-0 text-2xs font-mono text-accent">
+                                <span className="shrink-0 text-2xs font-mono text-accent pl-1.5">
                                   {isZh ? '当前' : 'Active'}
                                 </span>
                               )}
@@ -475,7 +496,7 @@ export function LearnWorkbench() {
         </aside>
 
         {/* ================= 右侧工作台正文 ================= */}
-        <main className="flex-1 min-w-0 py-6 md:pl-8">
+        <main className="flex-1 min-w-0 pt-6 pb-16 md:pl-8 lg:pl-10 max-w-4xl">
           {/* 模式 A：Chapter Overview 章节总览视图 */}
           {viewMode === 'level' && (
             <div className="animate-fade-in space-y-8">
@@ -602,14 +623,14 @@ export function LearnWorkbench() {
 
           {/* 模式 B：Lesson Detail 单课学习台视图 */}
           {viewMode === 'lesson' && (
-            <div className="animate-fade-in space-y-8 pb-16">
-              {/* 返回总览面包屑与课程元信息 */}
-              <div>
-                <nav aria-label="Breadcrumb" className="mb-3">
+            <div className="animate-fade-in space-y-6 pb-16">
+              {/* 统一顶部工具行：左侧「返回 Level 章节总览」与右侧轻量「查看完整词条 ↗」在同一水平线 */}
+              <div className="flex items-center justify-between gap-4 border-b border-line/60 pb-2.5">
+                <nav aria-label="Breadcrumb">
                   <button
                     type="button"
                     onClick={() => handleSelectLevelOverview(currentItem.level)}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-medium text-muted hover:text-ink transition-colors -ml-1 px-1 py-2"
                   >
                     <ArrowLeft size={13} aria-hidden="true" />
                     <span>
@@ -620,43 +641,43 @@ export function LearnWorkbench() {
                   </button>
                 </nav>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="meta">{currentItem.category.toUpperCase()}</span>
-                      <span aria-hidden="true" className="text-lineDark">·</span>
-                      <span className="meta">
-                        {isZh
-                          ? `第 ${currentItem.globalIndex + 1} / 36 课`
-                          : `Lesson ${currentItem.globalIndex + 1} of 36`}
-                      </span>
-                      {isCurrentDone && (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-2xs font-semibold text-emerald-800">
-                          ✓ {isZh ? '本课已学完' : 'Completed'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 flex flex-wrap items-baseline gap-2.5">
-                      <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                        {currentItem.name}
-                      </h1>
-                      <span className="text-base text-muted font-normal">
-                        {currentItem.chineseName}
-                      </span>
-                    </div>
-                  </div>
+                {/* 独立完整词条跳转链接：轻量文字链接，保留 >=44px 触控区 */}
+                <Link
+                  href={h(`/patterns/${currentItem.id}?from=learn`)}
+                  className="inline-flex min-h-[44px] items-center gap-1 text-xs text-muted hover:text-accent transition-colors py-2 px-1 -mr-1"
+                >
+                  <span>{isZh ? '查看完整词条' : 'View Full Entry'}</span>
+                  <ExternalLink size={12} aria-hidden="true" />
+                </Link>
+              </div>
 
-                  {/* 独立完整词条跳转链接（支持 ?from=learn 往返） */}
-                  <Link
-                    href={h(`/patterns/${currentItem.id}?from=learn`)}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-line/40 hover:text-accent"
-                  >
-                    <span>{isZh ? '查看完整词条' : 'View Full Entry'}</span>
-                    <ExternalLink size={13} aria-hidden="true" />
-                  </Link>
+              {/* 课程元信息与定义 (紧凑结构，极大减少顶部空白) */}
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="meta">{currentItem.category.toUpperCase()}</span>
+                  <span aria-hidden="true" className="text-lineDark">·</span>
+                  <span className="meta">
+                    {isZh
+                      ? `第 ${currentItem.globalIndex + 1} / 36 课`
+                      : `Lesson ${currentItem.globalIndex + 1} of 36`}
+                  </span>
+                  {isCurrentDone && (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-2xs font-semibold text-emerald-800">
+                      ✓ {isZh ? '本课已学完' : 'Completed'}
+                    </span>
+                  )}
                 </div>
 
-                <p className="mt-4 border-l-2 border-accent pl-3 text-sm leading-relaxed text-ink">
+                <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">
+                  <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                    {currentItem.name}
+                  </h1>
+                  <span className="text-base text-muted font-normal">
+                    {currentItem.chineseName}
+                  </span>
+                </div>
+
+                <p className="mt-3 border-l-2 border-accent pl-3 text-sm leading-relaxed text-ink">
                   {isZh ? currentItem.oneLineZh : currentItem.oneLineEn}
                 </p>
               </div>

@@ -124,6 +124,29 @@ try {
     const activeText = await activeItem.textContent();
     record('视觉减法: 当前课程高亮存在', !!activeText, activeText?.trim().slice(0, 20));
 
+    // 2.4 r2.2 Layout Polish 排版精修专项检验
+    // 2.4.1 取消独立全宽进度栏，进度整合至左栏
+    const asideProgress = await aside.locator('div[role="progressbar"]').count();
+    record('Layout Polish: 全局进度已整合至左侧大纲标题区', asideProgress > 0);
+
+    // 2.4.2 统一工具行：返回总览与查看完整词条处于同一水平线
+    const backBtn = page.locator('nav[aria-label="Breadcrumb"] button').first();
+    const entryLink = page.locator('a', { hasText: '查看完整词条' }).first();
+    const backBox = await backBtn.boundingBox();
+    const entryBox = await entryLink.boundingBox();
+    const yDelta = backBox && entryBox ? Math.abs(backBox.y - entryBox.y) : 999;
+    record('Layout Polish: 返回总览与完整词条合并至同一水平行', yDelta < 12, `Y轴差值: ${yDelta.toFixed(1)}px`);
+
+    // 2.4.3 左侧单项行高紧凑且满足 >=44px 热区
+    const itemBox = await activeItem.boundingBox();
+    const itemHeight = itemBox?.height ?? 0;
+    record('Layout Polish: 课程行高紧凑规范 (44px~52px)', itemHeight >= 44 && itemHeight <= 54, `实际高度: ${itemHeight}px`);
+
+    // 2.4.4 序号列宽严格 20px (w-5 h-5)
+    const badge = activeItem.locator('span.w-5.h-5').first();
+    const badgeBox = await badge.boundingBox();
+    record('Layout Polish: 序号固定列宽严格 20px', badgeBox ? Math.round(badgeBox.width) === 20 : false, `实际宽度: ${badgeBox?.width}px`);
+
     await ctx.close();
   }
 
@@ -324,6 +347,10 @@ try {
     record(`响应式无横向溢出 [${vp.name}] 总览视图`, scrollWidthLvl <= clientWidthLvl, `scroll: ${scrollWidthLvl}, client: ${clientWidthLvl}`);
 
     if (vp.width <= 390) {
+      // 验证移动端顶部紧凑进度条存在
+      const mobileProgressBar = page.locator('div[role="progressbar"]');
+      record(`移动端 [${vp.name}]: 紧凑全局进度条可见`, (await mobileProgressBar.count()) > 0);
+
       // 验证移动端底栏存在
       const stickyBar = page.locator('div.fixed.bottom-0');
       record(`移动端 [${vp.name}]: 固底操作栏可见`, (await stickyBar.count()) > 0);
