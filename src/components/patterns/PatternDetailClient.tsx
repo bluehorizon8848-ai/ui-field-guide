@@ -42,6 +42,17 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
   const locale = useLocale();
   const h = useHref();
   const [shareOpen, setShareOpen] = useState(false);
+  const [fromLearn, setFromLearn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('from') === 'learn') {
+        setFromLearn(true);
+      }
+    }
+  }, []);
+
   const Demo = demoRegistry[pattern.id];
   const cat = getCategory(pattern.category, locale);
   const comparison = pattern.comparisonSlug ? getComparison(pattern.comparisonSlug, locale) : undefined;
@@ -55,6 +66,24 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
 
   return (
     <article className="container-page py-8 sm:py-10">
+      {/* 从 Learn 跳转而来的专属返回入口 */}
+      {fromLearn && (
+        <div className="mb-4">
+          <Link
+            id="return-to-learn-link"
+            href={h(`/learn?item=${pattern.id}&from=learn`)}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-accent/30 bg-[#EBF4F0] px-3.5 py-1.5 text-xs font-semibold text-accent transition hover:bg-accent hover:text-white"
+          >
+            <span aria-hidden="true">←</span>
+            <span>
+              {locale === 'zh'
+                ? `返回 Learn · 继续 ${pattern.name} 课程`
+                : `Return to Learn · Continue ${pattern.name}`}
+            </span>
+          </Link>
+        </div>
+      )}
+
       {/* 面包屑 */}
       <nav aria-label={t(locale, 'pattern.breadcrumb')} className="mb-5">
         <ol className="flex flex-wrap items-center gap-1.5 text-xs text-muted">

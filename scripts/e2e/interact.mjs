@@ -154,7 +154,7 @@ const browser = await chromium.launch();
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', (e) => errs.push(e.message));
-  await page.goto(`${BASE}/learn`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/learn?item=button`, { waitUntil: 'networkidle' });
 
   const before = await page.evaluate(() => localStorage.getItem('uifg.learned.v1'));
   const btn = page.locator('button[aria-pressed]').first();

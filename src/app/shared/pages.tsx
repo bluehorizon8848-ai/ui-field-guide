@@ -295,71 +295,47 @@ export function createExplorePage(locale: Locale) {
 /* ============================ 学习路径 ============================ */
 
 export function createLearnPage(locale: Locale) {
-  const levels = getLearningLevels(locale);
   const cards = getContrastCards(locale);
   const compares = getComparisons(locale);
 
   return function LearnPage() {
     return (
-      <div className="container-page py-10 sm:py-12">
-        <header className="mb-8 max-w-[640px]">
-          <p className="meta mb-2.5">{t(locale, 'learn.meta')}</p>
-          <h1 className="text-[1.5rem] font-semibold tracking-tight text-ink sm:text-[1.875rem]">
-            {locale === 'zh' ? '按顺序来，不用一次学完' : 'Go in order — no need to finish at once'}
-          </h1>
-          <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-ink2">
-            {locale === 'zh'
-              ? '这不是考试。学到哪儿算哪儿，进度存在你自己的浏览器里。'
-              : "This isn't an exam. Stop whenever you like — your progress is stored in your own browser."}
-          </p>
-        </header>
+      <div className="min-h-screen">
+        <LearnClient />
 
-        <LearnClient total={patterns.length} />
-
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold tracking-tight text-ink">
-            {locale === 'zh' ? '学习路径之外' : 'Beyond the learning path'}
-          </h2>
-          <p className="mt-2 max-w-[560px] text-[0.875rem] leading-relaxed text-ink2">
-            {locale === 'zh'
-              ? '「它们到底有什么区别」是独立开发者最高频的需求 —— 下面这 8 组值得单独看。'
-              : '"What\'s the difference?" is the single most common question indie developers ask. These 8 deserve their own page.'}
-          </p>
-          <div className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            {cards.map((c) => {
-              const full = compares.find((x) => x.slug === c.slug);
-              return (
-                <Link
-                  key={c.slug}
-                  href={href(`/compare/${c.slug}`, locale)}
-                  className="rounded-card border border-line bg-surface p-3.5 transition-colors hover:border-[#C9C5BB]"
-                >
-                  <p className="text-[0.8125rem] font-semibold text-ink">
-                    {c.left} <span className="text-muted">vs</span> {c.right}
-                  </p>
-                  {full && (
-                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted">
-                      {full.question}
+        <div className="container-page py-12 border-t border-line">
+          <section>
+            <h2 className="text-xl font-semibold tracking-tight text-ink">
+              {locale === 'zh' ? '学习路径之外 · 辨析速查' : 'Beyond the learning path · Quick Comparisons'}
+            </h2>
+            <p className="mt-2 max-w-[560px] text-[0.875rem] leading-relaxed text-ink2">
+              {locale === 'zh'
+                ? '「它们到底有什么区别」是独立开发者最高频的需求 —— 下面这 8 组值得单独看。'
+                : '"What\'s the difference?" is the single most common question indie developers ask. These 8 deserve their own page.'}
+            </p>
+            <div className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {cards.map((c) => {
+                const full = compares.find((x) => x.slug === c.slug);
+                return (
+                  <Link
+                    key={c.slug}
+                    href={href(`/compare/${c.slug}`, locale)}
+                    className="rounded-card border border-line bg-surface p-3.5 transition-colors hover:border-[#C9C5BB]"
+                  >
+                    <p className="text-[0.8125rem] font-semibold text-ink">
+                      {c.left} <span className="text-muted">vs</span> {c.right}
                     </p>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold tracking-tight text-ink">
-            {locale === 'zh' ? '这条路径覆盖了什么' : 'What this path covers'}
-          </h2>
-          <ul className="mt-4 space-y-2">
-            {levels.map((l) => (
-              <li key={l.level} className="text-[0.875rem] text-ink2">
-                <span className="font-medium text-ink">{l.name}</span> —— {l.description}
-              </li>
-            ))}
-          </ul>
-        </section>
+                    {full && (
+                      <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted">
+                        {full.question}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        </div>
       </div>
     );
   };

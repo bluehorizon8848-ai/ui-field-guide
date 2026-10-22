@@ -52,7 +52,16 @@ export function LocaleSwitch() {
   // 而这个组件在 Header 里，包 Suspense 等于给每个页面套一层。
   // 直接读 URL 更省事，SSR 首帧没有 query、hydrate 后补上，用户感知不到。
   useEffect(() => {
-    setQuery(window.location.search.replace(/^\?/, ''));
+    const updateQuery = () => {
+      setQuery(window.location.search.replace(/^\?/, ''));
+    };
+    updateQuery();
+    window.addEventListener('popstate', updateQuery);
+    window.addEventListener('locationchange', updateQuery);
+    return () => {
+      window.removeEventListener('popstate', updateQuery);
+      window.removeEventListener('locationchange', updateQuery);
+    };
   }, [pathname]);
 
   const withQuery = (p: string) => (query ? `${p}?${query}` : p);

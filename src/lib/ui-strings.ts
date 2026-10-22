@@ -483,6 +483,8 @@ const zh = {
   'demo.caption.sheet': '从屏幕底部升起的面板，高度按内容自适应（约 55%），底层页面仍然可见 —— 这就是 Bottom Sheet。',
   'demo.caption.drawer':
     '从左侧滑出（这里限制在演示区内）。它和 Bottom Sheet 的区别是：Drawer 停靠在侧边，用来承载一整片内容。',
+  'demo.containers.caption.card':
+    '每张卡片都是自包含的容器。整卡 hover 有微浮起反馈，支持独立收藏与操作。',
 
   // ---- NavigationDemos ----
   'demo.nav.caption.breadcrumb':
@@ -1357,6 +1359,8 @@ const en: UI = {
     'A panel that rises from the bottom edge, sizing itself to its content (around 55%), with the page still visible behind it — that\'s a Bottom Sheet.',
   'demo.caption.drawer':
     'Slides in from the left (constrained to the demo area here). What separates it from a Bottom Sheet: a Drawer docks to the side and holds an entire region of content.',
+  'demo.containers.caption.card':
+    'Each card is a self-contained container. Hover offers subtle elevation, supporting independent bookmarking and actions.',
 
   // ---- NavigationDemos ----
   'demo.nav.caption.breadcrumb':

@@ -2,6 +2,7 @@
 
 import type { ComponentType } from 'react';
 import { demoIds } from '@/data/demoIds';
+import { CardDemo } from './CardDemo';
 import { AccordionDemo } from './AccordionDemo';
 import { CollapsibleDemo } from './CollapsibleDemo';
 import { DialogDemo } from './DialogDemo';
@@ -131,7 +132,7 @@ export const demoRegistry: Record<string, ComponentType> = {
   'stepper-input': NumberStepperDemo,
 
   // Containers
-  card: ListDemo,
+  card: CardDemo,
   accordion: AccordionDemo,
   collapsible: CollapsibleDemo,
   modal: DialogDemo,
