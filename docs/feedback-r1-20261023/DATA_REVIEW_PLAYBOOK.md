@@ -80,12 +80,14 @@
 ## 4. 7 天 / 14 天例行复盘执行清单
 
 ### Day 7 快速复盘 (上线 1 周)
+- [ ] **Developer Traffic 过滤器核验**: 检查处于「测试 (Testing)」状态的 Developer Traffic 过滤器是否准确命中了所有 `*.pages.dev` 访问而未误伤生产流量。严禁在此阶段直接设为 Active。
 - [ ] **运行 D1 汇总**: `node scripts/query-feedback.mjs summary` 查看整体反馈有益率（Yes vs No 比例）。
 - [ ] **排查体验阻碍**: 若有任何 `reason = 'demo_issue'` 的负面评价，立即提取 `pattern_id` 并定位修复 Demo 运行异常。
 - [ ] **监控零结果率**: 检查 `search_no_result` 占比，若 > 20%，审查是否有高频搜索词未覆盖在 alias 或 keywords 中。
 - [ ] **Top 5 热门 Pattern**: 提取 `prompt_copy` 次数最高的 5 个 Pattern，作为二次社交卡片宣发重点。
 
 ### Day 14 深度决策复盘 (上线 2 周)
+- [ ] **Developer Traffic 过滤器评估转正**: 若 Testing 模式运行 14 天比对无误且经 Human 明确评估批准，方可在 GA4 将该过滤器状态设为「有效 (Active)」。
 - [ ] **导出需求征集清单**: `node scripts/query-feedback.mjs export-json`。
 - [ ] **新组件排期**: 按用户请求频次排序，筛选出 Top 3 呼声最高的新 Pattern 列入下一阶段生产任务。
 - [ ] **负面原因整改**:

@@ -67,31 +67,40 @@
 
 ---
 
-## 4. Staging 流量隔离与数据过滤器设置 `[HUMAN_ACTION_REQUIRED]`
+## 4. Staging 流量隔离与开发者过滤器指引 `[HUMAN_ACTION_REQUIRED]`
 
 为了保证 Staging 预览环境（`*.pages.dev`）及本地调试数据绝对不污染生产报表，前端工程已内嵌双重隔离：
-1. **自动开启 DebugView**：在非 `ui.lutivelab.com` 域名下自动注入 `debug_mode: true`，所有事件实时投递至 GA4 DebugView。
-2. **流量标记**：自动打标 `traffic_type: 'staging'`。
+1. **自动开启 DebugView**：在非 `ui.lutivelab.com` 域名下自动注入 `debug_mode: true`（网络请求附带 `_dbg=1`），GA4 会自动将其归类为 **Developer Traffic（开发者流量）**，并实时投递至 DebugView。
+2. **流量环境打标**：自动打标 `traffic_type: 'staging'`。
 
-### GA4 过滤器激活步骤（由管理员操作）：
-1. 进入 GA4 后台：**管理 ➔ 数据流 (Data Streams) ➔ 选择 Web 数据流 ➔ 配置代码设置 (Configure tag settings)**。
-2. 点击 **管理内部流量 (Define internal traffic)**：
-   - 规则名称：`Staging Traffic`
-   - `traffic_type` 值：`staging`
-   - IP 地址匹配或条件保留默认。
-3. 返回 **管理 ➔ 数据设置 (Data Settings) ➔ 数据过滤器 (Data Filters)**：
-   - 找到或新建过滤器 `Traffic Type Filter`（类型为内部流量或开发者流量）。
-   - 过滤器操作：**排除 (Exclude)**。
-   - 过滤器状态设置为 **有效 (Active)**。
+### GA4 过滤器规范配置流程（优先使用 Developer Traffic Filter）
+
+> [!CAUTION]
+> **过滤器安全准则**：GA4 数据一旦被设为 Active 永久排除，被过滤的数据将**永久不可找回**。因此，严禁未经授权直接将任何过滤器启用为 Active (有效) 状态！必须严格遵循「先 Testing 后 Active」的流程。
+
+#### 步骤 1: 启用 Developer Traffic 过滤器为「测试状态」
+1. 进入 GA4 后台：**管理 (Admin) ➔ 数据设置 (Data Settings) ➔ 数据过滤器 (Data Filters)**。
+2. 找到系统内建的 **Developer Traffic（开发者流量）** 过滤器（或新建一个开发者流量过滤器）。
+3. 过滤器操作：**排除 (Exclude)**。
+4. 过滤器状态：**务必选择「测试 (Testing)」**（切勿直接选「有效 (Active)」）。
+   - **Testing 模式原理**：GA4 不会实际丢弃匹配数据，而是为该批流量打上维度 `Test data filter name = 'Developer Traffic'`。您可以在「探索 (Explore)」报表中按该维度拆分核对，确认生产真实用户的正常请求未被误杀。
+
+#### 步骤 2: 7~14 天评估与转正审批
+- 生产发布后第 7 天 / 第 14 天例行复盘时，检查 Testing 过滤器命中数据量。
+- 确认只有 `*.pages.dev` 和内部开发者的调试访问被命中，且生产访问 100% 未被误判。
+- 获得 Human 明确批准后，方可在控制台将该过滤器状态从 **「测试 (Testing)」** 变更为 **「有效 (Active)」**。
 
 ---
 
 ## 5. 验证与排查方法
 
-1. **GA4 DebugView**：
-   - 访问 `https://preview-feedback-r1.lutive-ui-a2u.pages.dev`。
+1. **GA4 DebugView（实时接收验证）**：
+   - 访问 `https://preview-feedback-r1.lutive-ui-a2u.pages.dev/patterns/bottom-sheet/`。
    - 打开 GA4 后台 **管理 ➔ DebugView**。
-   - 应能实时观察到 `page_view`、`pattern_view`、`demo_interact`、`prompt_copy` 信号流，所有事件均包含 `traffic_type: 'staging'`。
+   - 应能实时观察到 `page_view`、`pattern_view`、`demo_interact`、`prompt_copy` 信号流（均附带 `traffic_type: 'staging'`）。
 2. **浏览器开发者工具**：
    - Network 面板筛选 `collect?v=2`。
-   - 确认 Query 参数包含 `tid=G-E67MRP4HKJ` 及对应事件名称。
+   - 确认 Query/Body 参数包含 `tid=G-E67MRP4HKJ` 及对应事件名称。
+3. **Consent Mode v2 状态核验**：
+   - 默认状态：网络请求携带 `gcs=G101`（广告拒绝、分析同意），无广告 ID。
+   - 拒绝状态：网络请求携带 `gcs=G100`（广告拒绝、分析拒绝），且不写入 `_ga` Cookie。

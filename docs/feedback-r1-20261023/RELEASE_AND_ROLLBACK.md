@@ -86,3 +86,17 @@ CLOUDFLARE_ACCOUNT_ID=47cab5b8509e60df406c7636d640cdc4 npx wrangler pages deploy
 git revert HEAD --no-edit
 npm run build
 ```
+
+---
+
+## 4. D1 数据库独立性与回滚安全保障 (D1 Rollback Safety)
+
+> [!IMPORTANT]
+> **数据零风险保证**：Cloudflare Pages 的部署与回滚机制仅作用于边缘静态文件（CDN 镜像）与 Pages Functions 编译 Bundle 的版本路由切换，**与 Cloudflare D1 数据库完全解耦**。
+
+1. **回滚不触碰数据**：任何回滚操作（方案 A / B / C）**绝不会执行**任何 `DROP TABLE`、`DELETE` 或清空表操作。所有已入库的真实用户反馈和需求数据均持续持久化保存在 D1 (`ufg-feedback-db`) 中。
+2. **Schema 幂等设计**：数据库迁移脚本使用 `CREATE TABLE IF NOT EXISTS` 与 `CREATE INDEX IF NOT EXISTS`，任何重复部署或重新执行均具备天然幂等性，不破坏既有数据。
+3. **数据灾备兜底**：运维团队随时可通过命令行工具执行本地全量归档导出：
+   ```bash
+   node scripts/query-feedback.mjs export-json --all
+   ```

@@ -53,3 +53,12 @@
 - 来自 `*.pages.dev`、`localhost` 或自动化测试的提交均被自动打标为 `status = 'staging_test'`。
 - 数据导出接口 `/api/admin/export` 默认过滤 `WHERE status != 'staging_test' AND status != 'test'`，生产报表天然纯净。
 - 边缘请求捕获粗粒度国家地区代码（如 `HK`, `CN`, `US`），**绝不保存用户原始 IP 或完整设备指纹**。
+
+### 证据 F: 远端真实网络数据包拦截与 Consent 状态实测
+- **测试执行**：运行独立网络拦截套件 [test-ga4-network-and-consent.mjs](file:///Users/bluehorizon/Workbuddy/UI-Study/scripts/test-ga4-network-and-consent.mjs) 直接对准线上预览环境 `https://preview-feedback-r1.lutive-ui-a2u.pages.dev`。
+- **默认同意状态 (Granted)**：抓包确认发往 `google-analytics.com/g/collect` 的请求携带 `tid=G-E67MRP4HKJ`、`tt=staging`、`ep.debug_mode=true`，Google 状态码精确为 `gcs=G101`（广告拒绝、分析同意），`_ga` Cookie 正常按规范存储。
+- **拒绝同意状态 (Denied)**：用户通过 `setConsent(false)` 拒绝后，网络抓包确认上报状态码自动切换为 `gcs=G100`（广告拒绝、分析拒绝），实测 `_ga` Cookie 完全不被写入 (`_ga cookie present = false`)。
+- **数据包 Payload 实测**：抓取到 POST Body 包含 `en=pattern_view&ep.pattern_id=bottom-sheet&ep.category=containers` 及 `en=prompt_copy&ep.variant=conversational`。
+- **客户端发出 vs GA4 实际接收说明**：
+  - **客户端发出 (实测验证 PASS)**：通过 Chromium 网络抓包 100% 确认事件已组装并成功发出到 Google 端点。
+  - **GA4 后端接收 (NEED_HUMAN)**：GA4 控制台无免密只读 API，需由拥有管理权限的 Human 打开 **GA4 ➔ DebugView** 做最后的肉眼核验。
