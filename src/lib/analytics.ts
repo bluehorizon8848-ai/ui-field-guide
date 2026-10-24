@@ -101,7 +101,7 @@ export function clearGACookies() {
     .filter(Boolean);
 
   for (const name of allCookies) {
-    const isUifgCookie = name.startsWith('_uifg');
+    const isUifgCookie = name.startsWith('_uifg') || name.startsWith('uifg');
     const isOurStreamCookie = name.includes('E67MRP4HKJ');
     const isGenericGaCookie = name === '_ga' || name === '_gid' || name.startsWith('_gat');
 

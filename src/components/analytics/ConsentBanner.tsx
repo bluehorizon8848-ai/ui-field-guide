@@ -59,6 +59,7 @@ export function ConsentBanner() {
 
   return (
     <aside
+      id="consent-banner"
       role="region"
       aria-label={isZh ? '隐私与分析设置' : 'Privacy & Analytics Preferences'}
       className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 pointer-events-none transition-all"
