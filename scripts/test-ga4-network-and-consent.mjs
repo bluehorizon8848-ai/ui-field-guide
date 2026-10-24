@@ -84,12 +84,12 @@ if (await demoButton.count() > 0) {
 // 3. Test Consent Rejection & Re-grant flow
 console.log('\n3. Testing Consent Mode v2 lifecycle...');
 
-// A. Check initial default consent
+// A. Check initial default consent (universal denied on cold start)
 const defaultConsentState = await page.evaluate(() => {
   const consentCall = (window.dataLayer || []).find(item => item[0] === 'consent' && item[1] === 'default');
   return consentCall ? consentCall[2] : null;
 });
-assert(defaultConsentState?.analytics_storage === 'granted', 'Consent: Initial default analytics_storage is granted');
+assert(defaultConsentState?.analytics_storage === 'denied', 'Consent: Initial default analytics_storage is strictly denied');
 assert(defaultConsentState?.ad_storage === 'denied', 'Consent: Initial default ad_storage is strictly denied');
 assert(defaultConsentState?.ad_personalization === 'denied', 'Consent: Initial default ad_personalization is strictly denied');
 

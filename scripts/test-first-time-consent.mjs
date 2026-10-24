@@ -51,25 +51,14 @@ const consentCalls = await page1.evaluate(() => {
   return (window.dataLayer || []).filter(item => item[0] === 'consent');
 });
 
-assert(consentCalls.length >= 2, 'Consent Mode v2: Registered both regional and global defaults');
+assert(consentCalls.length >= 1, 'Consent Mode v2: Consent default registered');
 
-// Find regional default for EEA / UK / CH
-const regionalDefault = consentCalls.find(
-  c => c[1] === 'default' && Array.isArray(c[2]?.region) && c[2].region.includes('DE')
-);
-assert(!!regionalDefault, 'Consent Mode v2: Regional default exists for EEA/UK/CH');
-assert(regionalDefault[2]?.analytics_storage === 'denied', 'Privacy Gate: Regional default analytics_storage is strictly "denied"');
-assert(regionalDefault[2]?.ad_storage === 'denied', 'Privacy Gate: Regional default ad_storage is strictly "denied"');
-assert(regionalDefault[2]?.ad_user_data === 'denied', 'Privacy Gate: Regional default ad_user_data is strictly "denied"');
-assert(regionalDefault[2]?.ad_personalization === 'denied', 'Privacy Gate: Regional default ad_personalization is strictly "denied"');
-
-// Find global fallback default
-const globalDefault = consentCalls.find(
-  c => c[1] === 'default' && !c[2]?.region
-);
-assert(!!globalDefault, 'Consent Mode v2: Global fallback default exists');
-assert(globalDefault[2]?.analytics_storage === 'granted', 'Consent Mode v2: Global fallback analytics_storage is "granted"');
-assert(globalDefault[2]?.ad_storage === 'denied', 'Consent Mode v2: Global fallback ad_storage is strictly "denied"');
+const defaultConsent = consentCalls.find(c => c[1] === 'default');
+assert(!!defaultConsent, 'Consent Mode v2: Default consent exists');
+assert(defaultConsent[2]?.analytics_storage === 'denied', 'Privacy Gate: Universal default analytics_storage is strictly "denied"');
+assert(defaultConsent[2]?.ad_storage === 'denied', 'Privacy Gate: Default ad_storage is strictly "denied"');
+assert(defaultConsent[2]?.ad_user_data === 'denied', 'Privacy Gate: Default ad_user_data is strictly "denied"');
+assert(defaultConsent[2]?.ad_personalization === 'denied', 'Privacy Gate: Default ad_personalization is strictly "denied"');
 
 // Verify that NO update call was fired for first-time user (preserving default)
 const updatesFirstTime = consentCalls.filter(c => c[1] === 'update');
@@ -129,9 +118,8 @@ await page2.waitForTimeout(500);
 const callsReturningGranted = await page2.evaluate(() => {
   return (window.dataLayer || []).filter(item => item[0] === 'consent');
 });
-const updateReturningGranted = callsReturningGranted.find(c => c[1] === 'update');
-assert(!!updateReturningGranted, 'Returning Granted: gtag("consent", "update") fired on startup');
-assert(updateReturningGranted[2]?.analytics_storage === 'granted', 'Returning Granted: analytics_storage immediately restored to "granted"');
+const defaultReturningGranted = callsReturningGranted.find(c => c[1] === 'default');
+assert(defaultReturningGranted?.[2]?.analytics_storage === 'granted', 'Returning Granted: analytics_storage initialized as "granted" on startup');
 
 await ctx2.close();
 
@@ -151,9 +139,8 @@ await page3.waitForTimeout(500);
 const callsReturningDenied = await page3.evaluate(() => {
   return (window.dataLayer || []).filter(item => item[0] === 'consent');
 });
-const updateReturningDenied = callsReturningDenied.find(c => c[1] === 'update');
-assert(!!updateReturningDenied, 'Returning Denied: gtag("consent", "update") fired on startup');
-assert(updateReturningDenied[2]?.analytics_storage === 'denied', 'Returning Denied: analytics_storage immediately set to "denied"');
+const defaultReturningDenied = callsReturningDenied.find(c => c[1] === 'default');
+assert(defaultReturningDenied?.[2]?.analytics_storage === 'denied', 'Returning Denied: analytics_storage initialized as "denied" on startup');
 
 await ctx3.close();
 await browser.close();

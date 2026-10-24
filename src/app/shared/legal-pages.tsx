@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/i18n';
 import { href } from '@/lib/i18n';
 import { site } from '@/lib/site';
 import { t } from '@/lib/ui-strings';
+import { PrivacyPreferenceControls } from '@/components/analytics/PrivacyPreferenceControls';
 
 /**
  * 法律与合规静态页工厂（中英双语）。
@@ -62,9 +63,10 @@ export function createPrivacyPage(locale: Locale) {
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
-                  ? '为了解词典的实用程度并持续优化内容，本站使用 Google Analytics 4 (GA4) 收集匿名的用户行为指标（如页面浏览、搜索结果数量、Demo 操作频次和 Prompt 复制次数）。我们启用了 IP 匿名化，并且严格禁止向分析系统传输用户自由文本、搜索关键词、个人信息或完整 Prompt。在 Google Consent Mode v2 框架下，所有广告相关标识符（ad_storage、ad_personalization）默认均处于拒绝状态。'
-                  : 'To understand dictionary usage and prioritize improvements, we use Google Analytics 4 (GA4) to measure anonymous interactions (such as page views, search result counts, demo interactions, and prompt copy rates). IP anonymization is enabled, and no raw search terms, free-text feedback, personal data, or full prompts are transmitted to GA4. Under Google Consent Mode v2, all advertising identifiers (ad_storage, ad_personalization) remain strictly denied by default.'}
+                  ? '为了解词典的实用程度并持续优化内容，本站使用 Google Analytics 4 (GA4) 收集匿名的用户行为指标（如页面浏览、搜索结果数量、Demo 操作频次和 Prompt 复制次数）。我们启用了 IP 匿名化，并且严格禁止向分析系统传输用户自由文本、搜索关键词、个人信息或完整 Prompt。在 Google Consent Mode v2 框架下，所有首次访问用户的分析统计默认均处于关闭状态（analytics_storage: denied），且所有广告相关标识符（ad_storage、ad_personalization）永久处于拒绝状态。只有在您明确授权同意后，才会开启匿名分析。'
+                  : 'To understand dictionary usage and prioritize improvements, we use Google Analytics 4 (GA4) to measure anonymous interactions (such as page views, search result counts, demo interactions, and prompt copy rates). IP anonymization is enabled, and no raw search terms, free-text feedback, personal data, or full prompts are transmitted to GA4. Under Google Consent Mode v2, analytics storage strictly defaults to denied for all first-time visitors worldwide, and advertising identifiers remain permanently denied. Analytics are only activated upon your explicit consent.'}
               </p>
+              <PrivacyPreferenceControls locale={locale} />
             </section>
 
             <section>

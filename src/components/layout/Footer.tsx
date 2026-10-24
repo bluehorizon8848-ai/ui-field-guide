@@ -130,6 +130,18 @@ export function Footer() {
             <p>{t(locale, 'footer.privacy')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-xs">
+            <button
+              type="button"
+              id="footer-open-consent-button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('uifg:open-consent'));
+                }
+              }}
+              className="inline-flex cursor-pointer items-center py-1 underline-offset-4 transition-colors hover:text-ink hover:underline"
+            >
+              {locale === 'zh' ? 'Cookie / 隐私设置' : 'Cookie Preferences'}
+            </button>
             <Link
               href={h('/privacy')}
               className="inline-flex items-center py-1 underline-offset-4 transition-colors hover:text-ink hover:underline"

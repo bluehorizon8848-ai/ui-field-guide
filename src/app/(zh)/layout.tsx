@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { LocaleProvider } from '@/components/layout/LocaleProvider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { ConsentBanner } from '@/components/analytics/ConsentBanner';
 import { site, siteMeta, htmlLang } from '@/lib/site';
 import type { Locale } from '@/lib/i18n';
 
@@ -68,6 +69,7 @@ export default function ZhLayout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <Footer />
+          <ConsentBanner />
         </LocaleProvider>
       </body>
     </html>

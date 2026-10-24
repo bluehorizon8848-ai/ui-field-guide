@@ -53,10 +53,59 @@ declare global {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
     __UFG_ANALYTICS_DEBUG_EVENTS__?: Array<{ event: string; params: Record<string, unknown>; timestamp: number }>;
+    setConsent?: (granted: boolean) => void;
+    clearGACookies?: () => void;
   }
 }
 
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+
+/**
+ * Ensure window.dataLayer and window.gtag always exist before any event call.
+ * This guarantees early React hydration events (such as pattern_view) are never dropped.
+ */
+export function ensureGtag(): (...args: unknown[]) => void {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+  window.dataLayer = window.dataLayer || [];
+  if (typeof window.gtag !== 'function') {
+    window.gtag = function () {
+      window.dataLayer!.push(arguments);
+    };
+  }
+  return window.gtag;
+}
+
+/**
+ * Thoroughly clear GA4 client cookies (_ga, _ga_*, etc.) across host and parent domains.
+ */
+export function clearGACookies() {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  const domains: string[] = ['', hostname];
+
+  // Also include domain variations (e.g. .pages.dev or .lutivelab.com)
+  for (let i = 0; i < parts.length - 1; i++) {
+    const parentDomain = '.' + parts.slice(i).join('.');
+    domains.push(parentDomain);
+  }
+
+  const cookieNames = document.cookie
+    .split(';')
+    .map((c) => c.trim().split('=')[0])
+    .filter((name) => name.startsWith('_ga') || name.startsWith('_gid') || name.startsWith('_gat'));
+
+  for (const name of cookieNames) {
+    for (const domain of domains) {
+      const domainAttr = domain ? `; domain=${domain}` : '';
+      document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+    }
+  }
+}
 
 /**
  * Record event to in-memory debug buffer for test verification
@@ -95,9 +144,9 @@ export function trackEvent<E extends keyof GAEventMap>(
     console.debug(`[Analytics: ${eventName}]`, enrichedParams);
   }
 
-  if (typeof window.gtag === 'function') {
-    window.gtag('event', eventName, enrichedParams);
-  }
+  // Ensure gtag and dataLayer exist and dispatch event immediately to dataLayer
+  const gtag = ensureGtag();
+  gtag('event', eventName, enrichedParams);
 }
 
 // Throttle tracker for demo interactions
@@ -124,18 +173,28 @@ export function trackDemoInteractThrottled(
   }
 }
 
+export type ConsentChoice = 'granted' | 'denied' | 'unset';
+
 /**
- * Check if analytics storage consent is granted
+ * Get current user consent state from localStorage
  */
-export function isConsentGranted(): boolean {
-  if (typeof window === 'undefined') return true;
+export function getConsentState(): ConsentChoice {
+  if (typeof window === 'undefined') return 'unset';
   try {
     const val = localStorage.getItem('uifg.consent.v1');
-    if (val === 'denied') return false;
+    if (val === 'granted') return 'granted';
+    if (val === 'denied') return 'denied';
   } catch {
     // Ignore localStorage access issues
   }
-  return true;
+  return 'unset';
+}
+
+/**
+ * Check if analytics storage consent is explicitly granted
+ */
+export function isConsentGranted(): boolean {
+  return getConsentState() === 'granted';
 }
 
 /**
@@ -149,13 +208,23 @@ export function setConsent(granted: boolean) {
     // Ignore
   }
 
-  if (typeof window.gtag === 'function') {
-    window.gtag('consent', 'update', {
-      analytics_storage: granted ? 'granted' : 'denied',
-    });
+  const gtag = ensureGtag();
+  gtag('consent', 'update', {
+    analytics_storage: granted ? 'granted' : 'denied',
+  });
+
+  if (!granted) {
+    clearGACookies();
   }
+
+  window.dispatchEvent(
+    new CustomEvent('uifg:consent-changed', {
+      detail: { consent: granted ? 'granted' : 'denied' },
+    })
+  );
 }
 
 if (typeof window !== 'undefined') {
-  (window as unknown as { setConsent?: typeof setConsent }).setConsent = setConsent;
+  window.setConsent = setConsent;
+  window.clearGACookies = clearGACookies;
 }

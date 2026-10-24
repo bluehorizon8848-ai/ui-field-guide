@@ -46,59 +46,37 @@ export function GoogleAnalytics({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <Script
+      {/* Synchronous inline script ensuring dataLayer and Consent Default are ready before React hydration */}
+      <script
         id="ga-consent-and-init"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){window.dataLayer.push(arguments);}
             window.gtag = gtag;
 
-            // Google Consent Mode v2: Regional Defaults
-            // In regions requiring explicit opt-in (EEA, UK, Switzerland), analytics_storage strictly defaults to 'denied'
-            gtag('consent', 'default', {
-              'analytics_storage': 'denied',
-              'ad_storage': 'denied',
-              'ad_user_data': 'denied',
-              'ad_personalization': 'denied',
-              'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'],
-              'wait_for_update': 500
-            });
-
-            // In other regions, allow analytics_storage by default while keeping ads strictly denied
-            gtag('consent', 'default', {
-              'analytics_storage': 'granted',
-              'ad_storage': 'denied',
-              'ad_user_data': 'denied',
-              'ad_personalization': 'denied',
-              'wait_for_update': 500
-            });
-
-            // If user has previous explicit choice, apply it immediately
+            var initialAnalytics = 'denied';
             try {
               var userConsent = localStorage.getItem('uifg.consent.v1');
-              if (userConsent === 'granted' || userConsent === 'denied') {
-                gtag('consent', 'update', {
-                  'analytics_storage': userConsent
-                });
+              if (userConsent === 'granted') {
+                initialAnalytics = 'granted';
               }
             } catch(e) {}
 
-            window.setConsent = function(granted) {
-              try {
-                localStorage.setItem('uifg.consent.v1', granted ? 'granted' : 'denied');
-              } catch(e) {}
-              gtag('consent', 'update', {
-                'analytics_storage': granted ? 'granted' : 'denied'
-              });
-            };
+            // Universal Consent Mode v2 Default:
+            // All first-time visitors default strictly to denied until explicit opt-in
+            gtag('consent', 'default', {
+              'analytics_storage': initialAnalytics,
+              'ad_storage': 'denied',
+              'ad_user_data': 'denied',
+              'ad_personalization': 'denied'
+            });
 
             var host = window.location.hostname;
             var isStaging = host.includes('pages.dev') || host.includes('localhost') || host === '127.0.0.1';
 
             gtag('js', new Date());
-            // Disable automatic page_view to prevent double counting in App Router
+            // Disable automatic page_view to prevent double counting in Next.js App Router
             // Tag staging traffic with debug_mode & traffic_type to prevent polluting production reports
             gtag('config', '${GA_MEASUREMENT_ID}', {
               send_page_view: false,
