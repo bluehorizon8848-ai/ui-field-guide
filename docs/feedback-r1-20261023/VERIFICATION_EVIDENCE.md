@@ -62,3 +62,13 @@
 - **客户端发出 vs GA4 实际接收说明**：
   - **客户端发出 (实测验证 PASS)**：通过 Chromium 网络抓包 100% 确认事件已组装并成功发出到 Google 端点。
   - **GA4 后端接收 (NEED_HUMAN)**：GA4 控制台无免密只读 API，需由拥有管理权限的 Human 打开 **GA4 ➔ DebugView** 做最后的肉眼核验。
+
+### 证据 G: 首次无历史 Consent 记录用户的地区默认与动态授权实测 (Regional Consent Mode v2)
+- **测试执行**：运行专项物理校验套件 [test-first-time-consent.mjs](file:///Users/bluehorizon/Workbuddy/UI-Study/scripts/test-first-time-consent.mjs)，覆盖首次访问无记录、显式同意、显式拒绝、二次访问自动恢复全部 5 种场景（21/21 全部 PASS）。
+- **首次访问默认状态**：
+  - 针对需显式授权地区（EEA 30国、英国 GB、瑞士 CH）：通过 `gtag('consent', 'default')` 的 `region` 规范显式声明 `analytics_storage: 'denied'`，广告类权限一律 `'denied'`，无授权不写 Cookie。
+  - 针对其他地区：注册全局默认 `analytics_storage: 'granted'`（广告类权限同样一律 `'denied'`）。
+- **用户授权切换 (setConsent)**：
+  - 用户同意：调用 `setConsent(true)` 后立即触发 `gtag('consent', 'update', { analytics_storage: 'granted' })`，同时向 `localStorage` 写入 `'granted'`。
+  - 用户拒绝：调用 `setConsent(false)` 后立即触发 `gtag('consent', 'update', { analytics_storage: 'denied' })`，同时向 `localStorage` 写入 `'denied'`。
+- **历史记录恢复**：二次访问时若检测到既有授权记录，在启动期立即执行对应的 `gtag('consent', 'update')`，保证用户偏好严格延续。

@@ -155,3 +155,7 @@ export function setConsent(granted: boolean) {
     });
   }
 }
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { setConsent?: typeof setConsent }).setConsent = setConsent;
+}

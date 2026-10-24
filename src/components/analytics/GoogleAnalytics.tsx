@@ -55,21 +55,44 @@ export function GoogleAnalytics({ locale }: { locale: Locale }) {
             function gtag(){window.dataLayer.push(arguments);}
             window.gtag = gtag;
 
-            // Google Consent Mode v2: Deny all ads, allow analytics
-            var storedConsent = 'granted';
-            try {
-              if (localStorage.getItem('uifg.consent.v1') === 'denied') {
-                storedConsent = 'denied';
-              }
-            } catch(e) {}
-
+            // Google Consent Mode v2: Regional Defaults
+            // In regions requiring explicit opt-in (EEA, UK, Switzerland), analytics_storage strictly defaults to 'denied'
             gtag('consent', 'default', {
-              'analytics_storage': storedConsent,
+              'analytics_storage': 'denied',
+              'ad_storage': 'denied',
+              'ad_user_data': 'denied',
+              'ad_personalization': 'denied',
+              'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'],
+              'wait_for_update': 500
+            });
+
+            // In other regions, allow analytics_storage by default while keeping ads strictly denied
+            gtag('consent', 'default', {
+              'analytics_storage': 'granted',
               'ad_storage': 'denied',
               'ad_user_data': 'denied',
               'ad_personalization': 'denied',
               'wait_for_update': 500
             });
+
+            // If user has previous explicit choice, apply it immediately
+            try {
+              var userConsent = localStorage.getItem('uifg.consent.v1');
+              if (userConsent === 'granted' || userConsent === 'denied') {
+                gtag('consent', 'update', {
+                  'analytics_storage': userConsent
+                });
+              }
+            } catch(e) {}
+
+            window.setConsent = function(granted) {
+              try {
+                localStorage.setItem('uifg.consent.v1', granted ? 'granted' : 'denied');
+              } catch(e) {}
+              gtag('consent', 'update', {
+                'analytics_storage': granted ? 'granted' : 'denied'
+              });
+            };
 
             var host = window.location.hostname;
             var isStaging = host.includes('pages.dev') || host.includes('localhost') || host === '127.0.0.1';
