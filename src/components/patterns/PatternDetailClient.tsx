@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Check, Minus, Share2, X } from 'lucide-react';
 import type { UIPattern } from '@/data/types';
 import type { Locale } from '@/lib/i18n';
@@ -55,7 +55,11 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
     }
   }, []);
 
+  const lastTrackedPatternRef = useRef<string | null>(null);
+
   useEffect(() => {
+    if (lastTrackedPatternRef.current === pattern.id) return;
+    lastTrackedPatternRef.current = pattern.id;
     trackEvent('pattern_view', {
       pattern_id: pattern.id,
       category: pattern.category,

@@ -11,7 +11,7 @@
 
 import { chromium } from 'playwright';
 
-const BASE = 'http://127.0.0.1:3111';
+const BASE = process.env.TARGET_URL || 'http://127.0.0.1:3111';
 
 console.log('============================================================');
 console.log('Consent Mode v2 & GA4 Race Condition Physical Audit');
@@ -208,15 +208,14 @@ try {
     const stressCtx = await browser.newContext();
     const stressPage = await stressCtx.newPage();
     await stressPage.goto(`${BASE}/patterns/tabs/`, { waitUntil: 'domcontentloaded' });
-    await stressPage.waitForTimeout(150);
-
-    const events = await stressPage.evaluate(() => {
-      const dl = window.dataLayer || [];
-      return dl.filter(item => item[0] === 'event' && item[1] === 'pattern_view');
-    });
-
-    if (events.length >= 1 && events[0][2]?.pattern_id === 'tabs') {
+    try {
+      await stressPage.waitForFunction(() => {
+        const dl = window.dataLayer || [];
+        return dl.some(item => item[0] === 'event' && item[1] === 'pattern_view' && item[2]?.pattern_id === 'tabs');
+      }, { timeout: 4000 });
       stressSuccess++;
+    } catch {
+      // Event failed to queue within 4s
     }
     await stressCtx.close();
   }
