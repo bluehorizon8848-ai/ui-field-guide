@@ -8,6 +8,7 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
 import { t } from '@/lib/ui-strings';
 import type { UIKey } from '@/lib/ui-strings';
+import { trackEvent } from '@/lib/analytics';
 
 type PromptLevel = 'conversational' | 'detailed' | 'implementation' | 'basic';
 
@@ -101,7 +102,16 @@ export function AskAI({ pattern }: { pattern: UIPattern }) {
       <div className="mt-3 overflow-hidden rounded-card border border-line bg-[#FCFBF8]">
         <div className="flex items-center justify-between gap-2 border-b border-line px-3.5 py-2">
           <p className="text-2xs text-muted">{t(locale, current.hintKey)}</p>
-          <CopyButton text={currentPromptText} label={t(locale, 'ask.copyPrompt')} />
+          <CopyButton
+            text={currentPromptText}
+            label={t(locale, 'ask.copyPrompt')}
+            onCopySuccess={() => {
+              trackEvent('prompt_copy', {
+                pattern_id: pattern.id,
+                variant: level,
+              });
+            }}
+          />
         </div>
         <p className="whitespace-pre-wrap px-3.5 py-3.5 font-mono text-[0.8125rem] leading-relaxed text-ink2">
           {currentPromptText}
@@ -152,7 +162,16 @@ export function BadPrompt({ pattern }: { pattern: UIPattern }) {
             <CheckCircle2 size={13} aria-hidden="true" />
             {t(locale, 'ask.sayInstead')}
           </span>
-          <CopyButton text={pattern.betterPrompt} label={t(locale, 'common.copy')} />
+          <CopyButton
+            text={pattern.betterPrompt}
+            label={t(locale, 'common.copy')}
+            onCopySuccess={() => {
+              trackEvent('prompt_copy', {
+                pattern_id: pattern.id,
+                variant: 'better_prompt',
+              });
+            }}
+          />
         </p>
         <p className="text-[0.875rem] leading-relaxed text-ink">{pattern.betterPrompt}</p>
       </div>

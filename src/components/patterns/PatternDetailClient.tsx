@@ -15,7 +15,9 @@ import { AskAI, BadPrompt } from './AskAI';
 import { PatternCard } from './PatternCard';
 import { ShareCardModal } from '@/components/social/ShareCardModal';
 import { MarkLearnedButton } from './MarkLearnedButton';
+import { PatternFeedback } from './PatternFeedback';
 import { Tocs } from './Tocs';
+import { trackEvent, trackDemoInteractThrottled } from '@/lib/analytics';
 
 import type { Platform } from '@/data/types';
 
@@ -52,6 +54,14 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    trackEvent('pattern_view', {
+      pattern_id: pattern.id,
+      category: pattern.category,
+      locale,
+    });
+  }, [pattern.id, pattern.category, locale]);
 
   const Demo = demoRegistry[pattern.id];
   const cat = getCategory(pattern.category, locale);
@@ -162,7 +172,25 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
           </p>
 
           {/* Live Demo */}
-          <section id="demo" className="scroll-mt-20 pt-9">
+          <section
+            id="demo"
+            className="scroll-mt-20 pt-9"
+            onClickCapture={(e) => {
+              const target = e.target as HTMLElement | null;
+              const interactive = target?.closest('button, input, select, textarea, [role="button"], [role="tab"], [role="switch"], [role="checkbox"]');
+              if (interactive) {
+                const type = interactive.getAttribute('role') || interactive.tagName.toLowerCase();
+                trackDemoInteractThrottled(pattern.id, `click_${type}`);
+              }
+            }}
+            onChangeCapture={(e) => {
+              const target = e.target as HTMLElement | null;
+              if (target) {
+                const type = target.tagName.toLowerCase();
+                trackDemoInteractThrottled(pattern.id, `change_${type}`);
+              }
+            }}
+          >
             <SectionHead index="01" title={t(locale, 'section.demo')} sub={t(locale, 'section.demoSub')} />
             {Demo ? (
               <>
@@ -340,6 +368,9 @@ export function PatternDetailClient({ pattern }: { pattern: UIPattern }) {
               </div>
             </div>
           </section>
+
+          {/* Feedback Section */}
+          <PatternFeedback patternId={pattern.id} />
         </div>
 
         {/* 侧边 TOC */}

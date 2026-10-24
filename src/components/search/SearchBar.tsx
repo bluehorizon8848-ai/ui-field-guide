@@ -10,6 +10,7 @@ import { searchPatterns, FUNCTIONAL_SCENARIOS } from '@/data/search';
 import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
 import { t, matchedByLabel } from '@/lib/ui-strings';
+import { trackEvent } from '@/lib/analytics';
 
 /**
  * 空结果提示里的示例词，必须是当前语言下真的搜得到东西的词。
@@ -43,6 +44,16 @@ export function SearchBar({ autoFocus = false }: { autoFocus?: boolean }) {
     if (!v) return;
     setOpen(false);
     inputRef.current?.blur();
+    const matches = searchPatterns(v, patterns);
+    trackEvent('guide_search', {
+      result_count: matches.length,
+      locale,
+    });
+    if (matches.length === 0) {
+      trackEvent('search_no_result', {
+        locale,
+      });
+    }
     router.push(`${h('/search')}?q=${encodeURIComponent(v)}`);
   };
 

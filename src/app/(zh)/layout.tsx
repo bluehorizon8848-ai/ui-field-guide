@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { LocaleProvider } from '@/components/layout/LocaleProvider';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { site, siteMeta, htmlLang } from '@/lib/site';
 import type { Locale } from '@/lib/i18n';
 
@@ -60,6 +61,7 @@ export default function ZhLayout({ children }: { children: React.ReactNode }) {
     <html lang={htmlLang(LOCALE)}>
       <body className="min-h-screen bg-canvas font-sans antialiased">
         <LocaleProvider locale={LOCALE}>
+          <GoogleAnalytics locale={LOCALE} />
           <SkipLink locale={LOCALE} />
           <Header />
           <main id="main" className="min-h-[60vh]">

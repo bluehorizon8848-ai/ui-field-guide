@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search as SearchIcon, X, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import { patterns } from '@/data/patterns';
@@ -10,6 +10,8 @@ import { ScenarioBadge } from '@/components/ui/ScenarioBadge';
 import { PatternCard } from '@/components/patterns/PatternCard';
 import { useLocale, useHref } from '@/components/layout/LocaleProvider';
 import { t, matchedByLabel } from '@/lib/ui-strings';
+import { FeatureRequestForm } from './FeatureRequestForm';
+import { trackEvent } from '@/lib/analytics';
 
 /**
  * 空查询时展示的口语词条。
@@ -48,6 +50,35 @@ export function SearchClient() {
   const examples = locale === 'en' ? EXAMPLES_EN : EXAMPLES_ZH;
 
   const results = useMemo(() => (q.trim() ? searchPatterns(q, patterns) : []), [q]);
+
+  const lastTrackedQueryRef = useRef<string>('');
+
+  useEffect(() => {
+    const query = q.trim();
+    if (!query) {
+      lastTrackedQueryRef.current = '';
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (lastTrackedQueryRef.current === query) return;
+      lastTrackedQueryRef.current = query;
+
+      const count = results.length;
+      trackEvent('guide_search', {
+        result_count: count,
+        locale,
+      });
+
+      if (count === 0) {
+        trackEvent('search_no_result', {
+          locale,
+        });
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [q, results.length, locale]);
 
   const submit = (v: string) => {
     const query = v.trim();
@@ -181,6 +212,8 @@ export function SearchClient() {
               {t(locale, 'identify.title')}
             </a>
           </p>
+
+          <FeatureRequestForm currentQuery={q} />
 
           <div className="mt-6 border-t border-line/60 pt-5 max-w-[480px] mx-auto text-center">
             <p className="text-xs text-ink2">{t(locale, 'search.feedbackPrompt')}</p>

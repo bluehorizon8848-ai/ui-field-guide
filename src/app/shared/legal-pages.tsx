@@ -36,29 +36,51 @@ export function createPrivacyPage(locale: Locale) {
           <div className="prose-note mt-8 space-y-8 text-[0.9375rem] leading-relaxed text-ink2">
             <section>
               <h2 className="text-base font-semibold text-ink">
-                {locale === 'zh' ? '1. 核心承诺：零数据收集' : '1. Core Principle: Zero Data Collection'}
+                {locale === 'zh' ? '1. 核心承诺：最小化数据与免登录' : '1. Core Principle: Minimal Data & No Accounts'}
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
-                  ? `${site.name} 是一个纯静态知识词典。我们不设立用户账号系统、不运行后端服务器、不建立数据库，亦不主动收集您的任何个人身份信息（PII）。`
-                  : `${site.name} is a fully static visual dictionary. We do not have user accounts, do not operate backends or databases, and do not collect any Personally Identifiable Information (PII).`}
+                  ? `${site.name} 是一个专注于 UI/UX 知识的实用词典。我们不设立用户账号系统、不强制注册登录、不收集您的姓名、电子邮箱或电话等任何个人身份信息（PII）。`
+                  : `${site.name} is a visual knowledge dictionary for UI/UX patterns. We do not require account registration, do not enforce sign-ins, and never collect your name, email address, phone number, or any Personally Identifiable Information (PII).`}
               </p>
             </section>
 
             <section>
               <h2 className="text-base font-semibold text-ink">
-                {locale === 'zh' ? '2. 本地存储 (LocalStorage)' : '2. Local Storage'}
+                {locale === 'zh' ? '2. 本地学习进度 (LocalStorage)' : '2. Local Learning Progress (LocalStorage)'}
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
-                  ? '为了记录您的学习进度（如「已学会」标记），站点会在您浏览器的 LocalStorage 中保存状态（键名：uifg.learned.v1）。这些数据 100% 留存在您的本地设备上，绝不会上传至任何云端或服务器。清除浏览器缓存即可彻底销毁全部数据。'
-                  : 'To keep track of your learning progress (such as "learned" marks), this site stores state in your browser LocalStorage (key: uifg.learned.v1). This data stays 100% on your device and is never uploaded. Clearing your browser data deletes everything.'}
+                  ? '为了记录您的学习进度（如「学会了」标记），站点会在您本地浏览器的 LocalStorage 中保存状态（键名：uifg.learned.v1）。这些学习数据 100% 留存在您的本地设备上，绝不会同步或上传至任何云端服务器。清除浏览器缓存即可彻底销毁全部本地学习记录。'
+                  : 'To keep track of your personal learning progress (such as "learned" marks), this site stores state in your browser LocalStorage (key: uifg.learned.v1). This data stays 100% on your device and is never uploaded. Clearing your browser data permanently resets it.'}
               </p>
             </section>
 
             <section>
               <h2 className="text-base font-semibold text-ink">
-                {locale === 'zh' ? '3. 分享卡片与图片处理' : '3. Share Cards & Image Generation'}
+                {locale === 'zh' ? '3. 匿名统计分析与 Consent 机制' : '3. Anonymous Analytics & Consent Controls'}
+              </h2>
+              <p className="mt-2">
+                {locale === 'zh'
+                  ? '为了解词典的实用程度并持续优化内容，本站使用 Google Analytics 4 (GA4) 收集匿名的用户行为指标（如页面浏览、搜索结果数量、Demo 操作频次和 Prompt 复制次数）。我们启用了 IP 匿名化，并且严格禁止向分析系统传输用户自由文本、搜索关键词、个人信息或完整 Prompt。在 Google Consent Mode v2 框架下，所有广告相关标识符（ad_storage、ad_personalization）默认均处于拒绝状态。'
+                  : 'To understand dictionary usage and prioritize improvements, we use Google Analytics 4 (GA4) to measure anonymous interactions (such as page views, search result counts, demo interactions, and prompt copy rates). IP anonymization is enabled, and no raw search terms, free-text feedback, personal data, or full prompts are transmitted to GA4. Under Google Consent Mode v2, all advertising identifiers (ad_storage, ad_personalization) remain strictly denied by default.'}
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-base font-semibold text-ink">
+                {locale === 'zh' ? '4. 主动提交的用户反馈与组件征集' : '4. Voluntary Feedback & Feature Requests'}
+              </h2>
+              <p className="mt-2">
+                {locale === 'zh'
+                  ? '当您在组件详情页主动提交「是否有帮助」评价，或在搜索无结果时提交新 Pattern 需求时，该条信息将通过边缘函数加密传输并安全保存在 Cloudflare D1 数据库中。存储字段仅限您主动勾选的选项、非必填文本建议、语言及粗粒度国家地区代码。我们不长期保存您的原始 IP 地址、完整 User-Agent 或硬件指纹。数据库访问受到严格权限隔离保护，绝不对外公开。'
+                  : 'When you voluntarily submit a "Was this helpful?" vote on a pattern page or request a missing pattern on search, this feedback is securely transmitted via Edge Functions and stored in a Cloudflare D1 database. Stored fields are strictly limited to your selected options, optional text feedback, language locale, and high-level country code. We never persist raw IP addresses, full User-Agent headers, or hardware fingerprints. Database access is strictly restricted and never exposed publicly.'}
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-base font-semibold text-ink">
+                {locale === 'zh' ? '5. 分享卡片与图片本地处理' : '5. Share Cards & Image Generation'}
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
@@ -69,22 +91,22 @@ export function createPrivacyPage(locale: Locale) {
 
             <section>
               <h2 className="text-base font-semibold text-ink">
-                {locale === 'zh' ? '4. 第三方服务与托管' : '4. Third-Party Services & Hosting'}
+                {locale === 'zh' ? '6. 第三方服务与托管' : '6. Third-Party Services & Hosting'}
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
-                  ? '本站静态资源托管于全球 CDN（如 Cloudflare Pages）。CDN 可能会因安全防御与 DDoS 缓解需求在边缘节点记录基础网络日志（如 IP 地址与访问路径），但这完全遵从托管商隐私保护准则，本站不对其进行任何商业化追踪。'
-                  : 'Static assets are hosted on global edge CDNs (such as Cloudflare Pages). Edge servers may log standard connection metadata (IP addresses, request paths) solely for DDoS defense and security compliance under the host privacy policies.'}
+                  ? '本站静态资源托管于全球 CDN（Cloudflare Pages）。CDN 可能会因安全防御与 DDoS 缓解需求在边缘节点记录基础网络日志，但这完全遵从托管商隐私保护准则，本站不对其进行任何商业化追踪。'
+                  : 'Static assets are hosted on global edge CDNs (Cloudflare Pages). Edge servers may log standard connection metadata solely for DDoS defense and security compliance under the host privacy policies.'}
               </p>
             </section>
 
             <section>
               <h2 className="text-base font-semibold text-ink">
-                {locale === 'zh' ? '5. 联络与反馈' : '5. Contact & Feedback'}
+                {locale === 'zh' ? '7. 联络与反馈' : '7. Contact & Inquiries'}
               </h2>
               <p className="mt-2">
                 {locale === 'zh'
-                  ? '如对本政策有任何疑问，您可通过 GitHub 仓库提交 Issue 与维护团队联系。'
+                  ? '如对本政策或数据处理有任何疑问，您可通过 GitHub 仓库提交 Issue 与维护团队联系。'
                   : 'If you have any questions regarding this policy, please open an Issue on our official GitHub repository.'}
               </p>
             </section>

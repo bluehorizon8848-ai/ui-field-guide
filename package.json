@@ -12,6 +12,7 @@
     "verify:i18n": "node scripts/verify-i18n.mjs",
     "verify:search": "tsx scripts/verify-search.mjs",
     "check": "npm run typecheck && npm run verify && npm run verify:i18n && npm run verify:search",
+    "test:analytics": "node scripts/test-analytics-and-feedback.mjs",
     "e2e": "node scripts/e2e/sweep.mjs && node scripts/e2e/interact.mjs && node scripts/e2e/visual.mjs && node scripts/e2e/i18n.mjs && node scripts/e2e/download.mjs && node scripts/e2e/verify-sharecard.mjs && node scripts/e2e/mobile.mjs",
     "e2e:sweep": "node scripts/e2e/sweep.mjs",
     "e2e:interact": "node scripts/e2e/interact.mjs",

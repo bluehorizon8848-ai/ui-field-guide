@@ -9,11 +9,13 @@ export function CopyButton({
   text,
   label,
   className = '',
+  onCopySuccess,
 }: {
   text: string;
   /** 不传则用「复制」/ "Copy" 的本地化默认值 */
   label?: string;
   className?: string;
+  onCopySuccess?: () => void;
 }) {
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
@@ -38,6 +40,7 @@ export function CopyButton({
       document.body.removeChild(ta);
     }
     setCopied(true);
+    onCopySuccess?.();
     setTimeout(() => setCopied(false), 2000);
   };
 
