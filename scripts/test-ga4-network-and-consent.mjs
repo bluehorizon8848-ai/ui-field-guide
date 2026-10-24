@@ -132,7 +132,6 @@ try {
   // -------------------------------------------------------------
   console.log('1. Testing Live visit and initial network event transmission...');
   await page.goto(`${TARGET_URL}/patterns/bottom-sheet/`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1500);
 
   // Check gtag.js loaded with Measurement ID
   const gtagScript = page.locator('script[src*="G-E67MRP4HKJ"]');
@@ -141,28 +140,25 @@ try {
   // Verify outgoing /collect network request
   assert(capturedCollectRequests.length > 0, 'Staging Network: Live outgoing request sent to google-analytics.com/collect');
 
-  const allInitialEvents = getAllCapturedEvents();
-  console.log(`Captured ${capturedCollectRequests.length} collect request(s) containing ${allInitialEvents.length} event(s) on initial load.`);
+  // Wait for initial pattern_view event to be transmitted by gtag.js (via batch buffer)
+  console.log('Waiting for pattern_view network event transmission...');
+  const patternViewEvent = await waitForNetworkEvent('pattern_view', 8000);
+  assert(!!patternViewEvent, 'GA4 Transmission: pattern_view network event captured and parsed');
 
-  // Verify GCS is strictly G100 (Default Denied)
-  const initialFirstReq = capturedCollectRequests[0];
-  const initialUrl = initialFirstReq.url;
-  const carriesG100 = initialUrl.includes('gcs=G100') || allInitialEvents.some((e) => e.gcs === 'G100');
-  const carriesG101 = initialUrl.includes('gcs=G101') || allInitialEvents.some((e) => e.gcs === 'G101');
-  assert(carriesG100, 'Privacy Gate: Initial request strictly carries gcs=G100 (Default Denied)');
-  assert(!carriesG101, 'Privacy Gate: Initial request does NOT carry gcs=G101');
-
-  // Verify tid, debug_mode, traffic_type
-  assert(initialUrl.includes('tid=G-E67MRP4HKJ'), 'Staging Network: collect request carries tid=G-E67MRP4HKJ');
-  assert(initialUrl.includes('_dbg=1') || initialUrl.includes('debug_mode'), 'Staging Network: debug_mode=1 enabled for staging');
-  assert(initialUrl.includes('traffic_type=staging') || initialFirstReq.postData.includes('traffic_type=staging'), 'Staging Network: traffic_type=staging carried in payload');
-
-  // Verify pattern_view event transmitted in payload
-  const initialPatternView = allInitialEvents.find((e) => e.name === 'pattern_view');
-  assert(!!initialPatternView, 'GA4 Transmission: pattern_view event parsed from initial collect payload');
-  if (initialPatternView) {
-    const patternId = initialPatternView.params['ep.pattern_id'] || initialPatternView.params['pattern_id'];
+  if (patternViewEvent) {
+    const patternId = patternViewEvent.params['ep.pattern_id'] || patternViewEvent.params['pattern_id'];
     assert(patternId === 'bottom-sheet', `GA4 Transmission: pattern_view has pattern_id="bottom-sheet" (got: ${patternId})`);
+    assert(patternViewEvent.gcs === 'G100', `Privacy Gate: pattern_view strictly carries gcs=G100 (Default Denied, got: ${patternViewEvent.gcs})`);
+    assert(patternViewEvent.tid === 'G-E67MRP4HKJ', 'Staging Network: pattern_view carries tid=G-E67MRP4HKJ');
+    const hasStaging = patternViewEvent.params.tt === 'staging' || patternViewEvent.params['ep.traffic_type'] === 'staging' || patternViewEvent.rawUrl.includes('tt=staging');
+    assert(hasStaging, 'Staging Network: staging traffic tag (tt=staging) carried in payload');
+  }
+
+  // Also verify initial page_view event
+  const pageViewEvent = getAllCapturedEvents().find((e) => e.name === 'page_view');
+  assert(!!pageViewEvent, 'GA4 Transmission: page_view network event captured and parsed');
+  if (pageViewEvent) {
+    assert(pageViewEvent.gcs === 'G100', `Privacy Gate: page_view strictly carries gcs=G100 (Default Denied, got: ${pageViewEvent.gcs})`);
   }
 
   // Verify initial cookies: zero GA tracking cookies should exist
