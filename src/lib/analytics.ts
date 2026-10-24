@@ -78,31 +78,50 @@ export function ensureGtag(): (...args: unknown[]) => void {
 }
 
 /**
- * Thoroughly clear GA4 client cookies (_ga, _ga_*, etc.) across host and parent domains.
+ * Thoroughly clear GA4 client cookies for UI Field Guide only, without touching
+ * generic GA cookies belonging to LutiveLab main site or sibling sub-projects.
  */
 export function clearGACookies() {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
-  const domains: string[] = ['', hostname];
+  const hostDomains: string[] = ['', hostname];
+  const parentDomains: string[] = [];
 
-  // Also include domain variations (e.g. .pages.dev or .lutivelab.com)
+  // Generate parent domain variations (e.g. .pages.dev or .lutivelab.com)
   for (let i = 0; i < parts.length - 1; i++) {
     const parentDomain = '.' + parts.slice(i).join('.');
-    domains.push(parentDomain);
+    parentDomains.push(parentDomain);
   }
 
-  const cookieNames = document.cookie
+  const allCookies = document.cookie
     .split(';')
     .map((c) => c.trim().split('=')[0])
-    .filter((name) => name.startsWith('_ga') || name.startsWith('_gid') || name.startsWith('_gat'));
+    .filter(Boolean);
 
-  for (const name of cookieNames) {
-    for (const domain of domains) {
-      const domainAttr = domain ? `; domain=${domain}` : '';
-      document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
-      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+  for (const name of allCookies) {
+    const isUifgCookie = name.startsWith('_uifg');
+    const isOurStreamCookie = name.includes('E67MRP4HKJ');
+    const isGenericGaCookie = name === '_ga' || name === '_gid' || name.startsWith('_gat');
+
+    // Case 1: Project-scoped cookies (_uifg_* or _ga_E67MRP4HKJ)
+    // Safe to delete across both host and parent domains because they are unique to this project
+    if (isUifgCookie || isOurStreamCookie) {
+      for (const domain of [...hostDomains, ...parentDomains]) {
+        const domainAttr = domain ? `; domain=${domain}` : '';
+        document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+      }
+    }
+
+    // Case 2: Legacy un-prefixed generic GA cookies (_ga, _gid)
+    // Strictly clear on CURRENT HOST ONLY. NEVER clear on parent domains (.lutivelab.com)
+    // to protect LutiveLab main site and sibling projects.
+    else if (isGenericGaCookie) {
+      for (const domain of hostDomains) {
+        const domainAttr = domain ? `; domain=${domain}` : '';
+        document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+      }
     }
   }
 }

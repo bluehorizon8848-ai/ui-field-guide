@@ -74,15 +74,22 @@ export function GoogleAnalytics({ locale }: { locale: Locale }) {
 
             var host = window.location.hostname;
             var isStaging = host.includes('pages.dev') || host.includes('localhost') || host === '127.0.0.1';
+            var isLocal = host === 'localhost' || host === '127.0.0.1';
 
             gtag('js', new Date());
             // Disable automatic page_view to prevent double counting in Next.js App Router
             // Tag staging traffic with debug_mode & traffic_type to prevent polluting production reports
+            // GA4 Cookie Domain & Prefix Isolation:
+            // - cookie_prefix: 'uifg' ensures all cookies are named _uifg_ga and _uifg_ga_E67MRP4HKJ
+            // - cookie_domain: host (or 'none' for local) ensures cookies are bound strictly to ui.lutivelab.com
+            //   and NEVER written to top-level .lutivelab.com, preventing collision with sister projects.
             gtag('config', '${GA_MEASUREMENT_ID}', {
               send_page_view: false,
               anonymize_ip: true,
               debug_mode: isStaging,
-              traffic_type: isStaging ? 'staging' : 'production'
+              traffic_type: isStaging ? 'staging' : 'production',
+              cookie_prefix: 'uifg',
+              cookie_domain: isLocal ? 'none' : host
             });
           `,
         }}

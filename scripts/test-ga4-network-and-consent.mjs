@@ -1,37 +1,24 @@
 /**
- * UI Field Guide · Live Staging GA4 Network & Consent Verification
+ * UI Field Guide · Live Staging GA4 Network & Consent Interception Test
  *
- * Real browser network interception on:
- * https://preview-feedback-r1.lutive-ui-a2u.pages.dev
+ * Verifies:
+ * 1. Initial cold visit strictly sends gcs=G100 (Default Denied) with tid=G-E67MRP4HKJ,
+ *    and transmits pattern_view & page_view without setting GA cookies.
+ * 2. Explicit consent grant transitions to gcs=G101 and creates isolated _uifg_ga cookie.
+ * 3. Interactive event (demo_interact) is dispatched and captured via network with gcs=G101,
+ *    verifying batch flush and payload integrity (pattern_id=bottom-sheet).
+ * 4. Revocation (setConsent(false)) transitions to gcs=G100, destroys _uifg_ga,
+ *    and preserves any sister-project generic cookies.
  */
 
 import { chromium } from 'playwright';
 
-const STAGING_URL = 'https://preview-feedback-r1.lutive-ui-a2u.pages.dev';
+const TARGET_URL = process.env.TARGET_URL || 'https://preview-feedback-r1.lutive-ui-a2u.pages.dev';
 
 console.log('============================================================');
-console.log('Live Staging GA4 Network & Consent Interception Test');
-console.log(`Target: ${STAGING_URL}`);
+console.log('Live GA4 Network & Consent Interception Test');
+console.log(`Target: ${TARGET_URL}`);
 console.log('============================================================\n');
-
-const browser = await chromium.launch();
-const context = await browser.newContext({
-  viewport: { width: 1440, height: 900 }
-});
-const page = await context.newPage();
-
-const capturedCollectRequests = [];
-
-page.on('request', (req) => {
-  const url = req.url();
-  if (url.includes('google-analytics.com') && url.includes('/collect')) {
-    capturedCollectRequests.push({
-      url,
-      postData: req.postData(),
-      headers: req.headers(),
-    });
-  }
-});
 
 let passed = 0;
 let failed = 0;
@@ -46,111 +33,239 @@ function assert(cond, msg) {
   }
 }
 
-// 1. Visit Staging Pattern Detail
-console.log('1. Testing Live Staging visit and network event transmission...');
-await page.goto(`${STAGING_URL}/patterns/bottom-sheet/`, { waitUntil: 'networkidle' });
-await page.waitForTimeout(1500);
-
-// Check gtag script loaded
-const gtagScript = page.locator('script[src*="G-E67MRP4HKJ"]');
-assert(await gtagScript.count() > 0, 'Staging: Google Tag script loaded with G-E67MRP4HKJ');
-
-// Check captured requests
-console.log(`Captured ${capturedCollectRequests.length} collect request(s) on initial load.`);
-
-const hasCollect = capturedCollectRequests.length > 0;
-assert(hasCollect, 'Staging Network: Live outgoing request sent to google-analytics.com/collect');
-
-if (hasCollect) {
-  const firstReq = capturedCollectRequests[0];
-  const fullPayload = firstReq.url + (firstReq.postData ? `&${firstReq.postData}` : '');
-  assert(fullPayload.includes('G-E67MRP4HKJ'), 'Staging Network: collect request carries tid=G-E67MRP4HKJ');
-  assert(fullPayload.includes('_dbg=1') || fullPayload.includes('debug_mode'), 'Staging Network: debug_mode=1 (_dbg=1) enabled for Staging traffic');
-  assert(fullPayload.includes('traffic_type=staging') || fullPayload.includes('staging'), 'Staging Network: traffic_type=staging carried in request');
-  // Check Consent Status parameter (gcs)
-  assert(fullPayload.includes('gcs=G1'), 'Staging Network: Google Consent Status (gcs) parameter present');
-}
-
-// 2. Test interactive event (demo_interact)
-console.log('\n2. Testing demo_interact network event...');
-const prevCount = capturedCollectRequests.length;
-const demoButton = page.locator('#demo button').first();
-if (await demoButton.count() > 0) {
-  await demoButton.click({ force: true });
-  await page.waitForTimeout(1000);
-  console.log(`Captured ${capturedCollectRequests.length - prevCount} new collect request(s) after demo click.`);
-}
-
-// 3. Test Consent Rejection & Re-grant flow
-console.log('\n3. Testing Consent Mode v2 lifecycle...');
-
-// A. Check initial default consent (universal denied on cold start)
-const defaultConsentState = await page.evaluate(() => {
-  const consentCall = (window.dataLayer || []).find(item => item[0] === 'consent' && item[1] === 'default');
-  return consentCall ? consentCall[2] : null;
+const browser = await chromium.launch();
+const context = await browser.newContext({
+  viewport: { width: 1440, height: 900 },
 });
-assert(defaultConsentState?.analytics_storage === 'denied', 'Consent: Initial default analytics_storage is strictly denied');
-assert(defaultConsentState?.ad_storage === 'denied', 'Consent: Initial default ad_storage is strictly denied');
-assert(defaultConsentState?.ad_personalization === 'denied', 'Consent: Initial default ad_personalization is strictly denied');
+const page = await context.newPage();
 
-// B. Simulate user denying consent
-console.log('Simulating user denying consent via setConsent(false)...');
-await page.evaluate(() => {
-  // Trigger user denial
-  if (typeof window.setConsent === 'function') {
+const capturedCollectRequests = [];
+
+page.on('request', (req) => {
+  const url = req.url();
+  if (url.includes('google-analytics.com') && url.includes('/collect')) {
+    capturedCollectRequests.push({
+      url,
+      postData: req.postData() || '',
+      headers: req.headers(),
+      timestamp: Date.now(),
+    });
+  }
+});
+
+/**
+ * Robust event parser handling GET query params, single-line POST,
+ * and multi-line batched POST payloads from Google Analytics 4.
+ */
+function parseEventsFromRequest(req) {
+  const events = [];
+  try {
+    const urlObj = new URL(req.url);
+    const queryParams = Object.fromEntries(urlObj.searchParams.entries());
+    const globalGcs = queryParams.gcs || '';
+    const globalTid = queryParams.tid || '';
+
+    // Check query params for event
+    if (queryParams.en) {
+      events.push({
+        name: queryParams.en,
+        params: queryParams,
+        gcs: globalGcs,
+        tid: globalTid,
+        rawUrl: req.url,
+      });
+    }
+
+    // Check POST data (which may contain multiple lines for batched events)
+    if (req.postData) {
+      const lines = req.postData.split('\n').filter(Boolean);
+      for (const line of lines) {
+        const lineParams = Object.fromEntries(new URLSearchParams(line).entries());
+        if (lineParams.en) {
+          events.push({
+            name: lineParams.en,
+            params: { ...queryParams, ...lineParams },
+            gcs: lineParams.gcs || globalGcs,
+            tid: lineParams.tid || globalTid,
+            rawLine: line,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse request:', err);
+  }
+  return events;
+}
+
+function getAllCapturedEvents() {
+  const all = [];
+  for (const r of capturedCollectRequests) {
+    all.push(...parseEventsFromRequest(r));
+  }
+  return all;
+}
+
+/**
+ * Wait for a specific event name in captured network requests.
+ * Uses event loop + visibilitychange trigger to promptly flush gtag batch buffer.
+ */
+async function waitForNetworkEvent(eventName, timeoutMs = 8000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const events = getAllCapturedEvents();
+    const match = events.find((e) => e.name === eventName);
+    if (match) return match;
+
+    // Trigger visibilitychange to prompt immediate flush of gtag's batch buffer
+    await page.evaluate(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await page.waitForTimeout(300);
+  }
+  return null;
+}
+
+try {
+  // -------------------------------------------------------------
+  // 1. Visit Staging Pattern Detail & Verify Default Denied (gcs=G100)
+  // -------------------------------------------------------------
+  console.log('1. Testing Live visit and initial network event transmission...');
+  await page.goto(`${TARGET_URL}/patterns/bottom-sheet/`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(1500);
+
+  // Check gtag.js loaded with Measurement ID
+  const gtagScript = page.locator('script[src*="G-E67MRP4HKJ"]');
+  assert((await gtagScript.count()) > 0, 'Staging: Google Tag script loaded with G-E67MRP4HKJ');
+
+  // Verify outgoing /collect network request
+  assert(capturedCollectRequests.length > 0, 'Staging Network: Live outgoing request sent to google-analytics.com/collect');
+
+  const allInitialEvents = getAllCapturedEvents();
+  console.log(`Captured ${capturedCollectRequests.length} collect request(s) containing ${allInitialEvents.length} event(s) on initial load.`);
+
+  // Verify GCS is strictly G100 (Default Denied)
+  const initialFirstReq = capturedCollectRequests[0];
+  const initialUrl = initialFirstReq.url;
+  const carriesG100 = initialUrl.includes('gcs=G100') || allInitialEvents.some((e) => e.gcs === 'G100');
+  const carriesG101 = initialUrl.includes('gcs=G101') || allInitialEvents.some((e) => e.gcs === 'G101');
+  assert(carriesG100, 'Privacy Gate: Initial request strictly carries gcs=G100 (Default Denied)');
+  assert(!carriesG101, 'Privacy Gate: Initial request does NOT carry gcs=G101');
+
+  // Verify tid, debug_mode, traffic_type
+  assert(initialUrl.includes('tid=G-E67MRP4HKJ'), 'Staging Network: collect request carries tid=G-E67MRP4HKJ');
+  assert(initialUrl.includes('_dbg=1') || initialUrl.includes('debug_mode'), 'Staging Network: debug_mode=1 enabled for staging');
+  assert(initialUrl.includes('traffic_type=staging') || initialFirstReq.postData.includes('traffic_type=staging'), 'Staging Network: traffic_type=staging carried in payload');
+
+  // Verify pattern_view event transmitted in payload
+  const initialPatternView = allInitialEvents.find((e) => e.name === 'pattern_view');
+  assert(!!initialPatternView, 'GA4 Transmission: pattern_view event parsed from initial collect payload');
+  if (initialPatternView) {
+    const patternId = initialPatternView.params['ep.pattern_id'] || initialPatternView.params['pattern_id'];
+    assert(patternId === 'bottom-sheet', `GA4 Transmission: pattern_view has pattern_id="bottom-sheet" (got: ${patternId})`);
+  }
+
+  // Verify initial cookies: zero GA tracking cookies should exist
+  const initialCookies = await page.evaluate(() => document.cookie);
+  assert(!initialCookies.includes('_uifg_ga') && !initialCookies.includes('_ga='), 'Privacy Gate: No GA tracking cookies present before user consent');
+
+  // -------------------------------------------------------------
+  // 2. User Grants Consent & Verifies Cookie Domain/Prefix Isolation
+  // -------------------------------------------------------------
+  console.log('\n2. Testing Consent Grant & Cookie Prefix Isolation...');
+  const bannerAcceptBtn = page.locator('#consent-accept-button');
+  if ((await bannerAcceptBtn.count()) > 0 && (await bannerAcceptBtn.isVisible())) {
+    await bannerAcceptBtn.click();
+  } else {
+    await page.evaluate(() => window.setConsent(true));
+  }
+  await page.waitForTimeout(500);
+
+  // Verify localStorage updated
+  const storedConsent = await page.evaluate(() => localStorage.getItem('uifg.consent.v1'));
+  assert(storedConsent === 'granted', 'Consent: localStorage updated to "granted"');
+
+  // Verify dataLayer update
+  const dataLayerAfterGrant = await page.evaluate(() => window.dataLayer || []);
+  const grantUpdate = dataLayerAfterGrant.find(
+    (i) => i[0] === 'consent' && i[1] === 'update' && i[2]?.analytics_storage === 'granted'
+  );
+  assert(!!grantUpdate, 'Consent: dataLayer received consent update: granted');
+
+  // -------------------------------------------------------------
+  // 3. Test Interactive Event (demo_interact) Transmission
+  // -------------------------------------------------------------
+  console.log('\n3. Testing demo_interact network transmission with batch flush...');
+  const demoButton = page.locator('#demo button').first();
+  assert((await demoButton.count()) > 0, 'Demo UI: Interactive button exists on pattern page');
+
+  if ((await demoButton.count()) > 0) {
+    await demoButton.click({ force: true });
+    console.log('Clicked demo button. Waiting for demo_interact network dispatch...');
+
+    // Wait for demo_interact event to be captured via network
+    const demoEvent = await waitForNetworkEvent('demo_interact', 8000);
+    assert(!!demoEvent, 'Staging Network: demo_interact network event captured and parsed');
+
+    if (demoEvent) {
+      assert(demoEvent.gcs === 'G101', `Consent Active: demo_interact carries gcs=G101 (got: ${demoEvent.gcs})`);
+      assert(demoEvent.tid === 'G-E67MRP4HKJ', 'Network Payload: demo_interact carries tid=G-E67MRP4HKJ');
+      const patternId = demoEvent.params['ep.pattern_id'] || demoEvent.params['pattern_id'];
+      assert(patternId === 'bottom-sheet', `Network Payload: demo_interact carries pattern_id="bottom-sheet" (got: ${patternId})`);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 4. Test Revocation (setConsent(false)) & Safe Cookie Cleanup
+  // -------------------------------------------------------------
+  console.log('\n4. Testing Revocation & Non-colliding Cookie Cleanup...');
+
+  // Set project cookie and simulate another project's generic cookie on parent domain
+  await page.evaluate(() => {
+    document.cookie = '_uifg_ga=GA1.1.111111111.1729000000; path=/';
+    document.cookie = '_uifg_ga_E67MRP4HKJ=GS1.1.1729000000.1.0.1729000000.0.0.0; path=/';
+    // Simulate generic GA cookie from parent domain (e.g. lutivelab.com)
+    document.cookie = '_ga_parent_project=GA1.1.999999999.1729000000; path=/';
+  });
+
+  const cookiesBeforeRevoke = await page.evaluate(() => document.cookie);
+  assert(cookiesBeforeRevoke.includes('_uifg_ga='), 'Cookie Check: _uifg_ga is present before revocation');
+
+  // Trigger revocation
+  await page.evaluate(() => {
     window.setConsent(false);
-  } else {
-    localStorage.setItem('uifg.consent.v1', 'denied');
-    window.gtag('consent', 'update', { analytics_storage: 'denied' });
-  }
-});
-await page.waitForTimeout(500);
+  });
+  await page.waitForTimeout(400);
 
-const isDeniedStorage = await page.evaluate(() => {
-  return localStorage.getItem('uifg.consent.v1') === 'denied';
-});
-assert(isDeniedStorage, 'Consent: localStorage correctly persists "denied"');
+  const storedAfterRevoke = await page.evaluate(() => localStorage.getItem('uifg.consent.v1'));
+  assert(storedAfterRevoke === 'denied', 'Consent: localStorage updated to "denied"');
 
-const updateCalls = await page.evaluate(() => {
-  return (window.dataLayer || []).filter(item => item[0] === 'consent' && item[1] === 'update');
-});
-assert(updateCalls.length > 0, 'Consent: gtag("consent", "update") was invoked on denial');
-const latestUpdate = updateCalls[updateCalls.length - 1];
-assert(latestUpdate[2]?.analytics_storage === 'denied', 'Consent: analytics_storage updated to denied');
+  const cookiesAfterRevoke = await page.evaluate(() => document.cookie);
+  assert(!cookiesAfterRevoke.includes('_uifg_ga'), 'Cookie Isolation: _uifg_ga was completely deleted upon revocation');
+  assert(cookiesAfterRevoke.includes('_ga_parent_project='), 'Cookie Safety: Sister project cookie _ga_parent_project was safely PRESERVED');
 
-// C. Verify reload preserves denied state on fresh initialization
-console.log('Reloading page to verify denied consent is loaded on cold start...');
-await page.reload({ waitUntil: 'networkidle' });
-await page.waitForTimeout(800);
+  // -------------------------------------------------------------
+  // 5. Cold Reload Verification (Preserving Denied across visits)
+  // -------------------------------------------------------------
+  console.log('\n5. Reloading page to verify denied consent is loaded on cold start...');
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForTimeout(1000);
 
-const reloadedDefaultConsent = await page.evaluate(() => {
-  const consentCall = (window.dataLayer || []).find(item => item[0] === 'consent' && item[1] === 'default');
-  return consentCall ? consentCall[2] : null;
-});
-assert(reloadedDefaultConsent?.analytics_storage === 'denied', 'Consent Cold Start: Denied state preserved; default analytics_storage initialized as "denied"');
+  const reloadedDefaultConsent = await page.evaluate(() => {
+    const consentCall = (window.dataLayer || []).find((item) => item[0] === 'consent' && item[1] === 'default');
+    return consentCall ? consentCall[2] : null;
+  });
+  assert(reloadedDefaultConsent?.analytics_storage === 'denied', 'Consent Cold Start: Denied state preserved; default analytics_storage initialized as "denied"');
 
-// D. User re-grants consent
-console.log('Simulating user re-granting consent...');
-await page.evaluate(() => {
-  if (typeof window.setConsent === 'function') {
-    window.setConsent(true);
-  } else {
-    localStorage.setItem('uifg.consent.v1', 'granted');
-    window.gtag('consent', 'update', { analytics_storage: 'granted' });
-  }
-});
-await page.waitForTimeout(300);
-
-const regrantCalls = await page.evaluate(() => {
-  return (window.dataLayer || []).filter(item => item[0] === 'consent' && item[1] === 'update');
-});
-const latestRegrant = regrantCalls[regrantCalls.length - 1];
-assert(latestRegrant[2]?.analytics_storage === 'granted', 'Consent Re-grant: analytics_storage restored to granted');
-
-await browser.close();
+} catch (err) {
+  console.error('Test execution error:', err);
+  failed++;
+} finally {
+  await browser.close();
+}
 
 console.log('\n============================================================');
-console.log(`Network & Consent Results: ${passed} passed, ${failed} failed`);
+console.log(`GA4 Network & Consent Results: ${passed} passed, ${failed} failed`);
 console.log('============================================================\n');
 
 if (failed > 0) process.exit(1);

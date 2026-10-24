@@ -114,14 +114,15 @@ try {
 
   assert(await banner.isVisible(), '4.2 Banner: Successfully re-opened via Footer button');
 
-  // Set synthetic GA cookies to test cleanup
+  // Set synthetic GA cookies to test cleanup and isolation
   await page1.evaluate(() => {
-    document.cookie = '_ga=GA1.1.123456789.1729000000; path=/';
-    document.cookie = '_ga_E67MRP4HKJ=GS1.1.1729000000.1.0.1729000000.0.0.0; path=/';
+    document.cookie = '_uifg_ga=GA1.1.123456789.1729000000; path=/';
+    document.cookie = '_uifg_ga_E67MRP4HKJ=GS1.1.1729000000.1.0.1729000000.0.0.0; path=/';
+    document.cookie = '_ga_main_site=GA1.1.999999999.1729000000; path=/';
   });
 
   const cookiesBeforeRevoke = await page1.evaluate(() => document.cookie);
-  assert(cookiesBeforeRevoke.includes('_ga='), '4.3 Cookie Setup: Simulated _ga cookie is present before revocation');
+  assert(cookiesBeforeRevoke.includes('_uifg_ga='), '4.3 Cookie Setup: Simulated _uifg_ga cookie is present before revocation');
 
   // Click Decline button
   await declineBtn.click();
@@ -133,8 +134,9 @@ try {
   assert(storedAfterDecline === 'denied', '4.5 Storage: uifg.consent.v1 updated to "denied"');
 
   const cookiesAfterRevoke = await page1.evaluate(() => document.cookie);
-  const gaStillExists = cookiesAfterRevoke.split(';').some(c => c.trim().startsWith('_ga'));
-  assert(!gaStillExists, '4.6 Cookie Cleanup: _ga and _ga_* cookies are thoroughly deleted upon revocation');
+  const uifgStillExists = cookiesAfterRevoke.split(';').some(c => c.trim().startsWith('_uifg_ga'));
+  assert(!uifgStillExists, '4.6 Cookie Cleanup: _uifg_ga cookies are thoroughly deleted upon revocation');
+  assert(cookiesAfterRevoke.includes('_ga_main_site='), '4.7 Cookie Isolation: Sister site cookie _ga_main_site is strictly preserved');
 
   await ctx1.close();
 
