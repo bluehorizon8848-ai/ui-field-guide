@@ -44,6 +44,8 @@ function corsHeaders(origin: string | null): Record<string, string> {
   const allowed = [
     'https://ui.lutivelab.com',
     'https://lutive-ui-a2u.pages.dev',
+    'https://lutivelab.com',
+    'https://www.lutivelab.com',
   ];
   const isAllowed = origin && (
     allowed.includes(origin) ||

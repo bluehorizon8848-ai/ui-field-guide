@@ -43,10 +43,10 @@ export function PrivacyPreferenceControls({ locale }: { locale: Locale }) {
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-line bg-neutral-50/70 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
+    <div className="mt-4 rounded-xl border border-line bg-neutral-50/70 p-4 dark:border-neutral-700 dark:bg-neutral-900/90">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold text-ink">
+          <p className="text-xs font-semibold text-ink dark:text-white">
             {isZh ? '当前分析 Cookie 状态' : 'Current Analytics Cookie Status'}
           </p>
           <div className="mt-1 flex items-center gap-2">
@@ -58,7 +58,7 @@ export function PrivacyPreferenceControls({ locale }: { locale: Locale }) {
               }`}
               aria-hidden="true"
             />
-            <span className="text-xs font-medium text-ink2">
+            <span className="text-xs font-medium text-ink2 dark:text-neutral-300">
               {consent === 'granted'
                 ? isZh ? '已授权开启 (Granted)' : 'Granted'
                 : isZh ? '未授权 / 已拒绝 (Denied)' : 'Denied (Default)'}
@@ -72,7 +72,7 @@ export function PrivacyPreferenceControls({ locale }: { locale: Locale }) {
               type="button"
               id="privacy-revoke-button"
               onClick={handleRevoke}
-              className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+              className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
             >
               {isZh ? '撤回同意并清除 Cookie' : 'Revoke & Clear Cookies'}
             </button>
@@ -81,7 +81,7 @@ export function PrivacyPreferenceControls({ locale }: { locale: Locale }) {
               type="button"
               id="privacy-grant-button"
               onClick={handleGrant}
-              className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+              className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100"
             >
               {isZh ? '开启匿名分析' : 'Allow Analytics'}
             </button>
@@ -91,7 +91,7 @@ export function PrivacyPreferenceControls({ locale }: { locale: Locale }) {
             type="button"
             id="privacy-open-banner-button"
             onClick={handleOpenBanner}
-            className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg border border-line bg-transparent px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:text-ink"
+            className="inline-flex min-h-[36px] cursor-pointer items-center justify-center rounded-lg border border-line bg-transparent px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:text-ink dark:border-neutral-700 dark:text-neutral-300 dark:hover:text-white"
           >
             {isZh ? '打开设置面板' : 'Open Banner'}
           </button>

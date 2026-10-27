@@ -55,22 +55,40 @@ export function GoogleAnalytics({ locale }: { locale: Locale }) {
             function gtag(){window.dataLayer.push(arguments);}
             window.gtag = gtag;
 
-            var initialAnalytics = 'denied';
+            var userConsent = null;
             try {
-              var userConsent = localStorage.getItem('uifg.consent.v1');
-              if (userConsent === 'granted') {
-                initialAnalytics = 'granted';
-              }
+              userConsent = localStorage.getItem('uifg.consent.v1');
             } catch(e) {}
 
-            // Universal Consent Mode v2 Default:
-            // All first-time visitors default strictly to denied until explicit opt-in
-            gtag('consent', 'default', {
-              'analytics_storage': initialAnalytics,
-              'ad_storage': 'denied',
-              'ad_user_data': 'denied',
-              'ad_personalization': 'denied'
-            });
+            if (userConsent === 'granted' || userConsent === 'denied') {
+              // Returning visitor with explicit stored choice:
+              gtag('consent', 'default', {
+                'analytics_storage': userConsent,
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied'
+              });
+            } else {
+              // Consent Mode v2 Regional Defaults:
+              // 1. Sensitive jurisdictions (EEA 30 countries, UK, Switzerland) strictly default to denied
+              gtag('consent', 'default', {
+                'analytics_storage': 'denied',
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'],
+                'wait_for_update': 500
+              });
+
+              // 2. Non-sensitive regions: basic anonymous analytics allowed by default, advertising permanently denied
+              gtag('consent', 'default', {
+                'analytics_storage': 'granted',
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'wait_for_update': 500
+              });
+            }
 
             var host = window.location.hostname;
             var isStaging = host.includes('pages.dev') || host.includes('localhost') || host === '127.0.0.1';

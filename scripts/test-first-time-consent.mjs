@@ -51,14 +51,27 @@ const consentCalls = await page1.evaluate(() => {
   return (window.dataLayer || []).filter(item => item[0] === 'consent');
 });
 
-assert(consentCalls.length >= 1, 'Consent Mode v2: Consent default registered');
+assert(consentCalls.length >= 2, 'Consent Mode v2: Registered both regional and global defaults');
 
-const defaultConsent = consentCalls.find(c => c[1] === 'default');
-assert(!!defaultConsent, 'Consent Mode v2: Default consent exists');
-assert(defaultConsent[2]?.analytics_storage === 'denied', 'Privacy Gate: Universal default analytics_storage is strictly "denied"');
-assert(defaultConsent[2]?.ad_storage === 'denied', 'Privacy Gate: Default ad_storage is strictly "denied"');
-assert(defaultConsent[2]?.ad_user_data === 'denied', 'Privacy Gate: Default ad_user_data is strictly "denied"');
-assert(defaultConsent[2]?.ad_personalization === 'denied', 'Privacy Gate: Default ad_personalization is strictly "denied"');
+// Find regional default for EEA / UK / CH
+const regionalDefault = consentCalls.find(
+  c => c[1] === 'default' && Array.isArray(c[2]?.region) && c[2].region.includes('DE')
+);
+assert(!!regionalDefault, 'Consent Mode v2: Regional default exists for EEA/UK/CH');
+assert(regionalDefault[2]?.analytics_storage === 'denied', 'Privacy Gate: Regional default analytics_storage is strictly "denied"');
+assert(regionalDefault[2]?.ad_storage === 'denied', 'Privacy Gate: Regional default ad_storage is strictly "denied"');
+assert(regionalDefault[2]?.ad_user_data === 'denied', 'Privacy Gate: Regional default ad_user_data is strictly "denied"');
+assert(regionalDefault[2]?.ad_personalization === 'denied', 'Privacy Gate: Regional default ad_personalization is strictly "denied"');
+
+// Find global fallback default for non-sensitive regions
+const globalDefault = consentCalls.find(
+  c => c[1] === 'default' && !c[2]?.region
+);
+assert(!!globalDefault, 'Consent Mode v2: Global fallback default exists');
+assert(globalDefault[2]?.analytics_storage === 'granted', 'Consent Mode v2: Non-sensitive regions default analytics_storage is "granted"');
+assert(globalDefault[2]?.ad_storage === 'denied', 'Privacy Gate: Global fallback ad_storage is strictly "denied"');
+assert(globalDefault[2]?.ad_user_data === 'denied', 'Privacy Gate: Global fallback ad_user_data is strictly "denied"');
+assert(globalDefault[2]?.ad_personalization === 'denied', 'Privacy Gate: Global fallback ad_personalization is strictly "denied"');
 
 // Verify that NO update call was fired for first-time user (preserving default)
 const updatesFirstTime = consentCalls.filter(c => c[1] === 'update');
